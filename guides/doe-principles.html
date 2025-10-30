@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Principles of Experimental Design</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>DOE Principles</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Principles of Experimental Design</h1>
+        <p>The 3 "magic rules" for a trustworthy experiment.</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>What is an Experiment? 🧑‍🔬</h2>
+        <p>An experiment is how we find out if one thing (like a new fertilizer) <em>causes</em> a change in another thing (like plant growth). To do this, we need to compare at least two groups, like a "Treatment Group" (gets the new fertilizer) and a "Control Group" (gets no fertilizer).</p>
+        <p>But how do we set up this comparison fairly? If we're not careful, our results might be junk! To make our results trustworthy, we must follow three main principles: <strong>Randomization</strong>, <strong>Replication</strong>, and <strong>Blocking</strong>.</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Interactive: The Customer Assignment Test ☕</h2>
+        <p>Let's test 5 new coffee machines. We set up 5 stations. Station 1 is by the noisy door, while Station 5 is in a quiet, comfy corner. This "location" might bias the customer ratings!</p>
+        <p>How should we assign our <strong>20 customers</strong> to the stations?</p>
+
+        <div class="interactive-calc dark-bg">
+            <div class="doe-viz-controls multi-button">
+                <div class="control-group">
+                    <label for="customer-count">Number of Customers:</label>
+                    <input type="number" id="customer-count" value="20" min="10" max="100">
+                </div>
+                <button class="doe-btn" id="assign-btn-1" data-design="bad">Bad Assignment</button>
+                <button class="doe-btn" id="assign-btn-2" data-design="randomized">Good Assignment (Randomized)</button>
+            </div>
+
+            <div id="station-plot-container">
+                <div class="station-environment-label">
+                    <span> busier ➡️</span>
+                    <span>quieter</span>
+                </div>
+            </div>
+
+            <div id="assign-feedback" class="stat-result not-significant">
+                <p>Click a button to assign customers.</p>
+            </div>
+        </div>
+        <hr style="margin: 30px 0;">
+
+        <h2>The 3 Principles Explained</h2>
+
+        <h3>1. Randomization (Being Fair)</h3>
+        <p><strong>What it is:</strong> Using pure chance (like flipping a coin) to decide which subject (customer) goes to which group (station).</p>
+        <p><strong>Why?</strong> It protects us from <strong>bias</strong>. In our coffee test, the "Bad Assignment" puts all the customers at the first, noisy stations. If the ratings are bad, we can't tell if it's the coffee or the noisy location! This is called <strong>confounding</strong>.</p>
+        <p>Click "Good Assignment (Randomized)." By randomly spreading the customers out, we give every station a fair mix of people. This breaks the link between the coffee and the location.</p>
+
+        <h3>2. Replication (Don't Just Do It Once!)</h3>
+        <p><strong>What it is:</strong> Using more than one subject (customer) for each treatment (station). In our example, we are using 20 customers, not just 5 (one for each station).</p>
+        <p><strong>Why?</strong> It helps us see past random flukes. What if one customer just *hates* coffee? If he was our only subject, his bad rating would ruin our test. By replicating (using many customers), we can find a reliable average and be more confident that the differences we see are real.</p>
+
+        <h3>3. Blocking (Being Smart)</h3>
+        <p><strong>What it is:</strong> A smart way to group subjects *before* you randomize. If we knew our customers were 50% "Coffee Experts" and 50% "Newbies," we could create two "Blocks." Then, we would randomly assign customers *from within each block* to the 5 stations.</p>
+        <p><strong>Why?</strong> This ensures that each station gets a fair mix of both Experts and Newbies. This method, <strong>Local Control</strong>, isolates the "customer experience" effect (the "Noise") from the "coffee station" effect (the "Signal"), making our test <em>much</em> more powerful.</p>
+        <p>You can see the amazing effect of this in the <a href="../module4.html">Module 4: Virtual Field</a>!</p>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            (function setupCustomerViz() {
+                // Check for D3
+                if (typeof d3 === 'undefined') {
+                    console.error("D3.js is not loaded! Cannot start visualizer.");
+                    document.querySelector("#station-plot-container").innerHTML = "<p style='color: red; padding: 10px;'>Error: Visualizer could not be loaded.</p>";
+                    return;
+                }
+
+                // --- 1. Setup ---
+                const numStations = 5;
+                const feedbackEl = d3.select("#assign-feedback");
+                const buttons = d3.selectAll(".doe-btn");
+                const customerInput = d3.select("#customer-count");
+
+                // Color scale for dots
+                const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+                // --- 2. Setup D3 SVG Container ---
+                const margin = { top: 10, right: 10, bottom: 40, left: 10 };
+                const width = 500 - margin.left - margin.right;
+                const height = 200 - margin.top - margin.bottom;
+
+                const svg = d3.select("#station-plot-container").append("svg")
+                    .attr("width", "100%")
+                    .attr("height", height + margin.top + margin.bottom)
+                    .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                    .attr("preserveAspectRatio", "xMidYMid meet")
+                    .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+                // --- 3. Draw Stations ---
+                const stationWidth = width / numStations;
+                const stationPadding = 5; // Padding inside each station
+
+                const stations = svg.selectAll(".customer-station")
+                    .data(d3.range(numStations))
+                    .enter()
+                    .append("g")
+                    .attr("class", "customer-station")
+                    .attr("transform", d => `translate(${d * stationWidth}, 0)`);
+
+                stations.append("rect")
+                    .attr("width", stationWidth - 2) // Small gap
+                    .attr("height", height)
+                    .attr("fill", "#fff")
+                    .attr("stroke", "#ced4da")
+                    .attr("rx", 8); // Rounded corners
+
+                stations.append("text")
+                    .attr("x", (stationWidth - 2) / 2)
+                    .attr("y", height + 20)
+                    .attr("text-anchor", "middle")
+                    .attr("font-weight", "600")
+                    .text((d, i) => `Station ${i + 1}`);
+
+                // --- 4. Helper Functions ---
+                function assignCustomers(design) {
+                    const numCustomers = +customerInput.property("value");
+
+                    // Create customer data
+                    const customers = d3.range(numCustomers).map(i => {
+                        let stationIndex;
+                        if (design === "bad") {
+                            // "Bad" design: Crowd the first station
+                            stationIndex = Math.random() < 0.8 ? 0 : 1; // 80% chance of station 0, 20% chance of station 1
+                        } else {
+                            // "Good" design: Randomly assign to one of 5 stations
+                            stationIndex = Math.floor(Math.random() * numStations);
+                        }
+
+                        // Calculate random (x, y) position *within* the assigned station
+                        const x = (stationIndex * stationWidth) + (Math.random() * (stationWidth - 2 - (stationPadding * 2))) + stationPadding;
+                        const y = (Math.random() * (height - (stationPadding * 2))) + stationPadding;
+
+                        return { id: i, x: x, y: y, color: colorScale(i) };
+                    });
+
+                    // D3 Magic: Join data to dots
+                    svg.selectAll(".customer-dot")
+                        .data(customers, d => d.id) // Key by ID
+                        .join(
+                            enter => enter.append("circle")
+                                .attr("class", "customer-dot")
+                                .attr("r", 5)
+                                .attr("fill", d => d.color)
+                                .attr("stroke", "#333")
+                                .attr("stroke-width", 1)
+                                .attr("cx", d => d.x)
+                                .attr("cy", d => d.y)
+                                .style("opacity", 0)
+                                .call(enter => enter.transition().duration(500)
+                                    .style("opacity", 0.8)),
+                            update => update
+                                .call(update => update.transition().duration(500)
+                                    .attr("cx", d => d.x)
+                                    .attr("cy", d => d.y)),
+                            exit => exit
+                                .call(exit => exit.transition().duration(200)
+                                    .attr("r", 0).style("opacity", 0).remove())
+                        );
+                }
+
+                function updateFeedback(design) {
+                    feedbackEl.classed("significant", false).classed("not-significant", false); // Reset color
+
+                    if (design === "bad") {
+                        feedbackEl.html("<p><strong>Result:</strong> <strong>Confounded!</strong> 😟<br>All customers are crowded into the busy stations. We can't tell if bad ratings are from the coffee or the location!</p>");
+                        feedbackEl.classed("significant", true); // Use red for "bad"
+                    } else if (design === "randomized") {
+                        feedbackEl.html("<p><strong>Result:</strong> <strong>Good Design!</strong> 👍<br>Customers are randomly assigned to all stations. This is a fair, unbiased test!</p>");
+                        feedbackEl.classed("not-significant", true); // Use green for "good"
+                    }
+                }
+
+                // --- 5. Event Listeners ---
+                buttons.on("click", function () {
+                    if (buttons.empty()) {
+                        console.error("Could not find buttons.");
+                        return;
+                    }
+                    const design = d3.select(this).attr("data-design");
+                    assignCustomers(design);
+                    updateFeedback(design);
+                });
+
+                // --- Initial Call ---
+                // Start by showing the bad design
+                setTimeout(() => {
+                    assignCustomers("bad");
+                    updateFeedback("bad");
+                }, 200);
+
+            })();
+        });
+    </script>
+
+</body>
+</html>

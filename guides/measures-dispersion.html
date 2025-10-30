@@ -1,0 +1,288 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Measures of Dispersion</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Measures of Dispersion</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Measures of Dispersion (Spread)</h1>
+        <p>Understanding how "spread out" your data is.</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>Why Does "Spread" Matter? 🤔</h2>
+        <p>Knowing the "center" (like the mean) is only half the story. Imagine two classes took the same test, and both had a mean score of 80%.</p>
+        <ul>
+            <li><strong>Class A Scores:</strong> {78, 79, 80, 81, 82}</li>
+            <li><strong>Class B Scores:</strong> {60, 70, 80, 90, 100}</li>
+        </ul>
+        <p>Both classes have the same mean, but they are completely different! Class A is very consistent, while Class B has a huge <strong>spread</strong> (or <strong>dispersion</strong>, or <strong>variability</strong>). Measures of dispersion tell us how far the data points are from the center.</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Interactive Spread Calculator 🔬</h2>
+        <p>Enter a list of numbers (comma-separated) below. Watch how the plot and the statistics instantly change. <strong>Try adding one very large number (like <code>200</code>)</strong> to see how it affects the different measures of spread!</p>
+
+        <div class="interactive-calc dark-bg">
+            <div class="calc-controls">
+                <label for="data-input-dispersion">Enter your data (comma-separated):</label>
+                <textarea id="data-input-dispersion" rows="3" placeholder="e.g. 10, 12, 15, 11, 13, 30">10, 12, 15, 11, 13, 30</textarea>
+            </div>
+
+            <div id="dispersion-plot-container">
+                <div id="dispersion-plot"></div>
+                <p class="plot-note">This is a dot plot. The up/down position is just to stop dots from overlapping. Only the left/right position on the number line matters.</p>
+            </div>
+
+            <div class="calc-results-grid">
+                <div class="calc-stat-box compact"><strong>Count (n)</strong><span id="disp-count">0</span></div>
+                <div class="calc-stat-box compact" id="mean-box-disp"><strong>Mean ($\bar{x}$)</strong><span id="disp-mean">N/A</span></div>
+                <div class="calc-stat-box compact"><strong>Range</strong><span id="disp-range">N/A</span></div>
+                <div class="calc-stat-box compact" id="mad-box-disp"><strong>Mean Abs. Dev (MAD)</strong><span id="disp-mad">N/A</span></div>
+                <div class="calc-stat-box compact" id="sd-box-disp"><strong>Variance ($s^2$)</strong><span id="disp-variance">N/A</span></div>
+                <div class="calc-stat-box compact" id="sd-box-disp"><strong>Std. Dev (s)</strong><span id="disp-stddev">N/A</span></div>
+                <div class="calc-stat-box compact"><strong>Coeff. Variation (CV)</strong><span id="disp-cv">N/A</span></div>
+            </div>
+        </div>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Key Measures of Dispersion</h2>
+
+        <h3>1. Range</h3>
+        <p>This is the simplest measure. It's just the highest value minus the lowest value. It tells you the total span of your data.</p>
+        <p><strong>Formula:</strong> $Range = Maximum Value - Minimum Value$</p>
+        <ul>
+            <li><strong>Pro:</strong> Super easy to calculate.</li>
+            <li><strong>Con:</strong> It's based on only *two* data points and is extremely sensitive to outliers.</li>
+        </ul>
+
+        <h3>2. Mean Absolute Deviation (MAD)</h3>
+        <p>This measure (sometimes called Mean Deviation) is very intuitive. It answers the question: <strong>"On average, how far is each data point from the mean?"</strong></p>
+        <p>To find it:</p>
+        <ol>
+            <li>Find the mean ($\bar{x}$) of your data.</li>
+            <li>For each value, find its distance from the mean (e.g., $|Value - Mean|$). We use the absolute value (the `| |` bars) to ignore negative signs.</li>
+            <li>Find the average of all those distances.</li>
+        </ol>
+        <p><strong>Formula:</strong> $MAD = \frac{\sum |x_i - \bar{x}|}{n}$</p>
+        <ul>
+            <li><strong>Pro:</strong> Easy to understand ("average distance") and is not heavily skewed by outliers. Notice the <strong>blue range</strong> in the visualizer is less affected by a large number than the purple one.</li>
+        </ul>
+
+        <h3>3. Variance ($s^2$) (The "Angry Friend")</h3>
+        <p>The variance is another way to measure spread. Instead of taking the absolute value (which is simple), it **squares** the distances. Think of it like an "angry friend" who overreacts: a small deviation (2) is squared to 4, but a large deviation (10) is squared to 100! It *heavily punishes* outliers.</p>
+        <p><strong>Formula:</strong> $s^2 = \frac{\sum (x_i - \bar{x})^2}{n-1}$</p>
+        <ul>
+            <li><strong>Why $(n-1)$?</strong> This is a "math secret" called Bessel's correction. When we use a *sample* of data, dividing by $n-1$ (instead of just $n$) gives a better, more accurate estimate of the *true* variance of the whole population.</li>
+            <li><strong>Con:</strong> The units are weird. If you measured your friends' heights in meters (m), your variance is in "meters-squared" (m²). What does that even mean? This makes it hard to interpret.</li>
+        </ul>
+
+        <h3>4. Standard Deviation ($s$) (The "Practical Ruler")</h3>
+        <p>This is the most common and powerful measure of spread. It's simply the **square root of the variance**. By square-rooting, we "undo" the "angry" squaring and get back to our original units!</p>
+        <p><strong>Formula:</strong> $s = \sqrt{s^2} = \sqrt{\frac{\sum (x_i - \bar{x})^2}{n-1}}$</p>
+        <ul>
+            <li><strong>Pro:</strong> It's in the **same units** as your data (e.g., meters). It's like a standard "ruler" for measuring spread. For bell-shaped data, about 68% of all values fall within $\pm 1$ standard deviation.</li>
+            <li><strong>Con:</strong> Because it's based on the squared values, it is **very sensitive to outliers**. Watch the <strong>purple range</strong> in the visualizer. When you add a large number, it grows *much wider* than the blue MAD range.</li>
+        </ul>
+
+        <h3>5. Coefficient of Variation (CV) (The "Comparer")</h3>
+        <p>The CV answers the question: "How big is the spread *relative* to the mean?"</p>
+        <p>Imagine: an elephant's weight varies by $\pm 50$ kg, and a mouse's weight varies by $\pm 5$ g. Which one is *more variable* compared to its own size?</p>
+        <p><strong>Formula:</strong> $CV = (\frac{s}{\bar{x}}) \times 100\%$</p>
+        <ul>
+            <li><strong>Pro:</strong> It has no units (it's a percentage). It's the best tool for comparing the variability of two different things (like elephants vs. mice, or student heights vs. student grades).</li>
+        </ul>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        (function setupDispersionViz() {
+            // Select all elements
+            const inputEl = d3.select("#data-input-dispersion");
+            const meanEl = d3.select("#disp-mean");
+            const countEl = d3.select("#disp-count");
+            const rangeEl = d3.select("#disp-range");
+            const madEl = d3.select("#disp-mad");
+            const varianceEl = d3.select("#disp-variance");
+            const stddevEl = d3.select("#disp-stddev");
+            const cvEl = d3.select("#disp-cv");
+
+            // Setup plot dimensions
+            const margin = { top: 30, right: 30, bottom: 30, left: 30 };
+            const width = 550 - margin.left - margin.right;
+            const height = 150 - margin.top - margin.bottom;
+
+            const svg = d3.select("#dispersion-plot").append("svg")
+                .attr("width", "100%")
+                .attr("height", height + margin.top + margin.bottom)
+                .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                .attr("preserveAspectRatio", "xMidYMid meet")
+                .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+            const xScale = d3.scaleLinear().range([0, width]);
+            const xAxis = svg.append("g").attr("transform", `translate(0, ${height})`);
+            const plotPointsGroup = svg.append("g");
+            const plotAnnoGroup = svg.append("g");
+
+            // Setup gradients (no change)
+            const defs = svg.append("defs");
+            const madGradient = defs.append("linearGradient").attr("id", "mad-gradient").attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%");
+            madGradient.append("stop").attr("offset", "0%").attr("stop-color", "#007bff").attr("stop-opacity", 0);
+            madGradient.append("stop").attr("offset", "50%").attr("stop-color", "#007bff").attr("stop-opacity", 0.6);
+            madGradient.append("stop").attr("offset", "100%").attr("stop-color", "#007bff").attr("stop-opacity", 0);
+            const sdGradient = defs.append("linearGradient").attr("id", "sd-gradient").attr("x1", "0%").attr("y1", "0%").attr("x2", "100%").attr("y2", "0%");
+            sdGradient.append("stop").attr("offset", "0%").attr("stop-color", "#6f42c1").attr("stop-opacity", 0);
+            sdGradient.append("stop").attr("offset", "50%").attr("stop-color", "#6f42c1").attr("stop-opacity", 0.6);
+            sdGradient.append("stop").attr("offset", "100%").attr("stop-color", "#6f42c1").attr("stop-opacity", 0);
+
+            // Main calculation function
+            function calculate() {
+                const inputText = inputEl.property("value");
+                const data = inputText.split(',')
+                    .map(d => parseFloat(d.trim()))
+                    .filter(d => !isNaN(d));
+
+                const n = data.length;
+                countEl.text(n);
+
+                // ★★★ BUG FIX WAS HERE ★★★
+                // Removed all references to elements that don't exist on this page.
+                if (n === 0) {
+                    meanEl.text("N/A");
+                    rangeEl.text("N/A"); madEl.text("N/A"); varianceEl.text("N/A");
+                    stddevEl.text("N/A"); cvEl.text("N/A");
+                    updatePlot([]); // Call update with empty data
+                    return;
+                }
+
+                data.sort(d3.ascending);
+                const mean = d3.mean(data);
+                const range = data[n - 1] - data[0];
+                const mad = d3.mean(data, d => Math.abs(d - mean));
+
+                let variance = 0;
+                let stddev = 0;
+                let cv = 0;
+
+                if (n > 1) {
+                    variance = d3.variance(data);
+                    stddev = Math.sqrt(variance);
+                    if (mean !== 0) {
+                        cv = (stddev / mean) * 100;
+                    }
+                }
+
+                // Update stats text
+                meanEl.text(mean.toFixed(2));
+                rangeEl.text(range.toFixed(2));
+                madEl.text(mad.toFixed(2));
+                varianceEl.text(n > 1 ? variance.toFixed(2) : "N/A");
+                stddevEl.text(n > 1 ? stddev.toFixed(2) : "N/A");
+                cvEl.text(n > 1 && cv !== 0 ? cv.toFixed(1) + "%" : "N/A");
+
+                // Update the visual plot
+                updatePlot(data, mean, mad, stddev);
+            }
+
+            // Main plot function
+            function updatePlot(data, mean, mad, stddev) {
+                const n = data.length; // Get n again for this scope
+
+                if (n === 0) {
+                    xScale.domain([0, 1]); // Reset domain
+                    xAxis.transition().call(d3.axisBottom(xScale).ticks(5));
+                    plotPointsGroup.selectAll("circle").remove();
+                    plotAnnoGroup.selectAll("rect, line, text").remove();
+                    return;
+                }
+
+                xScale.domain(d3.extent(data)).nice(); // .nice() makes the axis end on round numbers
+                xAxis.transition().call(d3.axisBottom(xScale).ticks(5));
+
+                // Draw data points (a simple "strip plot")
+                plotPointsGroup.selectAll("circle")
+                    .data(data, (d, i) => i) // Use index as key
+                    .join(
+                        enter => enter.append("circle")
+                            .attr("class", "data-dot")
+                            .attr("cy", height / 2)
+                            .attr("r", 5)
+                            .attr("cx", d => xScale(d)),
+                        update => update.transition()
+                            .duration(300)
+                            .attr("cx", d => xScale(d))
+                            .attr("cy", height / 2 + (Math.random() - 0.5) * 40), // Re-jitter
+                        exit => exit.transition().duration(200).attr("r", 0).remove()
+                    )
+                    .transition().duration(100)
+                    .attr("cy", height / 2 + (Math.random() - 0.5) * 40); // Jitter
+
+
+                plotAnnoGroup.html(""); // Clear old annotations
+
+                // Re-draw annotations only if we have stats
+                if (n > 1 && !isNaN(mean) && !isNaN(stddev) && !isNaN(mad)) {
+                    // Draw SD Range (Purple)
+                    plotAnnoGroup.append("rect")
+                        .attr("x", xScale(mean - stddev))
+                        .attr("y", 0)
+                        .attr("width", xScale(mean + stddev) - xScale(mean - stddev))
+                        .attr("height", height)
+                        .attr("fill", "url(#sd-gradient)")
+                        .style("pointer-events", "none");
+                    plotAnnoGroup.append("text").attr("class", "plot-label-sd").attr("x", xScale(mean + stddev) + 5).attr("y", height - 5).text("+1 SD");
+                    plotAnnoGroup.append("text").attr("class", "plot-label-sd").attr("x", xScale(mean - stddev) - 5).attr("y", height - 5).text("-1 SD").attr("text-anchor", "end");
+
+                    // Draw MAD Range (Blue)
+                    plotAnnoGroup.append("rect")
+                        .attr("x", xScale(mean - mad))
+                        .attr("y", 0)
+                        .attr("width", xScale(mean + mad) - xScale(mean - mad))
+                        .attr("height", height)
+                        .attr("fill", "url(#mad-gradient)")
+                        .style("pointer-events", "none");
+                    plotAnnoGroup.append("text").attr("class", "plot-label-mad").attr("x", xScale(mean + mad) + 5).attr("y", 15).text("+1 MAD");
+                    plotAnnoGroup.append("text").attr("class", "plot-label-mad").attr("x", xScale(mean - mad) - 5).attr("y", 15).text("-1 MAD").attr("text-anchor", "end");
+
+                    // Draw Mean Line (Red)
+                    plotAnnoGroup.append("line")
+                        .attr("class", "mean-line")
+                        .attr("x1", xScale(mean))
+                        .attr("x2", xScale(mean))
+                        .attr("y1", -10)
+                        .attr("y2", height + 10);
+                    plotAnnoGroup.append("text")
+                        .attr("class", "plot-label-mean")
+                        .attr("x", xScale(mean))
+                        .attr("y", -12)
+                        .text("Mean");
+                }
+            }
+
+            // Initial calculation on load
+            calculate();
+
+            // Recalculate on every key press
+            inputEl.on("input", calculate);
+
+        })();
+    </script>
+
+</body>
+</html>

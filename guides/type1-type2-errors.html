@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Type I & Type II Errors</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Type I & Type II Errors</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Type I & Type II Errors ⚖️</h1>
+        <p>What happens when our "verdict" is wrong?</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>Can Our Decision Be Wrong?</h2>
+        <p>Yes! When we do a hypothesis test, we use a *sample* of data to make a guess about the *entire population*. Sometimes, just by bad luck, our sample can mislead us.</p>
+        <p>Let's go back to the courtroom analogy. The jury's verdict can be wrong in two different ways:</p>
+        <ol>
+            <li>An innocent person is found <strong>guilty</strong> (a terrible mistake).</li>
+            <li>A guilty person is found <strong>not guilty</strong> (also a mistake).</li>
+        </ol>
+        <p>In statistics, we have the exact same two types of errors.</p>
+
+        <h2>The Two Types of Errors</h2>
+        <p>The "Truth" is what is *really* happening in the whole population (e.g., the fertilizer *really does* work, or it *really doesn't*). Our "Decision" is what our $p$-value tells us to do. This gives us four possibilities:</p>
+
+        <table class="error-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th colspan="2">The Actual Truth</th>
+                </tr>
+                <tr>
+                    <th>Our Decision</th>
+                    <th>$H_0$ is True<br>(Fertilizer is useless)</th>
+                    <th>$H_a$ is True<br>(Fertilizer works!)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>Reject $H_0$<br>(We say it works!)</th>
+                    <td class="error-cell type-1">
+                        <strong>Type I Error (α)</strong><br>
+                        (False Positive)<br>
+                        <em>"Convicting an innocent person"</em>
+                    </td>
+                    <td class="correct-cell">
+                        <strong>Correct Decision!</strong><br>
+                        (True Positive)
+                    </td>
+                </tr>
+                <tr>
+                    <th>Fail to Reject $H_0$<br>(We say it doesn't work)</th>
+                    <td class="correct-cell">
+                        <strong>Correct Decision!</strong><br>
+                        (True Negative)
+                    </td>
+                    <td class="error-cell type-2">
+                        <strong>Type II Error (β)</strong><br>
+                        (False Negative)<br>
+                        <em>"Letting a guilty person go free"</em>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Type I Error (Alpha, $\alpha$) - The "False Positive"</h3>
+        <p>This is when we <strong>reject the null hypothesis ($H_0$) even though it was actually true</strong>. We claim we found a significant effect, but we were wrong—it was just a random fluke.</p>
+        <ul>
+            <li><strong>Analogy:</strong> The jury convicts an innocent person.</li>
+            <li><strong>Control:</strong> The **alpha ($\alpha$) level** (usually 0.05) is the probability of making a Type I error! By setting $\alpha = 0.05$, we are accepting a 5% chance of making this mistake.</li>
+        </ul>
+
+        <h3>Type II Error (Beta, $\beta$) - The "False Negative"</h3>
+        <p>This is when we <strong>fail to reject the null hypothesis ($H_0$) even though it was actually false</strong>. There *was* a real effect, but our experiment failed to detect it. We missed it!</p>
+        <ul>
+            <li><strong>Analogy:</strong> The jury lets a guilty person go free.</li>
+            <li><strong>Cause:</strong> This often happens when our **sample size ($n$) is too small**. A small sample doesn't have enough "power" to find a small but real effect.</li>
+        </ul>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Interactive: The Decision Simulator ⚙️</h2>
+        <p>Let's play a game. The "Truth" is hidden: the fertilizer either **Works** ($H_a$ is true) or it **Doesn't Work** ($H_0$ is true). Your job is to run an experiment (n=20) and make a decision based on the p-value. Our alpha is $\alpha = 0.05$.</p>
+
+        <div class="interactive-calc dark-bg">
+            <div class="simulator-wrapper">
+
+                <div class="sim-machine">
+                    <h3>Hypothesis Testing Machine</h3>
+                    <div class="sim-light" id="truth-light-h0">H₀ is True</div>
+                    <div class="sim-light" id="truth-light-ha">Hₐ is True</div>
+
+                    <button id="sim-run-btn" class="btn-primary">Run 1 Experiment (n=20)</button>
+                    <button id="sim-run-many-btn" class="btn-secondary">Run 100 Experiments</button>
+
+                    <div class="sim-output">
+                        <strong>p-value:</strong> <span id="sim-p-value">---</span>
+                    </div>
+                    <div class="sim-output decision">
+                        <strong>Decision:</strong> <span id="sim-decision">---</span>
+                    </div>
+                </div>
+
+                <div class="sim-results">
+                    <h3>Your Decision Record</h3>
+                    <div id="sim-feedback">
+                        <p>Click "Run" to see your first outcome!</p>
+                    </div>
+
+                    <table class="error-table" id="sim-scorecard">
+                        <thead>
+                            <tr><th></th><th>Truth: H₀ (No Effect)</th><th>Truth: Hₐ (Real Effect)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Your Decision: Reject H₀</th>
+                                <td id="cell-type1" class="error-cell type-1" data-count="0">0</td>
+                                <td id="cell-true-pos" class="correct-cell" data-count="0">0</td>
+                            </tr>
+                            <tr>
+                                <th>Your Decision: Fail to Reject H₀</th>
+                                <td id="cell-true-neg" class="correct-cell" data-count="0">0</td>
+                                <td id="cell-type2" class="error-cell type-2" data-count="0">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button id="sim-reset-btn" class="btn-danger" style="width:100%; margin-top:10px;">Reset Score</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        (function setupErrorSimulator() {
+            // Check if D3 and jStat are loaded
+            if (typeof d3 === 'undefined' || typeof jStat === 'undefined') {
+                console.error("D3.js or jStat.js is not loaded! Cannot start simulator.");
+                document.querySelector(".simulator-wrapper").innerHTML = "<p style='color: red; padding: 10px;'>Error: Simulator could not be loaded.</p>";
+                return;
+            }
+
+            // --- 1. Select Elements ---
+            const runBtn = d3.select("#sim-run-btn");
+            const runManyBtn = d3.select("#sim-run-many-btn");
+            const resetBtn = d3.select("#sim-reset-btn");
+
+            const pValueEl = d3.select("#sim-p-value");
+            const decisionEl = d3.select("#sim-decision");
+            const feedbackEl = d3.select("#sim-feedback");
+
+            const lightH0 = d3.select("#truth-light-h0");
+            const lightHa = d3.select("#truth-light-ha");
+
+            const cellType1 = d3.select("#cell-type1");
+            const cellTruePos = d3.select("#cell-true-pos");
+            const cellTrueNeg = d3.select("#cell-true-neg");
+            const cellType2 = d3.select("#cell-type2");
+
+            // --- 2. Simulation Logic ---
+            const alpha = 0.05;
+            const n = 20; // Sample size
+            const population_sd = 10;
+            const population_mean_h0 = 50; // "Truth" if H0 is true
+            const population_mean_ha = 55; // "Truth" if Ha is true (a real effect)
+
+            // This function simulates a single t-test and returns its p-value
+            function runTTest(isEffectTrue) {
+                const trueMean = isEffectTrue ? population_mean_ha : population_mean_h0;
+                // Generate a random sample of 20 from the "true" population
+                const sample = d3.range(n).map(() => d3.randomNormal(trueMean, population_sd)());
+
+                const sampleMean = d3.mean(sample);
+                const sampleSD = d3.deviation(sample);
+
+                // Perform a one-sample t-test against the H0 mean (50)
+                const tStat = (sampleMean - population_mean_h0) / (sampleSD / Math.sqrt(n));
+                const df = n - 1;
+
+                // Calculate two-tailed p-value using jStat
+                const pValue = 2 * (1 - jStat.studentt.cdf(Math.abs(tStat), df));
+                return pValue;
+            }
+
+            // Function to update the 2x2 grid
+            function updateGrid(cellId) {
+                const cell = d3.select(cellId);
+                const count = +cell.attr("data-count") + 1;
+                cell.attr("data-count", count).text(count);
+            }
+
+            // --- 3. Main Run Function ---
+            function runOneTrial() {
+                // Randomly decide the "Truth" for this run (50/50 chance)
+                const isEffectTrue = Math.random() < 0.5;
+
+                // Show the truth
+                lightH0.classed("active", !isEffectTrue);
+                lightHa.classed("active", isEffectTrue);
+
+                // Run the experiment
+                const pValue = runTTest(isEffectTrue);
+                pValueEl.text(pValue.toFixed(3));
+
+                // Make a decision
+                let decisionMade;
+                if (pValue < alpha) {
+                    decisionMade = "Reject H₀";
+                    decisionEl.text(decisionMade).style("color", "#dc3545");
+                } else {
+                    decisionMade = "Fail to Reject H₀";
+                    decisionEl.text(decisionMade).style("color", "#28a745");
+                }
+
+                // Check if the decision was correct and update grid
+                feedbackEl.html(""); // Clear old feedback
+                if (decisionMade === "Reject H₀") {
+                    if (isEffectTrue) {
+                        feedbackEl.html("<p class='correct'><strong>Correct Decision! (True Positive)</strong><br>You found a real effect!</p>");
+                        updateGrid("#cell-true-pos");
+                    } else {
+                        feedbackEl.html("<p class='incorrect'><strong>Type I Error! (False Positive)</strong><br>You said there was an effect, but it was just a fluke!</p>");
+                        updateGrid("#cell-type1");
+                    }
+                } else { // Failed to Reject H0
+                    if (isEffectTrue) {
+                        feedbackEl.html("<p class='incorrect'><strong>Type II Error! (False Negative)</strong><br>You missed a real effect! (This often happens with small samples).</p>");
+                        updateGrid("#cell-type2");
+                    } else {
+                        feedbackEl.html("<p class='correct'><strong>Correct Decision! (True Negative)</strong><br>You correctly found no effect.</p>");
+                        updateGrid("#cell-true-neg");
+                    }
+                }
+            }
+
+            function runManyTrials() {
+                for (let i = 0; i < 100; i++) {
+                    runOneTrial(); // Run 100 trials, but only show the last one's results
+                }
+            }
+
+            function resetAll() {
+                lightH0.classed("active", false);
+                lightHa.classed("active", false);
+                pValueEl.text("---");
+                decisionEl.text("---").style("color", "inherit");
+                feedbackEl.html("<p>Click 'Run' to see your first outcome!</p>");
+
+                [cellType1, cellTruePos, cellTrueNeg, cellType2].forEach(cell => {
+                    cell.attr("data-count", 0).text(0);
+                });
+            }
+
+            // --- 4. Event Listeners ---
+            runBtn.on("click", runOneTrial);
+            runManyBtn.on("click", runManyTrials);
+            resetBtn.on("click", resetAll);
+
+        })();
+    </script>
+
+</body>
+</html>

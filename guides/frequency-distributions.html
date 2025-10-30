@@ -1,0 +1,236 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Frequency Distributions & Histograms</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Frequency Distributions</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Frequency Distributions & Histograms</h1>
+        <p>Making sense of messy data by organizing it!</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>Why Organize Data? 🤔</h2>
+        <p>Imagine you ask 30 classmates how many hours they spent studying last week. You might get a jumble of numbers like this (this is called <strong>raw data</strong>):</p>
+        <blockquote>3, 5, 2, 7, 4, 5, 6, 3, 8, 4, 5, 6, 2, 7, 5, 4, 6, 8, 3, 5, 4, 7, 6, 5, 4, 9, 3, 5, 6, 4</blockquote>
+        <p>Looking at this list, it's hard to quickly understand how much studying is typical, or if anyone studied a lot or a little. We need a way to organize it!</p>
+
+        <h2>What is a Frequency Distribution? 📋</h2>
+        <p>A <strong>frequency distribution</strong> is like sorting your data into bins or categories and then counting how many data points fall into each bin. The <strong>frequency</strong> is simply the count.</p>
+        <p>It helps us see patterns, like:</p>
+        <ul>
+            <li>Which values occur most often?</li>
+            <li>How spread out is the data?</li>
+            <li>Are there any unusual values (outliers)?</li>
+        </ul>
+
+        <h3>Grouping Data: Creating Classes</h3>
+        <p>Sometimes, especially with lots of different numbers (like heights or weights - called <strong>continuous data</strong>), it's useful to group values into <strong>classes</strong> or <strong>intervals</strong>. For data with fewer, distinct options (like the number of siblings - called <strong>discrete data</strong>), you might just count each value separately.</p>
+        <p>Let's group our study hours data:</p>
+
+        <ol>
+            <li>
+                <strong>Find the Range:</strong> The highest value minus the lowest value.
+                <br><em>Formula:</em> $Range = Maximum Value - Minimum Value$
+                <br><em>Example:</em> Max = 9, Min = 2. Range = 9 - 2 = 7 hours.
+            </li>
+            <li>
+                <strong>Choose Number of Classes (Groups):</strong> Choose a reasonable number of groups, often between 5 and 15. Let's pick 4 classes.
+            </li>
+            <li>
+                <strong>Determine Class Width:</strong> How "wide" each group should be.
+                <br><em>Approx. Formula:</em> $Class Width \approx \frac{Range}{\text{Number of Classes}}$ (Round up to a convenient number).
+                <br><em>Example:</em> 7 / 4 = 1.75. Let's round up to a width of 2 hours.
+            </li>
+            <li>
+                <strong>Set Class Limits:</strong> Create the bins. Make sure they don't overlap and cover the whole range.
+                <br><em>Example Classes:</em> 2-3 hours, 4-5 hours, 6-7 hours, 8-9 hours.
+            </li>
+            <li>
+                <strong>Tally and Count:</strong> Go through your data and count how many values fall into each class. This count is the <strong>frequency</strong>.
+            </li>
+        </ol>
+
+        <h3>Example Frequency Table (Study Hours)</h3>
+        <table class="anova-table" style="max-width: 600px; margin: 15px auto;">
+            <thead>
+                <tr>
+                    <th>Study Hours (Class)</th>
+                    <th>Tally</th>
+                    <th>Frequency (f)</th>
+                    <th>Relative Frequency (%)</th>
+                    <th>Cumulative Frequency</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><th>2-3 hours</th><td><s>IIII</s> I</td><td>6</td><td>20.0%</td><td>6</td></tr>
+                <tr><th>4-5 hours</th><td><s>IIII</s> <s>IIII</s> II</td><td>12</td><td>40.0%</td><td>18</td></tr>
+                <tr><th>6-7 hours</th><td><s>IIII</s> III</td><td>8</td><td>26.7%</td><td>26</td></tr>
+                <tr><th>8-9 hours</th><td>IIII</td><td>4</td><td>13.3%</td><td>30</td></tr>
+                <tr><th>Total</th><td></td><td><b>30</b></td><td><b>100%</b></td><td></td></tr>
+            </tbody>
+        </table>
+
+        <ul>
+            <li>
+                <strong>Relative Frequency:</strong> The proportion of the data in a class (Frequency / Total Count). Often shown as a percentage.
+                <br><em>Formula:</em> $Relative Frequency = \frac{\text{Class Frequency (f)}}{\text{Total Count (n)}}$
+            </li>
+            <li>
+                <strong>Cumulative Frequency:</strong> The total number of observations up to the end of that class.
+            </li>
+        </ul>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>The Histogram: A Picture of Frequency 📊</h2>
+        <p>A <strong>histogram</strong> is the best way to *see* your frequency distribution. Think of it as a bar chart for grouped numbers.</p>
+        <ul>
+            <li>The <strong>Horizontal Axis (X-axis)</strong> represents the data values or the class intervals (the "bins"). The numbers should cover the full range of your data.</li>
+            <li>The <strong>Vertical Axis (Y-axis)</strong> represents the <strong>frequency</strong> (the count) or sometimes the relative frequency (percentage) for each bin.</li>
+            <li><strong>Bars Touch:</strong> The bars usually touch each other to show that the data scale is continuous or grouped into adjacent intervals. There are no gaps between 17cm and 18cm, for example.</li>
+        </ul>
+
+        <h3>Choosing the Right Number of Bins is Important!</h3>
+        <p>The number of bins (classes) you choose can change how the histogram looks and what story it tells. Look at these examples using the same data but different bin widths:</p>
+        [Image comparing histogram with few bins vs many bins]
+        <ul>
+            <li><strong>Too Few Bins:</strong> Can hide important details and make the distribution look like a block.</li>
+            <li><strong>Too Many Bins:</strong> Can create a "spiky" histogram that makes it hard to see the overall shape due to small variations.</li>
+        </ul>
+        <p>There's no single perfect number, but starting with 5-15 bins is often a good approach. You can try different numbers to see which best reveals the underlying pattern.</p>
+
+        <h3>Interpreting the Shape</h3>
+        <p>The histogram's shape gives you quick insights:</p>
+        <ul>
+            <li>
+                <strong>Symmetrical (Bell-Shaped):</strong>  Data clusters in the middle and tails off evenly on both sides. (Example: Heights of many people).
+            </li>
+            <li>
+                <strong>Skewed Right (Positively Skewed):</strong>  Most data is on the left, with a long tail stretching to the right. (Example: Income – most people earn less, a few earn much more).
+            </li>
+            <li>
+                <strong>Skewed Left (Negatively Skewed):</strong>  Most data is on the right, with a long tail stretching to the left. (Example: Scores on a very easy test – most people do well).
+            </li>
+            <li>
+                <strong>Bimodal:</strong>  Has two distinct peaks. This often means you have two different groups mixed together in your data. (Example: Heights of adults if you mix men and women).
+            </li>
+            <li>
+                <strong>Uniform:</strong>  All bins have roughly the same frequency. (Example: Rolling a fair die many times - each number should appear about equally often).
+            </li>
+        </ul>
+        <p>Check out the <a href="../module1.html">Module 1 Playground</a> to build histograms yourself!</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Game Time: Guess the Shape! 🎮</h2>
+        <p>Look at the histogram below and choose the shape that best describes it.</p>
+
+        <div class="histogram-game">
+            <div class="game-chart-container">
+            </div>
+            <div class="game-controls">
+                <p>What shape is this histogram?</p>
+                <button class="game-choice-btn" data-shape="symmetrical">Symmetrical</button>
+                <button class="game-choice-btn" data-shape="skewed-right">Skewed Right</button>
+                <button class="game-choice-btn" data-shape="skewed-left">Skewed Left</button>
+                <button class="game-choice-btn" data-shape="bimodal">Bimodal</button>
+                <button class="game-choice-btn" data-shape="uniform">Uniform</button>
+                <p id="game-feedback"></p>
+                <button id="next-shape-btn" class="btn-secondary" style="display: none;">Next Shape</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        (function setupHistogramGame() {
+            // Check if D3 is loaded
+            if (typeof d3 === 'undefined') {
+                console.error("D3.js is not loaded! Cannot start game.");
+                document.querySelector(".game-chart-container").innerHTML = "<p style='color: red; padding: 10px;'>Error: Game could not be loaded.</p>";
+                return;
+            }
+
+            const chartContainer = d3.select(".game-chart-container");
+            const feedbackEl = d3.select("#game-feedback");
+            const choiceBtns = d3.selectAll(".game-choice-btn");
+            const nextBtn = d3.select("#next-shape-btn");
+
+            let currentShape = '';
+
+            const shapes = {
+                'symmetrical': [2, 5, 8, 10, 8, 5, 2],
+                'skewed-right': [10, 8, 5, 3, 2, 1, 1],
+                'skewed-left': [1, 1, 2, 3, 5, 8, 10],
+                'bimodal': [8, 5, 2, 1, 2, 5, 8],
+                'uniform': [5, 5, 5, 5, 5, 5, 5]
+            };
+            const shapeKeys = Object.keys(shapes);
+
+            function generateShape() {
+                currentShape = shapeKeys[Math.floor(Math.random() * shapeKeys.length)];
+                let data = shapes[currentShape];
+                data = data.map(h => Math.max(1, h + Math.floor(Math.random() * 4) - 2));
+                drawGameHistogram(data);
+
+                feedbackEl.text("").classed("correct", false).classed("incorrect", false);
+                choiceBtns.property("disabled", false);
+                nextBtn.style("display", "none");
+            }
+
+            function drawGameHistogram(data) {
+                chartContainer.html("");
+                const barWidth = 100 / data.length;
+                const maxHeight = d3.max(data);
+
+                chartContainer.selectAll(".game-bar")
+                    .data(data)
+                    .enter()
+                    .append("div")
+                    .attr("class", "game-bar")
+                    .style("width", `${barWidth}%`)
+                    .style("height", "0px") // Start at 0
+                    .transition() // Add transition
+                    .duration(300)
+                    .style("height", d => `${(d / maxHeight) * 100}%`);
+            }
+
+            choiceBtns.on("click", function () {
+                const chosenShape = d3.select(this).attr("data-shape");
+                choiceBtns.property("disabled", true);
+
+                if (chosenShape === currentShape) {
+                    feedbackEl.text("Correct! 🎉").classed("correct", true).classed("incorrect", false);
+                } else {
+                    feedbackEl.text(`Not quite! This shape is ${currentShape}.`).classed("correct", false).classed("incorrect", true);
+                }
+                nextBtn.style("display", "inline-block");
+            });
+
+            nextBtn.on("click", generateShape);
+
+            generateShape();
+
+        })();
+    </script>
+
+</body>
+</html>

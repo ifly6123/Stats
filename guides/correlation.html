@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Correlation (r)</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Correlation (r)</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Correlation (r)</h1>
+        <p>Measuring the relationship between two variables.</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>What is Correlation? 🤝</h2>
+        <p>In statistics, <strong>correlation</strong> is a way to measure how two different things (we call them <strong>variables</strong>) move in relation to each other. </p>
+        <p>Think about it like this:</p>
+        <ul>
+            <li>As a student's <strong>height</strong> increases, does their <strong>shoe size</strong> also tend to increase? (Yes, this is a <strong>positive correlation</strong>).</li>
+            <li>As the <strong>number of hours you study</strong> increases, does the <strong>number of mistakes you make on a test</strong> tend to decrease? (Yes, this is a <strong>negative correlation</strong>).</li>
+            <li>As the <strong>price of tea in China</strong> increases, does your <strong>math grade</strong> change in any predictable way? (Probably not. This is <strong>no correlation</strong>).</li>
+        </ul>
+        <p>Correlation tells us about the <strong>direction</strong> and <strong>strength</strong> of a <em>linear</em> (straight-line) relationship.</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>The Correlation Coefficient ($r$)</h2>
+        <p>To measure correlation, we use a single number called the <strong>correlation coefficient</strong>, most famously represented by the letter $r$. This value is always a number between <strong>-1 and +1</strong>.</p>
+
+        <div class="interactive-calc dark-bg">
+            <div class="corr-plot-container">
+                <div id="corr-plot-interactive"></div>
+            </div>
+            <div class="corr-controls">
+                <h4>Live Correlation</h4>
+                <p>Click and drag the dots. Watch how the $r$ value changes!</p>
+                <div class="calc-stat-box" id="corr-r-box">
+                    <strong>Correlation ($r$)</strong>
+                    <span id="corr-r-value">0.00</span>
+                </div>
+            </div>
+        </div>
+        <p style="margin-top: 20px;">What the $r$ value means is very specific:</p>
+
+        <div class="correlation-visuals">
+            <div>
+                <strong>$r = +1.0$ (Perfect Positive)</strong>
+                <p>All points form a perfect, straight, uphill line. As X goes up, Y goes up by a fixed amount.</p>
+            </div>
+            <div>
+                <strong>$r \approx +0.8$ (Strong Positive)</strong>
+                <p>The points are tightly packed in an uphill pattern. A clear positive trend exists.</p>
+            </div>
+            <div>
+                <strong>$r \approx +0.3$ (Weak Positive)</strong>
+                <p>The points are loosely scattered in a vague uphill pattern. It's a "hint" of a relationship, but not very strong.</p>
+            </div>
+            <div>
+                <strong>$r = 0$ (No Correlation)</strong>
+                <p>The points form a random "cloud" with no pattern at all. X and Y are not linearly related.</p>
+            </div>
+            <div>
+                <strong>$r \approx -0.3$ (Weak Negative)</strong>
+                <p>The points are loosely scattered in a vague downhill pattern.</p>
+            </div>
+            <div>
+                <strong>$r \approx -0.8$ (Strong Negative)</strong>
+                <p>The points are tightly packed in a clear downhill pattern. As X goes up, Y clearly goes down.</p>
+            </div>
+            <div>
+                <strong>$r = -1.0$ (Perfect Negative)</strong>
+                <p>All points form a perfect, straight, downhill line. As X goes up, Y goes down by a fixed amount.</p>
+            </div>
+            <div>
+                <strong>$r \approx 0$ (Warning!)</strong>
+                <p>A strong relationship can be curved (non-linear). $r$ will be close to 0, because $r$ only measures <strong>straight-line</strong> patterns!</p>
+            </div>
+        </div>
+
+        <h3>The Scatter Plot is Your Best Friend!</h3>
+        <p>You can see from the examples above why you <em>must*</em> always look at a scatter plot. The last example shows a perfect U-shape. This is a very strong relationship, but $r$ is close to 0! This is because $r$ can't detect curves; it only looks for straight-line trends. Always plot your data!</p>
+        <p>You can also see this in action in the <a href="../module2.html">Module 2: Relationship Explorer</a>.</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>The Most Important Rule: Correlation is NOT Causation! ⚠️</h2>
+        <p>This is the most important lesson in all of statistics. Just because two variables are strongly correlated does not, by itself, <em>prove</em> that one causes the other.</p>
+
+        <h4>The Classic Example: Ice Cream & Crime</h4>
+        <p>If you collect data, you will find a strong positive correlation ($r$ might be +0.7) between <strong>ice cream sales</strong> and <strong>crime rates</strong>.</p>
+        <p>Does this mean eating ice cream <em>causes</em> people to commit crimes? Or that committing crimes makes people <em>want*</em> ice cream? No!</p>
+        <p>There is a third, hidden variable called a <strong>confounding variable</strong> (or "lurking variable") that is causing <em>both*</em> things to increase. In this case, it's <strong>hot weather</strong>.</p>
+
+
+        <ul>
+            <li>Hot weather causes more people to buy ice cream.</li>
+            <li>Hot weather also causes more people to be outside, windows to be open, and tempers to flare, which leads to more crime.</li>
+        </ul>
+        <p>The ice cream and crime are correlated, but neither causes the other. The heat causes both. Always be skeptical and look for confounding variables!</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>The (Optional) Formula for $r$</h2>
+        <p>You won't have to calculate this by hand very often, but it's good to see what's happening "under the hood." The formula for the Pearson correlation coefficient ($r$) is:</p>
+        <p style="text-align: center; font-size: 1.5rem; font-weight: 600;">
+            $r = \frac{ \sum (x_i - \bar{x}) (y_i - \bar{y}) }{ \sqrt{ \sum (x_i - \bar{x})^2 \sum (y_i - \bar{y})^2 } }$
+        </p>
+        <p>In simple terms, this formula is just a standardized way of measuring how consistently $x$ and $y$ move together away from their respective means.</p>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        (function setupCorrPlot() {
+            // 1. Initial Data
+            let data = [
+                { id: 1, x: 20, y: 30 }, { id: 2, x: 40, y: 40 },
+                { id: 3, x: 50, y: 60 }, { id: 4, x: 70, y: 80 },
+                { id: 5, x: 90, y: 70 }, { id: 6, x: 30, y: 50 }
+            ];
+
+            // 2. Setup SVG
+            const margin = { top: 10, right: 10, bottom: 20, left: 20 };
+            const width = 350 - margin.left - margin.right;
+            const height = 250 - margin.top - margin.bottom;
+
+            const svg = d3.select("#corr-plot-interactive").append("svg")
+                .attr("width", "100%")
+                .attr("height", height + margin.top + margin.bottom)
+                .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                .attr("preserveAspectRatio", "xMidYMid meet")
+                .style("background-color", "#fff")
+                .style("border-radius", "8px")
+                .style("cursor", "grab")
+                .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+            const xScale = d3.scaleLinear().domain([0, 100]).range([0, width]);
+            const yScale = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+
+            // 3. Axes
+            svg.append("g").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale).ticks(5));
+            svg.append("g").call(d3.axisLeft(yScale).ticks(5));
+
+            // 4. Update Function
+            function update() {
+                // Calculate r
+                const r = calculateCorrelation(data);
+                d3.select("#corr-r-value").text(r.toFixed(3));
+
+                // Update r-value box color based on strength
+                const rBox = d3.select("#corr-r-box");
+                rBox.classed("positive", r > 0).classed("negative", r < 0);
+                rBox.select("span").style("color", Math.abs(r) > 0.7 ? "#fff" : (r > 0 ? "#007bff" : "#dc3545"));
+                rBox.style("background-color", `rgba(${r < 0 ? '220, 53, 69' : '0, 123, 255'}, ${Math.abs(r) * 0.8 + 0.1})`);
+                rBox.style("color", Math.abs(r) > 0.7 ? "#fff" : "#333");
+            }
+
+            // 5. Drag Behavior
+            const drag = d3.drag()
+                .on("start", function () { d3.select(this).style("cursor", "grabbing"); })
+                .on("drag", function (event, d) {
+                    // Get new position, constrained to plot bounds
+                    let newX = xScale.invert(event.x);
+                    let newY = yScale.invert(event.y);
+                    newX = Math.max(0, Math.min(100, newX));
+                    newY = Math.max(0, Math.min(100, newY));
+
+                    // Update data
+                    d.x = newX;
+                    d.y = newY;
+
+                    // Update dot position
+                    d3.select(this).attr("cx", xScale(d.x)).attr("cy", yScale(d.y));
+
+                    // Recalculate
+                    update();
+                })
+                .on("end", function () { d3.select(this).style("cursor", "grab"); });
+
+            // 6. Draw Dots
+            svg.selectAll("circle")
+                .data(data, d => d.id)
+                .join("circle")
+                .attr("class", "data-dot-interactive")
+                .attr("cx", d => xScale(d.x))
+                .attr("cy", d => yScale(d.y))
+                .attr("r", 7)
+                .call(drag); // Attach drag behavior
+
+            // 7. Correlation Calculator
+            function calculateCorrelation(data) {
+                const n = data.length;
+                if (n < 2) return 0;
+
+                const meanX = d3.mean(data, d => d.x);
+                const meanY = d3.mean(data, d => d.y);
+
+                let num = 0; // Numerator
+                let denX = 0; // Denominator X part
+                let denY = 0; // Denominator Y part
+
+                for (let i = 0; i < n; i++) {
+                    const dx = data[i].x - meanX;
+                    const dy = data[i].y - meanY;
+                    num += dx * dy;
+                    denX += dx * dx;
+                    denY += dy * dy;
+                }
+
+                const denominator = Math.sqrt(denX * denY);
+                return denominator === 0 ? 0 : num / denominator;
+            }
+
+            // Initial call
+            update();
+
+        })();
+    </script>
+
+</body>
+</html>

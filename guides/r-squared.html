@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Coefficient of Determination (R²)</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Coefficient of Determination (R²)</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">What is R-squared (R²)?</h1>
+        <p>How good is our prediction line?</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>What Does R² Tell Us? 🤔</h2>
+        <p>Imagine you made a scatter plot showing how many hours students studied ($x$) and their test scores ($y$). You then drew the "line of best fit" (the regression line) that tries to predict the score based on study hours.</p>
+
+        <p><strong>R-squared</strong> (written as $R^2$) is like a <strong>"grade" for your prediction line</strong>. It tells you <strong>what percentage (%) of the <em>difference</em> in test scores can be explained by the <em>difference</em> in study hours.</strong></p>
+
+        <p>Think about it: Why do students get different scores?</p>
+        <ul>
+            <li>One reason might be that they studied for different amounts of time. $R^2$ tells us how much of the score difference is because of <strong>study time</strong>. (This is the <strong>explained</strong> part).</li>
+            <li>But there are other reasons too! Maybe some students slept well, some are naturally better at the subject, some were lucky, some were unlucky. These <strong>other</strong> reasons cause differences in scores that our study time line <em>can't</em> explain. (This is the <strong>unexplained</strong> part or "error").</li>
+        </ul>
+        <p>$R^2$ measures how much of the story (the difference in scores) is told by the factor we looked at (study time).</p>
+
+        <h2>Reading the R² Grade 🎯</h2>
+        <p>$R^2$ is always a number between <strong>0 and 1</strong>, which we usually talk about as a <strong>percentage (0% to 100%)</strong>.</p>
+
+        <div class="correlation-visuals">
+            <div>
+                <strong>$R^2 = 0.90$ (90%)</strong>
+                <p><strong>Meaning:</strong> Wow! 90% of the reason scores are different is because study hours were different. Our line is a great predictor!</p>
+            </div>
+            <div>
+                <strong>$R^2 = 0.50$ (50%)</strong>
+                <p><strong>Meaning:</strong> Okay. 50% of the score differences are explained by study hours. The other 50% is due to other stuff. The line is an okay predictor.</p>
+            </div>
+            <div>
+                <strong>$R^2 = 0.10$ (10%)</strong>
+                <p><strong>Meaning:</strong> Hmm. Only 10% of the score difference is related to study hours. Most of the difference is because of other things. This line isn't a very good predictor.</p>
+            </div>
+        </div>
+
+        <ul>
+            <li>An $R^2$ of <strong>1.0 (100%)</strong> means your line is a perfect predictor. All the dots are exactly on the line. Knowing $x$ lets you know $y$ perfectly.</li>
+            <li>An $R^2$ of <strong>0 (0%)</strong> means your line is useless. Knowing the study hours tells you <strong>nothing</strong> about the likely test score.</li>
+            <li>A <strong>higher $R^2$ means your line "fits" the dots better</strong>. What counts as "good" depends on what you're studying. Sometimes even a low $R^2$ can be interesting!</li>
+        </ul>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>The Link Between $r$ and $R^2$ (It's Easy!)</h2>
+        <p>Remember the correlation coefficient ($r$)? It tells you how strong the <em>linear</em> relationship is (from -1 to +1).</p>
+        <p>For simple predictions (just one $x$ predicting one $y$), $R^2$ is simply <strong>$r$ multiplied by itself!</strong></p>
+        <p style="text-align: center; font-size: 1.5rem; font-weight: 600;">$R^2 = r \times r = r^2$</p>
+        <ul>
+            <li>If the correlation $r$ is strong (like +0.8 or -0.8), squaring it gives a high $R^2$ (like 0.64 or 64%). A strong relationship means the line fits well!</li>
+            <li>If the correlation $r$ is weak (like +0.2 or -0.2), squaring it gives a very low $R^2$ (like 0.04 or 4%). A weak relationship means the line fits poorly.</li>
+            <li>Since squaring a negative number makes it positive, $R^2$ is always between 0 and 1.</li>
+        </ul>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Simple Analogy: Explaining Plant Growth 🌱</h2>
+        <p>Imagine you're trying to explain why some tomato plants ($y$) grew taller than others.</p>
+        <ul>
+            <li>You measure how much water ($x$) each plant got and find a decent relationship. You make a prediction line and calculate $R^2 = 0.70$.</li>
+            <li>This means <strong>70%</strong> of the difference in plant heights can be explained by the difference in how much water they received.</li>
+            <li>The other <strong>30%</strong> (100% - 70%) is due to other things you didn't measure (sunlight, soil quality, type of tomato, etc.). This is the <strong>unexplained</strong> part.</li>
+        </ul>
+        <p>$R^2$ tells you how good your chosen factor (water) is at explaining the outcome (height).</p>
+        <p>You can see $R^2$ calculated live in the <a href="../module2.html">Module 2: Relationship Explorer</a>!</p>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+</body>
+</html>

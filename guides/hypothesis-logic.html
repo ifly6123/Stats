@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Logic of Hypothesis Testing</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Hypothesis Testing Logic</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">The Logic of Hypothesis Testing 🤔</h1>
+        <p>How scientists make decisions using data.</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>What is Hypothesis Testing?</h2>
+        <p>Imagine you have an idea (a <strong>hypothesis</strong>) about something, like "This new fertilizer makes plants grow taller." How do you use data to decide if your idea is likely true?</p>
+        <p><strong>Hypothesis testing</strong> is like a <strong>courtroom trial for your idea</strong>. You don't try to <em>prove</em> your idea is absolutely right. Instead, you start by assuming the <em>opposite</em> is true, and then you see if your data provides enough evidence to reject that opposite idea.</p>
+
+        <h2>The Courtroom Analogy ⚖️</h2>
+        <p>Let's break down the steps using the trial analogy:</p>
+        <ol>
+            <li>
+                <strong>The "Presumption of Innocence" (Null Hypothesis, $H_0$):</strong> In court, you assume the person is innocent until proven guilty. In science, we start by assuming there is <strong>no effect</strong> or <strong>no difference</strong>. This is called the <strong>Null Hypothesis ($H_0$)</strong>.
+                <ul>
+                    <li><em>Example $H_0$:</em> "The new fertilizer has <em>no effect</em> on plant height."</li>
+                    <li><em>Symbolically:</em> $H_0: \mu_{new} = \mu_{old}$ (The average height with the new fertilizer is the same as the old).</li>
+                </ul>
+            </li>
+            <li>
+                <strong>The "Charge" (Alternative Hypothesis, $H_a$ or $H_1$):</strong> This is what the prosecutor (the scientist) <em>wants</em> to show evidence for. It's the idea that there <em>is</em> an effect or a difference. This is the <strong>Alternative Hypothesis ($H_a$)</strong>.
+                <ul>
+                    <li><em>Example $H_a$:</em> "The new fertilizer <em>does</em> make plants grow taller."</li>
+                    <li><em>Symbolically:</em> $H_a: \mu_{new} > \mu_{old}$ (The average height with the new is greater than the old).</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Gathering Evidence (Collecting Data):</strong> You run your experiment and collect data (measure the heights of plants with the new fertilizer vs. the old).
+            </li>
+            <li>
+                <strong>Summarizing the Evidence (Test Statistic):</strong> You calculate a single number from your data that summarizes how strong the evidence is against the null hypothesis. Common test statistics are the <strong>t-value</strong> (Module 3) or the <strong>Chi-Square value</strong> (Module 3). Think of this like the key piece of evidence presented in court.
+            </li>
+            <li>
+                <strong>The Verdict (The $p$-value):</strong> This is the most crucial part! The <strong>$p$-value</strong> is a probability. It answers this question: <strong>"If the null hypothesis were actually true (if the fertilizer really did nothing), what's the chance I would get data as extreme (or even more extreme) as what I actually saw, just by random luck?"</strong>
+            </li>
+        </ol>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Understanding the $p$-value (The "Fluke Meter")</h2>
+        <p>Think of the $p$-value like a <strong>"fluke meter"</strong> or a <strong>"surprise detector"</strong>:</p>
+        <ul>
+            <li>A <strong>High $p$-value</strong> (like $p = 0.70$ or 70%): Not surprising! If the fertilizer did nothing, getting results like this would happen 70% of the time just by chance. It's probably a fluke. The evidence against $H_0$ is <strong>weak</strong>.</li>
+            <li>A <strong>Low $p$-value</strong> (like $p = 0.01$ or 1%): Very surprising! If the fertilizer did nothing, getting results this strong would only happen 1% of the time by chance. It's probably <em>not</em> a fluke; something real is likely happening. The evidence against $H_0$ is <strong>strong</strong>.</li>
+        </ul>
+
+        <h2>Making the Decision: Alpha ($\alpha$)</h2>
+        <p>How low does the $p$-value need to be for us to say, "Okay, that's surprising enough, I don't believe the null hypothesis anymore"?</p>
+        <p>We decide this <em>before</em> we even look at the data by setting a <strong>significance level</strong>, called <strong>alpha ($\alpha$)</strong>. Think of it as the "reasonable doubt" threshold in court.</p>
+        <p>In science, the most common alpha level is <strong>$\alpha = 0.05$ (or 5%)</strong>.</p>
+
+        <h3>The Decision Rule:</h3>
+        <ul>
+            <li>If <strong>$p < \alpha$ (e.g., $p < 0.05$)</strong>: The result is <strong>statistically significant</strong>. We <strong>reject the null hypothesis ($H_0$)</strong>. We have enough evidence to support our alternative hypothesis ($H_a$). (Like finding the defendant "guilty").</li>
+            <li>If <strong>$p \ge \alpha$ (e.g., $p \ge 0.05$)</strong>: The result is <strong>not statistically significant</strong>. We <strong>fail to reject the null hypothesis ($H_0$)</strong>. We don't have enough evidence to say $H_0$ is wrong. (Like finding the defendant "not guilty" - which doesn't mean they are innocent, just that there wasn't enough proof).</li>
+        </ul>
+        <p><strong>Important:</strong> We never "accept" $H_0$. We only fail to find enough evidence to reject it.</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Interactive: The $p$-value Decision</h2>
+        <p>Let's visualize the decision. We usually set $\alpha = 0.05$. Click the button to generate a random $p$-value (imagine it came from an experiment). See if it falls into the "Reject $H_0$" zone!</p>
+
+        <div class="interactive-calc dark-bg">
+            <div id="pvalue-plot-container">
+                <div id="pvalue-plot"></div>
+            </div>
+            <div class="pvalue-controls">
+                <p>Significance Level ($\alpha$): <strong>0.05</strong></p>
+                <button id="generate-pvalue-btn" class="btn-primary">Generate a p-value</button>
+                <div id="pvalue-result">
+                    Generated p-value: <span id="pvalue-display">---</span> | Decision: <span id="pvalue-decision">---</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        (function setupPValueSimulator() {
+            // Check if D3 is loaded
+            if (typeof d3 === 'undefined') {
+                console.error("D3.js is not loaded! Cannot start simulator.");
+                document.querySelector("#pvalue-plot").innerHTML = "<p style='color: red; padding: 10px;'>Error: Simulator could not be loaded.</p>";
+                return;
+            }
+
+            const margin = { top: 10, right: 20, bottom: 40, left: 20 };
+            const width = 500 - margin.left - margin.right;
+            const height = 80 - margin.top - margin.bottom;
+            const alpha = 0.05;
+
+            const svg = d3.select("#pvalue-plot").append("svg")
+                .attr("width", "100%")
+                .attr("height", height + margin.top + margin.bottom)
+                .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                .attr("preserveAspectRatio", "xMidYMid meet")
+                .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+            const xScale = d3.scaleLinear().domain([0, 1]).range([0, width]);
+            const xAxis = svg.append("g").attr("transform", `translate(0, ${height / 2})`)
+                .call(d3.axisBottom(xScale).ticks(5));
+
+            const alphaX = xScale(alpha);
+            svg.append("line")
+                .attr("x1", alphaX)
+                .attr("x2", alphaX)
+                .attr("y1", 0)
+                .attr("y2", height)
+                .attr("stroke", "#dc3545")
+                .attr("stroke-width", 2)
+                .attr("stroke-dasharray", "4 4");
+
+            svg.append("text").attr("x", alphaX / 2).attr("y", height + 25)
+                .attr("text-anchor", "middle").attr("class", "zone-label reject")
+                .text("Reject H₀ (p < α)");
+            svg.append("text").attr("x", alphaX + (width - alphaX) / 2).attr("y", height + 25)
+                .attr("text-anchor", "middle").attr("class", "zone-label fail-reject")
+                .text("Fail to Reject H₀ (p ≥ α)");
+
+            const pValueDisplay = d3.select("#pvalue-display");
+            const decisionDisplay = d3.select("#pvalue-decision");
+            const pValueMarker = svg.append("circle")
+                .attr("cy", height / 2)
+                .attr("r", 6)
+                .attr("fill", "#007bff")
+                .style("opacity", 0);
+
+            d3.select("#generate-pvalue-btn").on("click", () => {
+                const pValue = Math.random();
+
+                pValueDisplay.text(pValue.toFixed(3));
+
+                let decision = "";
+                if (pValue < alpha) {
+                    decision = "Reject H₀";
+                    decisionDisplay.style("color", "#dc3545").style("font-weight", "bold");
+                    pValueMarker.attr("fill", "#dc3545");
+                } else {
+                    decision = "Fail to Reject H₀";
+                    decisionDisplay.style("color", "#28a745").style("font-weight", "bold");
+                    pValueMarker.attr("fill", "#28a745");
+                }
+                decisionDisplay.text(decision);
+
+                pValueMarker.style("opacity", 1)
+                    .transition().duration(300)
+                    .attr("cx", xScale(pValue));
+            });
+        })();
+    </script>
+
+</body>
+</html>

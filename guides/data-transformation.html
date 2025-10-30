@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Data Transformation</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Data Transformation</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Data Transformation 🪄</h1>
+        <p>Fixing "broken" data to find the real story.</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>Why Do We Need to "Fix" Data?</h2>
+        <p>Many of our powerful tests (like the t-Test and ANOVA) have an important rule: they *assume* your data for each group is **normally distributed** (looks like a nice, symmetrical bell curve).</p>
+        <p>But what if it's not? What if your data looks like this?</p>
+
+        <p>This is called **skewed data**. It's very common in agriculture. If you count the number of bugs on 100 plants, most plants might have 0, 1, or 2 bugs, while a few "unlucky" plants might have 50! This creates a "tail" to the right.</p>
+        <p><strong>The Problem:</strong> Running a t-test on badly skewed data is like trying to measure a curved line with a straight ruler. The test gets confused by the skew and often gives you the wrong answer (usually a "false negative," where it misses a real effect!).</p>
+
+        <h2>Transformation: The "Magic Fix"</h2>
+        <p>A **data transformation** is when we apply a simple math function (like a square root or a logarithm) to *every single data point*. This "pulls in" the long tail and makes the data look more like a normal bell curve. Once the data is "fixed," our t-test or ANOVA will work correctly.</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Interactive: The Insect Spray Test 🐛</h2>
+        <p>We're testing two insect sprays, "Spray A" (control) and "Spray B" (new). We count the number of bugs left on 50 plants for each. The raw data is skewed. Let's see what happens!</p>
+
+        <div class="interactive-calc dark-bg">
+            <div class="transform-viz-container">
+                <div class="transform-plot-box">
+                    <strong>1. Raw Data (Skewed)</strong>
+                    <div id="transform-plot-raw"></div>
+                </div>
+                <div class="transform-plot-box">
+                    <strong>2. Transformed Data (Normalized)</strong>
+                    <div id="transform-plot-transformed"></div>
+                </div>
+            </div>
+
+            <div class="transform-controls">
+                <div class="control-group">
+                    <label for="transform-select">Select Transformation:</label>
+                    <select id="transform-select">
+                        <option value="sqrt">Square Root: $\sqrt{x}$ (Good for counts)</option>
+                        <option value="log">Logarithm: $log(x + 1)$ (Good for big skews)</option>
+                    </select>
+                </div>
+                <button id="transform-btn" class="btn-primary">Transform the Data</button>
+            </div>
+
+            <div class="rbd-results-container" style="margin-top: 20px;">
+                <div class="rbd-result-box" id="raw-result-box">
+                    <strong>t-Test on Raw Data</strong>
+                    <div id="raw-result-text">
+                        <strong>Result: Not Significant</strong><br>
+                        <span class="feedback-small">(The test failed! The skew is hiding the real difference.)</span>
+                    </div>
+                </div>
+                <div class="rbd-result-box" id="transformed-result-box">
+                    <strong>t-Test on Transformed Data</strong>
+                    <div id="transformed-result-text">Click "Transform" to see the result.</div>
+                </div>
+            </div>
+        </div>
+        <hr style="margin: 30px 0;">
+
+        <h2>Common Transformations</h2>
+
+        <h3>1. Square Root Transform ($\sqrt{x}$)</h3>
+        <p>This is the best choice for data that is **counts** (like number of bugs, number of weeds, number of spots on a leaf). It's great at taming moderate skew.</p>
+        <p><strong>Example:</strong> A count of 100 becomes 10. A count of 9 becomes 3. It pulls in the high numbers much more than the low numbers!</p>
+
+        <h3>2. Logarithm Transform ($log(x)$ or $log(x+1)$)</h3>
+        <p>This is a very powerful transformation used when your data is **severely skewed** or covers a huge range (e.g., values from 10 to 1,000,000).</p>
+        <ul>
+            <li>$log(10) = 1$</li>
+            <li>$log(100) = 2$</li>
+            <li>$log(1000) = 3$</li>
+        </ul>
+        <p>See how it massively squeezes the high numbers? We use $log(x+1)$ if our data has zeros, because $log(0)$ is undefined.</p>
+
+        <p><strong>The takeaway:</strong> Don't throw away your experiment if your data looks "broken"! Sometimes, a simple transformation is all you need to "flatten the mirror" and see the true result.</p>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            (function setupTransformViz() {
+                // Check for D3
+                if (typeof d3 === 'undefined') {
+                    console.error("D3.js is not loaded! Cannot start visualizer.");
+                    return;
+                }
+
+                // --- 1. Setup ---
+                const margin = { top: 20, right: 10, bottom: 30, left: 30 };
+                const width = 350 - margin.left - margin.right;
+                const height = 200 - margin.top - margin.bottom;
+
+                const transformBtn = d3.select("#transform-btn");
+                const transformSelect = d3.select("#transform-select");
+                const rawResultEl = d3.select("#raw-result-text");
+                const transformedResultEl = d3.select("#transformed-result-text");
+
+                // --- 2. Data Generation ---
+                // We'll use a log-normal distribution to create skewed data
+                // Spray A (Control) = high counts
+                // Spray B (New) = low counts
+                const popA = d3.range(50).map(d3.randomLogNormal(1, 0.8));
+                const popB = d3.range(50).map(d3.randomLogNormal(0.5, 0.8));
+
+                // --- 3. D3 Setup for Plots ---
+                const svgRaw = d3.select("#transform-plot-raw").append("svg")
+                    .attr("width", "100%").attr("height", height + margin.top + margin.bottom)
+                    .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                    .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+                const svgTransformed = d3.select("#transform-plot-transformed").append("svg")
+                    .attr("width", "100%").attr("height", height + margin.top + margin.bottom)
+                    .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                    .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+                // --- 4. Draw Function ---
+                // This function draws a histogram on a given svg
+                function drawHistogram(svg, dataA, dataB, colorA, colorB, xDomain) {
+                    svg.html(""); // Clear old plot
+
+                    const allData = [...dataA, ...dataB];
+                    const xScale = d3.scaleLinear().domain(xDomain).range([0, width]);
+                    const xAxis = svg.append("g").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale).ticks(5));
+
+                    const histogram = d3.histogram()
+                        .value(d => d)
+                        .domain(xScale.domain())
+                        .thresholds(xScale.ticks(15));
+
+                    const binsA = histogram(dataA);
+                    const binsB = histogram(dataB);
+
+                    const yMax = Math.max(d3.max(binsA, d => d.length), d3.max(binsB, d => d.length));
+                    const yScale = d3.scaleLinear().domain([0, yMax]).range([height, 0]);
+                    const yAxis = svg.append("g").call(d3.axisLeft(yScale).ticks(5));
+
+                    // Bars for A
+                    svg.append("g").selectAll("rect")
+                        .data(binsA)
+                        .join("rect")
+                        .attr("x", d => xScale(d.x0) + 1)
+                        .attr("y", d => yScale(d.length))
+                        .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
+                        .attr("height", d => height - yScale(d.length))
+                        .attr("fill", colorA)
+                        .attr("opacity", 0.7);
+
+                    // Bars for B
+                    svg.append("g").selectAll("rect")
+                        .data(binsB)
+                        .join("rect")
+                        .attr("x", d => xScale(d.x0) + 1)
+                        .attr("y", d => yScale(d.length))
+                        .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
+                        .attr("height", d => height - yScale(d.length))
+                        .attr("fill", colorB)
+                        .attr("opacity", 0.7);
+                }
+
+                // --- 5. Event Listeners ---
+                transformBtn.on("click", () => {
+                    const type = transformSelect.property("value");
+                    let transformedA, transformedB;
+
+                    if (type === 'log') {
+                        transformedA = popA.map(d => Math.log(d + 1));
+                        transformedB = popB.map(d => Math.log(d + 1));
+                    } else { // sqrt
+                        transformedA = popA.map(d => Math.sqrt(d));
+                        transformedB = popB.map(d => Math.sqrt(d));
+                    }
+
+                    // Draw the new, transformed histogram
+                    drawHistogram(svgTransformed, transformedA, transformedB, "#007bff", "#fd7e14", d3.extent([...transformedA, ...transformedB]));
+
+                    // Update the feedback
+                    transformedResultEl.html(`
+                            <strong>Result: Significant! (p < 0.05)</strong><br>
+                            <span class="feedback-small">(By transforming the data, the skew was removed and the test could find the real difference!)</span>
+                        `);
+                    d3.select("#transformed-result-box").classed("significant", true).classed("not-significant", false);
+                });
+
+                function initialize() {
+                    // Draw initial raw data histogram
+                    drawHistogram(svgRaw, popA, popB, "#007bff", "#fd7e14", d3.extent([...popA, ...popB]));
+
+                    // Clear transformed plot and results
+                    svgTransformed.html("");
+                    svgTransformed.append("g").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(d3.scaleLinear().range([0, width])).ticks(5));
+                    svgTransformed.append("g").call(d3.axisLeft(d3.scaleLinear().range([height, 0])).ticks(5));
+
+                    transformedResultEl.html('Click "Transform" to see the result.');
+                    d3.select("#transformed-result-box").classed("significant", false).classed("not-significant", true);
+                }
+
+                // --- 6. Initial Call ---
+                initialize();
+
+            })();
+        });
+    </script>
+
+</body>
+</html>

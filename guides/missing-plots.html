@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Missing Plot Techniques</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Missing Plot Techniques</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Missing Plot Techniques 🐄</h1>
+        <p>What to do when a cow eats your data!</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>The Big Problem: A Missing Piece</h2>
+        <p>Imagine you set up a perfect **Randomized Block Design (RBD)** in a field. You have 4 Blocks and 3 Treatments (A, B, C). But just before harvest, a cow gets loose and eats all the plants in *one* of your plots! 😱</p>
+
+        <p>Your data table now has a big, empty hole in it. This is a huge problem! Designs like RBD and Latin Square are "balanced," meaning they *need* every piece to work properly. If you just leave the hole empty, or put in a zero, your entire ANOVA math will be wrong.</p>
+
+        <h2>The "Jigsaw Puzzle" Solution</h2>
+        <p>Think of your data table like a jigsaw puzzle. If you lose one piece, you can still make a very good guess about what that piece looked like based on the pieces around it (the other values in its row and column).</p>
+        <p>In statistics, we do the same thing with a formula. We **estimate** what the missing value *would* have been. Then, we can run our ANOVA, but with one small penalty.</p>
+
+        <p><strong>The Penalty:</strong> Because we "guessed" one of our numbers (even with a smart formula), we have less "real" information than we started with. To account for this, we lose one **degree of freedom (df)** from our "Error" term in the ANOVA table. This makes our test slightly less powerful, which is a fair price to pay for fixing the hole!</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Interactive: The RBD Repair Shop 🛠️</h2>
+        <p>Here is a complete 4-Block, 3-Treatment RBD experiment. Click the button to "lose" a plot and watch how we estimate its value.</p>
+
+        <div class="interactive-calc dark-bg">
+            <div class="doe-viz-controls" style="justify-content: center;">
+                <button class="doe-btn" id="missing-plot-btn">Oh No! Lose a Random Plot!</button>
+                <button class="doe-btn" id="missing-reset-btn" style="background-color: var(--grey-dark);">Reset</button>
+            </div>
+
+            <div id="missing-plot-container">
+                <table class="data-entry-grid" id="missing-plot-table">
+                </table>
+                <div class="missing-plot-arrow">⬇️</div>
+                <div id="missing-calc-box" class="calc-formula-box" style="display: none;">
+                    <h4>Estimating the Missing Value (x)</h4>
+                    <p><strong>Formula:</strong> $x = \frac{k \cdot T_m + r \cdot B_m - G_m}{(k-1)(r-1)}$</_p>
+                    <p>
+                        Where: <br>
+                        <strong>k</strong> = # of Treatments (3) <br>
+                        <strong>r</strong> = # of Blocks (4) <br>
+                        <strong>T<sub>m</sub></strong> = Total of the Treatment with the missing plot <br>
+                        <strong>B<sub>m</sub></strong> = Total of the Block with the missing plot <br>
+                        <strong>G<sub>m</sub></strong> = Grand Total of *all known* plots
+                    </p>
+                    <hr>
+                    <div id="missing-calc-steps">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            (function setupMissingPlotViz() {
+                // Check for D3
+                if (typeof d3 === 'undefined') {
+                    console.error("D3.js is not loaded! Cannot start visualizer.");
+                    return;
+                }
+
+                // --- 1. Setup ---
+                const numBlocks = 4; // Rows
+                const numTreatments = 3; // Cols
+                const baseData = [
+                    [15, 18, 16], // Block 1 (A, B, C)
+                    [17, 20, 18], // Block 2 (B, C, A)
+                    [19, 22, 20], // Block 3 (C, A, B)
+                    [16, 19, 17]  // Block 4 (A, C, B)
+                ];
+                let currentData = JSON.parse(JSON.stringify(baseData)); // Deep copy
+
+                const table = d3.select("#missing-plot-table");
+                const calcBox = d3.select("#missing-calc-box");
+                const calcSteps = d3.select("#missing-calc-steps");
+                const arrow = d3.select(".missing-plot-arrow");
+
+                // --- 2. Helper Functions ---
+                function drawTable(missingCoords = null, estimatedValue = null) {
+                    table.html(""); // Clear
+
+                    // Header Row
+                    const thead = table.append("thead");
+                    let header = thead.append("tr");
+                    header.append("th").text("Block / Treatment");
+                    for (let c = 0; c < numTreatments; c++) {
+                        header.append("th").text(`Treatment ${String.fromCharCode(65 + c)}`);
+                    }
+                    header.append("th").text("Block Total");
+
+                    // Data Rows
+                    const tbody = table.append("tbody");
+                    for (let r = 0; r < numBlocks; r++) {
+                        let row = tbody.append("tr");
+                        row.append("th").text(`Block ${r + 1}`);
+                        let rowTotal = 0;
+                        for (let c = 0; c < numTreatments; c++) {
+                            let val = currentData[r][c];
+                            let cell = row.append("td").attr("id", `cell-${r}-${c}`);
+
+                            if (missingCoords && missingCoords.r === r && missingCoords.c === c) {
+                                cell.html("?").classed("missing", true);
+                            } else {
+                                rowTotal += val;
+                                cell.text(val.toFixed(1));
+                            }
+                            // Show estimated value
+                            if (estimatedValue && missingCoords.r === r && missingCoords.c === c) {
+                                cell.html(`${estimatedValue.toFixed(1)}<span class="estimated-star">*</span>`);
+                                cell.classed("estimated", true);
+                                rowTotal += estimatedValue; // Add estimate to total
+                            }
+                        }
+                        row.append("th").attr("id", `row-total-${r}`).text(rowTotal.toFixed(1));
+                    }
+
+                    // Footer Row (Column Totals)
+                    const tfoot = table.append("tfoot");
+                    let footer = tfoot.append("tr");
+                    footer.append("th").text("Treatment Total");
+                    let grandTotal = 0;
+                    for (let c = 0; c < numTreatments; c++) {
+                        let colTotal = 0;
+                        for (let r = 0; r < numBlocks; r++) {
+                            let val = currentData[r][c];
+                            if (!(missingCoords && missingCoords.r === r && missingCoords.c === c)) {
+                                colTotal += val;
+                            }
+                            if (estimatedValue && missingCoords.r === r && missingCoords.c === c) {
+                                colTotal += estimatedValue; // Add estimate to total
+                            }
+                        }
+                        footer.append("th").attr("id", `col-total-${c}`).text(colTotal.toFixed(1));
+                        grandTotal += colTotal;
+                    }
+                    footer.append("th").attr("id", "grand-total").text(grandTotal.toFixed(1));
+                }
+
+                function losePlot() {
+                    // Reset to original data first
+                    currentData = JSON.parse(JSON.stringify(baseData));
+
+                    // Pick a random plot to "lose"
+                    const r_m = Math.floor(Math.random() * numBlocks); // Missing Row
+                    const c_m = Math.floor(Math.random() * numTreatments); // Missing Col
+
+                    const originalValue = currentData[r_m][c_m]; // Store it
+
+                    // Get totals *before* removing the value
+                    const Bm_full = d3.sum(currentData[r_m]);
+                    const Tm_full = d3.sum(currentData, d => d[c_m]);
+                    const Gm_full = d3.sum(currentData.flat());
+
+                    // Get totals *after* removing the value
+                    const Bm = Bm_full - originalValue; // Total of Block (with missing)
+                    const Tm = Tm_full - originalValue; // Total of Treatment (with missing)
+                    const Gm = Gm_full - originalValue; // Grand Total (with missing)
+
+                    const k = numTreatments;
+                    const r = numBlocks;
+
+                    // Calculate the estimate
+                    const numerator = (k * Tm) + (r * Bm) - Gm;
+                    const denominator = (k - 1) * (r - 1);
+                    const estimate = numerator / denominator;
+
+                    // Show the calculation steps
+                    calcSteps.html(`
+                            <p><strong>Tm (Total of Trt ${String.fromCharCode(65 + c_m)}):</strong> ${Tm.toFixed(1)}</p>
+                            <p><strong>Bm (Total of Block ${r_m + 1}):</strong> ${Bm.toFixed(1)}</p>
+                            <p><strong>Gm (Total of all *known* plots):</strong> ${Gm.toFixed(1)}</p>
+                            <p><strong>x</strong> = (3 * ${Tm.toFixed(1)} + 4 * ${Bm.toFixed(1)} - ${Gm.toFixed(1)}) / ((3-1) * (4-1))</p>
+                            <p><strong>x</strong> = ${numerator.toFixed(1)} / ${denominator}</p>
+                            <h4>Estimated Value: <strong>${estimate.toFixed(2)}</strong></h4>
+                            <p class="feedback-small">*This estimated value is now used to re-calculate the totals and run an adjusted ANOVA (with 1 less df for error).</p>
+                        `);
+
+                    // Show the calculation box
+                    calcBox.style("display", "block");
+                    arrow.style("display", "block");
+
+                    // Redraw the table with the '?' and the new estimate
+                    drawTable({ r: r_m, c: c_m }, estimate);
+                }
+
+                function reset() {
+                    currentData = JSON.parse(JSON.stringify(baseData));
+                    drawTable(); // Draw original table
+                    calcBox.style("display", "none");
+                    arrow.style("display", "none");
+                }
+
+                // --- 3. Event Listeners ---
+                d3.select("#missing-plot-btn").on("click", losePlot);
+                d3.select("#missing-reset-btn").on("click", reset);
+
+                // --- Initial Call ---
+                drawTable(); // Draw the full, correct table on load
+            })();
+        });
+    </script>
+
+</body>
+</html>

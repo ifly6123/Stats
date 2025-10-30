@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: The Chi-Square (χ²) Test</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display.swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>The Chi-Square (χ²) Test</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">The Chi-Square (χ²) Test</h1>
+        <p>Checking if what you <em>got</em> matches what you <em>expected</em>.</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>What is a Chi-Square Test?</h2>
+        <p>The <strong>Chi-Square test</strong> (pronounced "kye-squared," and written as $\chi^2$) is a hypothesis test that checks if there's a significant difference between what you <strong>observed</strong> (what you actually counted) and what you <strong>expected</strong> to count.</p>
+        <p>It's used for **categorical data**—things you can count and put into "buckets" or categories. It's great for questions like:</p>
+        <ul>
+            <li>Is this die fair? (Do I get 1, 2, 3, 4, 5, and 6 an equal number of times?)</li>
+            <li>Are the colors in this bag of M&Ms distributed the way the company claims?</li>
+            <li>Are "Treatment A" and "Treatment B" related to "Survival" and "Death"? (This is the "Test of Independence," which you can try in <a href="../module3.html">Module 3</a>).</li>
+        </ul>
+
+        <h2>The "Goodness-of-Fit" Test: Is My Die Fair? 🎲</h2>
+        <p>Let's focus on the simplest version: the **Goodness-of-Fit** test. We want to see how well our observed data "fits" our expectation.</p>
+        <ul>
+            <li><strong>Our Expectation ($H_0$):</strong> The die is fair. If we roll it 60 times, we <em>expect</em> to get each face 10 times (60 rolls / 6 sides = 10 each). This is our **Null Hypothesis ($H_0$)**.</li>
+            <li><strong>Our Suspicion ($H_a$):</strong> The die is loaded! The counts are *not* equal. This is our **Alternative Hypothesis ($H_a$)**.</li>
+        </ul>
+
+        <p>The $\chi^2$ statistic is a single number that summarizes the *total difference* between your observed and expected counts for all categories.</p>
+        <p style="text-align: center; font-size: 1.5rem; font-weight: 600;">$\chi^2 = \sum \frac{(O - E)^2}{E}$</p>
+        <p>In plain English, for each category (each face of the die):</p>
+        <ol>
+            <li>Find the difference: $(Observed - Expected)$</li>
+            <li>Square it: $(Observed - Expected)^2$</li>
+            <li>Divide by the Expected: $\frac{(Observed - Expected)^2}{Expected}$</li>
+            <li><strong>Add all those values up!</strong> (That's what the big $\sum$ symbol means).</li>
+        </ol>
+        <p>A **big $\chi^2$ value** means there's a big difference between what you got and what you expected. This gives a **low p-value** (it's surprising!) and suggests the die might be loaded.</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Interactive: The Dice Roll Simulator 🔬</h2>
+        <p>Let's test a die. We'll roll it 60 times and expect 10 of each face. Click "Roll" to see what happens. Is the die fair?</p>
+
+        <div class="interactive-calc dark-bg">
+            <div class="chi-controls">
+                <button id="chi-roll-btn" class="btn-primary">Roll 60 Times</button>
+                <button id="chi-reset-btn" class="btn-secondary">Reset</button>
+            </div>
+
+            <table class="data-entry-grid" id="chi-table">
+                <thead>
+                    <tr>
+                        <th>Die Face</th>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>3</th>
+                        <th>4</th>
+                        <th>5</th>
+                        <th>6</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="chi-row-expected">
+                        <th>Expected (E)</th>
+                        <td id="e-1">10</td>
+                        <td id="e-2">10</td>
+                        <td id="e-3">10</td>
+                        <td id="e-4">10</td>
+                        <td id="e-5">10</td>
+                        <td id="e-6">10</td>
+                    </tr>
+                    <tr class="chi-row-observed">
+                        <th>Observed (O)</th>
+                        <td id="o-1">0</td>
+                        <td id="o-2">0</td>
+                        <td id="o-3">0</td>
+                        <td id="o-4">0</td>
+                        <td id="o-5">0</td>
+                        <td id="o-6">0</td>
+                    </tr>
+                    <tr class="chi-row-calc">
+                        <th>$\frac{(O-E)^2}{E}$</th>
+                        <td id="c-1">0.00</td>
+                        <td id="c-2">0.00</td>
+                        <td id="c-3">0.00</td>
+                        <td id="c-4">0.00</td>
+                        <td id="c-5">0.00</td>
+                        <td id="c-6">0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="calc-results-grid" style="margin-top: 20px;">
+                <div class="calc-stat-box compact">
+                    <strong>Total Rolls (n)</strong>
+                    <span id="chi-n">0</span>
+                </div>
+                <div class="calc-stat-box compact" id="mean-box-disp">
+                    <strong>$\chi^2$ Statistic (Sum)</strong>
+                    <span id="chi-value">0.00</span>
+                </div>
+                <div class="calc-stat-box compact">
+                    <strong>Degrees of Freedom (df)</strong>
+                    <span id="chi-df">5</span>
+                </div>
+                <div class="calc-stat-box compact" id="sd-box-disp">
+                    <strong>p-value</strong>
+                    <span id="chi-pvalue">1.000</span>
+                </div>
+            </div>
+            <div id="chi-conclusion" class="stat-result not-significant">
+                <span>Click "Roll" to test the die!</span>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        (function setupChiSquareSimulator() {
+            // Check if D3 and jStat are loaded
+            if (typeof d3 === 'undefined' || typeof jStat === 'undefined') {
+                console.error("D3.js or jStat.js is not loaded! Cannot start simulator.");
+                document.querySelector(".interactive-calc").innerHTML = "<p style='color: red; padding: 10px;'>Error: Simulator could not be loaded.</p>";
+                return;
+            }
+
+            // --- 1. Select Elements ---
+            const rollBtn = d3.select("#chi-roll-btn");
+            const resetBtn = d3.select("#chi-reset-btn");
+
+            const totalRollsEl = d3.select("#chi-n");
+            const chiValueEl = d3.select("#chi-value");
+            const pValueEl = d3.select("#chi-pvalue");
+            const dfEl = d3.select("#chi-df");
+            const conclusionEl = d3.select("#chi-conclusion");
+
+            let observedCounts = [0, 0, 0, 0, 0, 0];
+            let totalRolls = 0;
+            const numCategories = 6;
+            const df = numCategories - 1; // Degrees of freedom = k - 1
+            dfEl.text(df);
+
+            // --- 2. Main "Roll" Function ---
+            function rollDice() {
+                const rollsThisTurn = 60;
+                totalRolls += rollsThisTurn;
+
+                // Simulate 60 rolls
+                for (let i = 0; i < rollsThisTurn; i++) {
+                    const roll = Math.floor(Math.random() * 6); // 0-5
+                    observedCounts[roll]++;
+                }
+
+                updateTable();
+            }
+
+            // --- 3. Update Function ---
+            function updateTable() {
+                if (totalRolls === 0) {
+                    // Reset state
+                    observedCounts = [0, 0, 0, 0, 0, 0];
+                    totalRollsEl.text(0);
+                    chiValueEl.text("0.00");
+                    pValueEl.text("1.000").style("color", "inherit");
+                    conclusionEl.text('Click "Roll" to test the die!').classed("significant", false).classed("not-significant", true);
+                    for (let i = 1; i <= numCategories; i++) {
+                        d3.select(`#e-${i}`).text(0);
+                        d3.select(`#o-${i}`).text(0);
+                        d3.select(`#c-${i}`).text("0.00");
+                    }
+                    return;
+                }
+
+                const expectedCount = totalRolls / numCategories;
+                let chiSquareSum = 0;
+
+                for (let i = 1; i <= numCategories; i++) {
+                    const o = observedCounts[i - 1];
+                    const e = expectedCount;
+
+                    const cellValue = (e === 0) ? 0 : ((o - e) ** 2) / e;
+                    chiSquareSum += cellValue;
+
+                    // Update table cells with nice formatting
+                    d3.select(`#e-${i}`).text(e.toFixed(1));
+                    d3.select(`#o-${i}`).text(o);
+                    d3.select(`#c-${i}`).text(cellValue.toFixed(2));
+                }
+
+                // Calculate p-value
+                // 1 - CDF of the chi-square distribution
+                const pValue = 1 - jStat.chisquare.cdf(chiSquareSum, df);
+
+                // Update final stats
+                totalRollsEl.text(totalRolls);
+                chiValueEl.text(chiSquareSum.toFixed(2));
+                pValueEl.text(pValue.toFixed(3));
+
+                // Update conclusion
+                if (pValue < 0.05) {
+                    conclusionEl.text("Significant! (p < 0.05). The die might be loaded!");
+                    conclusionEl.classed("significant", true).classed("not-significant", false);
+                    pValueEl.style("color", "#dc3545"); // Red
+                } else {
+                    conclusionEl.text("Not Significant (p ≥ 0.05). The die appears to be fair.");
+                    conclusionEl.classed("significant", false).classed("not-significant", true);
+                    pValueEl.style("color", "#28a745"); // Green
+                }
+            }
+
+            // --- 4. Event Listeners ---
+            rollBtn.on("click", rollDice);
+            resetBtn.on("click", () => {
+                totalRolls = 0;
+                updateTable();
+            });
+
+        })();
+    </script>
+
+</body>
+</html>

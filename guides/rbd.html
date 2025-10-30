@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Randomized Block Design (RBD)</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Randomized Block Design (RBD)</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Randomized Block Design (RBD)</h1>
+        <p>Being smart about "noise" you already know exists.</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>What's the Problem with CRD?</h2>
+        <p>In the last guide, we learned about <strong>Completely Randomized Design (CRD)</strong>. It's a great, simple design, but it has one huge weakness: it only works if your test environment is <strong>perfectly uniform</strong> (like a lab bench).</p>
+        <p>What if your field isn't uniform? What if it's on a hill, so the top gets less water than the bottom? This is a "problem" you <em>know about</em> before you even start.</p>
+        <p>If you use CRD, some treatments might randomly end up in the "dry" area and some in the "wet" area. If the "wet" plants grow taller, you won't know if it was because of your fertilizer or just the extra water! Your experiment will be noisy and confusing.</p>
+
+        <h2>RBD: The Smart Solution (Blocking)</h2>
+        <p>A <strong>Randomized Block Design (RBD)</strong> is how you fix this. You use the principle of <strong>Blocking</strong> (or "Local Control").</p>
+        <p><strong>The "Fair Race" Analogy:</strong> Imagine you want to test two types of running shoes (A and B). You have 6 runners: 3 are professional (fast) and 3 are beginners (slow).</p>
+        <ul>
+            <li><strong>Bad Design (CRD):</strong> You randomly assign shoes. By bad luck, all 3 pros get Shoe A and all 3 beginners get Shoe B. Shoe A will look <em>amazing</em>, but it was a totally unfair test!</li>
+            <li><strong>Good Design (RBD):</strong> You are smart. You create two "Blocks": a "Fast Runners Block" and a "Slow Runners Block." Then, you randomly assign Shoe A and B <em>within</em> each block. This is a much fairer comparison.</li>
+        </ul>
+        <p>In an agricultural experiment, you do the same. If your field has a water gradient, you create "Blocks" (like "Dry Row," "Medium Row," "Wet Row") and then randomly assign all your treatments (A, B, C) <em>inside*</em> each block.</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Interactive: CRD vs. RBD on a "Problem" Field</h2>
+        <p>This 10x3 field has a clear soil gradient. The top row is poor soil (yield ≈ 10) and the bottom row is rich soil (yield ≈ 40). We want to test 3 treatments: <strong>A (+5)</strong>, <strong>B (0)</strong>, and <strong>C (+2)</strong>. Can we find the effect?</p>
+
+        <div class="interactive-calc dark-bg">
+            <div class="doe-viz-controls">
+                <button class="doe-btn" id="rbd-run-crd" data-design="crd">Run as CRD</button>
+                <button class="doe-btn" id="rbd-run-rbd" data-design="rbd">Run as RBD (Blocking Rows)</button>
+            </div>
+
+            <div id="rbd-plot-container" class="large-plot">
+                <div id="rbd-plot">
+                </div>
+            </div>
+
+            <div class="rbd-results-container">
+                <div class="rbd-result-box" id="crd-result-box">
+                    <strong>CRD Analysis</strong>
+                    <div id="crd-result-text">Click "Run as CRD"</div>
+                </div>
+                <div class="rbd-result-box" id="rbd-result-box">
+                    <strong>RBD Analysis</strong>
+                    <div id="rbd-result-text">Click "Run as RBD"</div>
+                </div>
+            </div>
+        </div>
+        <hr style="margin: 30px 0;">
+
+        <h2>What Did You See?</h2>
+        <p>When you ran the simulation, you should have seen:</p>
+        <ul>
+            <li><strong>Run as CRD:</strong> The treatments (A, B, C) were scattered all over the field. The result was "Not Significant." <strong>Why?</strong> The huge difference between the top row (poor soil) and bottom row (rich soil) created so much "Noise" (Error) that it drowned out the small "Signal" from the treatments.</li>
+            <li><strong>Run as RBD:</strong> This design was <em>smart</em>. It forced one A, one B, and one C into *each row (block)*. It compares them fairly in the poor soil, in the medium soil, and in the rich soil. This <strong>removes the soil difference from the equation</strong>. The "Noise" becomes very small, and you can easily see the "Signal." The result was "Significant!"</li>
+        </ul>
+
+        <h2>Pros and Cons of RBD</h2>
+        <h3>👍 Pros (The Good Stuff)</h3>
+        <ul>
+            <li><strong>More Powerful:</strong> It's much better at finding real, small differences than a CRD.</li>
+            <li><strong>Controls "Noise":</strong> It isolates the variation from one known problem (like a slope or gradient), making your experiment more precise.</li>
+            <li><strong>Flexible:</strong> It's the most commonly used design in agriculture for a reason.</li>
+        </ul>
+
+        <h3>👎 Cons (The Problems)</h3>
+        <ul>
+            <li><strong>Missing Data is a Problem:</strong> If one of your plots is destroyed (e.g., by a tractor), the analysis becomes very complicated. You have to use "Missing Plot Techniques."</li>
+            <li><strong>Only Controls One Problem:</strong> It's great at handling one main gradient (like a slope). If you have *two* gradients (e.g., a slope *and* a sun-shade pattern), you need a more complex design like a <strong>Latin Square</strong>.</li>
+        </ul>
+        <p><strong>The takeaway:</strong> If your field isn't perfect (and it never is), RBD is almost always a better choice than CRD.</p>
+        <p>You can see a real ANOVA table for RBD in our <a href="../module4.html">Module 4: Virtual Field</a>!</p>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            (function setupRBDViz() {
+                // Check for D3
+                if (typeof d3 === 'undefined') {
+                    console.error("D3.js is not loaded! Cannot start visualizer.");
+                    document.querySelector("#rbd-plot-container").innerHTML = "<p style='color: red; padding: 10px;'>Error: Visualizer could not be loaded.</p>";
+                    return;
+                }
+
+                // --- 1. Setup ---
+                const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+                const width = 240 - margin.left - margin.right; // Narrower plot
+                const height = 600 - margin.top - margin.bottom; // Taller plot
+                const numRows = 10;
+                const numCols = 3;
+                const plotWidth = width / numCols;
+                const plotHeight = height / numRows;
+
+                const treatments = [
+                    { id: 'A', color: '#007bff', effect: 5 }, // Signal
+                    { id: 'B', color: '#fd7e14', effect: 0 },  // Control
+                    { id: 'C', color: '#28a745', effect: 2 }   // New treatment
+                ];
+
+                // Base yield for each block (row) - 10 blocks
+                const blockEffect = [10, 13, 16, 19, 22, 25, 28, 31, 34, 37];
+
+                const crdResultEl = d3.select("#crd-result-text");
+                const rbdResultEl = d3.select("#rbd-result-text");
+
+                const svg = d3.select("#rbd-plot").append("svg")
+                    .attr("width", "100%").attr("height", height + margin.top + margin.bottom)
+                    .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                    .attr("preserveAspectRatio", "xMidYMid meet")
+                    .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+                let fieldPlots = [];
+                for (let r = 0; r < numRows; r++) {
+                    for (let c = 0; c < numCols; c++) {
+                        fieldPlots.push({ id: `r${r}c${c}`, row: r, col: c, x: c * plotWidth, y: r * plotHeight, trt: null, yield: 0 });
+                    }
+                }
+
+                // Draw field background gradient
+                svg.append("defs").append("linearGradient")
+                    .attr("id", "soil-gradient")
+                    .attr("x1", "0%").attr("y1", "0%").attr("x2", "0%").attr("y2", "100%")
+                    .selectAll("stop")
+                    .data([
+                        { offset: "0%", color: "#fdf8e2" }, // Light yellow (poor soil)
+                        { offset: "100%", color: "#eaddb3" } // Darker (rich soil)
+                    ])
+                    .enter().append("stop")
+                    .attr("offset", d => d.offset)
+                    .attr("stop-color", d => d.color);
+
+                svg.append("rect")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .attr("fill", "url(#soil-gradient)");
+
+                // --- 2. Helper Functions ---
+                function shuffle(array) {
+                    let newArray = [...array];
+                    for (let i = newArray.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                    }
+                    return newArray;
+                }
+
+                function runAnalysis(design) {
+                    let totalNoise = 0;
+                    let treatmentSignal = 0;
+
+                    if (design === "crd") {
+                        // CRD: Assign 10 of A, 10 of B, 10 of C totally randomly
+                        let crdTreatmentsList = [];
+                        for (let i = 0; i < 10; i++) { crdTreatmentsList.push('A', 'B', 'C'); }
+                        const crdTreatments = shuffle(crdTreatmentsList);
+
+                        fieldPlots.forEach((p, i) => {
+                            p.trt = treatments.find(t => t.id === crdTreatments[i]);
+                            p.yield = blockEffect[p.row] + p.trt.effect + (Math.random() - 0.5);
+                        });
+
+                        const meanA = d3.mean(fieldPlots.filter(p => p.trt.id === 'A'), d => d.yield);
+                        const meanB = d3.mean(fieldPlots.filter(p => p.trt.id === 'B'), d => d.yield);
+                        const meanC = d3.mean(fieldPlots.filter(p => p.trt.id === 'C'), d => d.yield);
+                        const totalStdDev = d3.deviation(fieldPlots, d => d.yield);
+
+                        treatmentSignal = d3.max([meanA, meanB, meanC]) - d3.min([meanA, meanB, meanC]);
+                        totalNoise = totalStdDev;
+
+                        crdResultEl.html(`Signal (Max Diff): <strong>${treatmentSignal.toFixed(2)}</strong><br>
+                                              Noise (Total Spread): <strong>${totalNoise.toFixed(2)}</strong><br>
+                                              <strong>Result: Not Significant</strong><br>
+                                              <span class="feedback-small">(The "Noise" from the soil is too high and hides the small "Signal"!)</span>`);
+                    }
+                    else if (design === "rbd") {
+                        // RBD: Assign 1 A, 1 B, 1 C *within each row*
+                        for (let r = 0; r < numRows; r++) {
+                            const blockTreatments = shuffle(treatments); // Shuffle [A, B, C]
+                            for (let c = 0; c < numCols; c++) {
+                                const plot = fieldPlots.find(p => p.row === r && p.col === c);
+                                plot.trt = blockTreatments[c];
+                                plot.yield = blockEffect[plot.row] + plot.trt.effect + (Math.random() - 0.5);
+                            }
+                        }
+
+                        // Simplified RBD Analysis
+                        let noiseSum = 0;
+                        for (let r = 0; r < numRows; r++) {
+                            const rowData = fieldPlots.filter(p => p.row === r).map(p => p.yield);
+                            noiseSum += d3.deviation(rowData);
+                        }
+                        const avgNoise = noiseSum / numRows;
+
+                        const meanA = d3.mean(fieldPlots.filter(p => p.trt.id === 'A'), d => d.yield);
+                        const meanB = d3.mean(fieldPlots.filter(p => p.trt.id === 'B'), d => d.yield);
+                        const meanC = d3.mean(fieldPlots.filter(p => p.trt.id === 'C'), d => d.yield);
+                        treatmentSignal = d3.max([meanA, meanB, meanC]) - d3.min([meanA, meanB, meanC]);
+
+                        rbdResultEl.html(`Signal (Max Diff): <strong>${treatmentSignal.toFixed(2)}</strong><br>
+                                              Noise (Avg. Spread in Block): <strong>${avgNoise.toFixed(2)}</strong><br>
+                                              <strong>Result: Significant!</strong><br>
+                                              <span class="feedback-small">(By blocking, we removed the soil "Noise" and could see the real "Signal"!)</span>`);
+                    }
+
+                    // Draw plots
+                    svg.selectAll(".plot")
+                        .data(fieldPlots, d => d.id)
+                        .join("rect")
+                        .attr("class", "plot")
+                        .attr("x", d => d.x)
+                        .attr("y", d => d.y)
+                        .attr("width", plotWidth)
+                        .attr("height", plotHeight)
+                        .attr("stroke", "#fff")
+                        .attr("stroke-width", 2)
+                        .style("fill", "#eee")
+                        .transition().duration(300).delay((d, i) => i * 10) // Faster animation
+                        .style("fill", d => d.trt.color);
+
+                    // Draw labels
+                    svg.selectAll(".plot-label")
+                        .data(fieldPlots, d => d.id)
+                        .join("text")
+                        .attr("class", "plot-label")
+                        .attr("x", d => d.x + plotWidth / 2)
+                        .attr("y", d => d.y + plotHeight / 2)
+                        .attr("dy", ".35em")
+                        .attr("text-anchor", "middle")
+                        .style("font-size", `${plotHeight / 2.5}px`) // Adjusted font size
+                        .style("font-weight", "bold")
+                        .style("fill", "white")
+                        .style("opacity", 0)
+                        .text(d => d.trt.id)
+                        .transition().duration(300).delay((d, i) => 200 + i * 10) // Faster
+                        .style("opacity", 1);
+                }
+
+                // --- 3. Event Listeners ---
+                d3.select("#rbd-run-crd").on("click", () => {
+                    runAnalysis("crd");
+                    rbdResultEl.html('Click "Run as RBD" to compare!');
+                });
+
+                d3.select("#rbd-run-rbd").on("click", () => {
+                    runAnalysis("rbd");
+                    crdResultEl.html('Click "Run as CRD" to compare!');
+                });
+
+                // --- Initial Call ---
+                // Draw empty grid
+                svg.selectAll(".plot")
+                    .data(fieldPlots, d => d.id)
+                    .join("rect")
+                    .attr("class", "plot")
+                    .attr("x", d => d.x)
+                    .attr("y", d => d.y)
+                    .attr("width", plotWidth)
+                    .attr("height", plotHeight)
+                    .attr("stroke", "#fff")
+                    .attr("stroke-width", 2)
+                    .style("fill", "#eee");
+
+            })();
+        });
+    </script>
+
+</body>
+</html>

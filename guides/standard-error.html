@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Standard Error (SE)</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Standard Error</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Standard Error (SE)</h1>
+        <p>Understanding the "Wobbliness" of Your Mean.</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>The BIG Question: SD vs. SE</h2>
+        <p>This is the most confusing topic for many students, so let's make it simple. Imagine you have a field of 10,000 plants.</p>
+        <ul>
+            <li><strong>Standard Deviation (SD):</strong> You measure *all 10,000 plants*. The SD tells you the **spread of your actual data**. It answers: "How much does a *single plant's* height typically vary from the true field mean?"</li>
+            <li><strong>Standard Error (SE):</strong> You can't measure 10,000 plants, so you take a *sample* of 30. You get a sample mean. If you did this again, you'd get a *slightly different* sample mean. The SE tells you the **spread of the *sample means***. It answers: "How much 'wobble' is there in my sample mean? How close is my one mean likely to be to the true field mean?"</li>
+        </ul>
+        <p>In short: **SD** measures the spread of **data**, while **SE** measures the **precision of the mean**. A smaller SE is better—it means your mean is a more precise estimate!</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>The Sampling Machine 🔬</h2>
+        <p>Let's prove this. Below is a "population" of 10,000 plant heights. Its true mean is 50. Use the buttons to take random samples and see what happens.</p>
+
+        <div class="interactive-calc dark-bg">
+            <div class="se-viz-container">
+                <div class="se-plot-box">
+                    <strong>Population (N=10,000) & Current Sample</strong>
+                    <div id="se-plot-population"></div>
+                </div>
+                <div class="se-plot-box">
+                    <strong>Distribution of Sample Means (n=<span class="n-val-display">30</span>)</strong>
+                    <div id="se-plot-means"></div>
+                </div>
+            </div>
+
+            <div id="se-tooltip"></div>
+
+            <div class="se-controls">
+                <div class="control-group">
+                    <label for="se-sample-size">Sample Size (n): <span id="se-n-value">30</span></label>
+                    <input type="range" id="se-sample-size" min="5" max="100" value="30" step="5">
+                </div>
+                <div class="se-buttons">
+                    <button id="se-sample-one-btn" class="btn-secondary">Take 1 Sample</button>
+                    <button id="se-sample-many-btn" class="btn-primary">Take 500 Samples</button>
+                    <button id="se-reset-btn" class="btn-danger">Reset</button>
+                </div>
+            </div>
+
+            <div class="calc-results-grid" style="margin-top: 20px;">
+                <div class="calc-stat-box compact">
+                    <strong>Population Mean ($\mu$)</strong>
+                    <span id="se-pop-mean">50.00</span>
+                </div>
+                <div class="calc-stat-box compact">
+                    <strong>Population SD ($\sigma$)</strong>
+                    <span id="se-pop-sd">15.00</span>
+                </div>
+                <div class="calc-stat-box compact" id="mean-box-disp">
+                    <strong>Mean of Sample Means</strong>
+                    <span id="se-means-mean">N/A</span>
+                </div>
+                <div class="calc-stat-box compact" id="sd-box-disp">
+                    <strong>SD of Sample Means (The SE!)</strong>
+                    <span id="se-means-sd">N/A</span>
+                </div>
+            </div>
+        </div>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>What Did You Just See?</h2>
+        <p>When you take samples and plot their means, you are building a **Sampling Distribution of the Mean**. You probably noticed two magical things:</p>
+        <ol>
+            <li><strong>The Central Limit Theorem:** Even if the original population is weird or skewed (ours is bell-shaped), the *distribution of the sample means* will *always* form a nice, symmetrical bell curve. This is the magic that makes most statistics work!</li>
+            <li>
+                <strong>The Effect of Sample Size (n):</strong>
+                <ul>
+                    <li>When you set the slider to a **small $n$** (like 5) and hit "Take 500 Samples," the resulting bell curve is **wide and flat**. This means your sample means are "wobbly" and spread out. Your Standard Error is *high*.</li>
+                    <li>When you set the slider to a **large $n$** (like 100), the bell curve becomes **tall and very narrow**. This means your sample means are all tightly clustered around the true mean. Your Standard Error is *low*.</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3>The Formula We Just Proved</h3>
+        <p>This whole simulation proves the formula for Standard Error:</p>
+        <p style="text-align: center; font-size: 1.5rem; font-weight: 600;">$SE = \frac{s}{\sqrt{n}}$</p>
+        <p>Where $s$ is the Standard Deviation of your sample and $n$ is your sample size.</p>
+        <p>This is exactly what you saw: to make the **SE** smaller (more precise), you must increase your sample size, **$n$**. Because $n$ is under a square root, you have to increase your sample size by *four times* to cut your error in *half*!</p>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        (function setupSEVisualizer() {
+            // --- 1. Setup ---
+            const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+            const width = 450 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+
+            let sampleMeans = []; // Array to store the means of all our samples
+            const population = d3.range(10000).map(d3.randomNormal(50, 15)); // Our "Truth"
+
+            const popMean = d3.mean(population);
+            const popSD = d3.deviation(population);
+            d3.select("#se-pop-mean").text(popMean.toFixed(2));
+            d3.select("#se-pop-sd").text(popSD.toFixed(2));
+
+            const tooltip = d3.select("#se-tooltip");
+
+            // --- 2. Create SVGs ---
+            const svgPop = d3.select("#se-plot-population").append("svg")
+                .attr("width", "100%").attr("height", height + margin.top + margin.bottom)
+                .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                .attr("preserveAspectRatio", "xMidYMid meet")
+                .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+            const svgMeans = d3.select("#se-plot-means").append("svg")
+                .attr("width", "100%").attr("height", height + margin.top + margin.bottom)
+                .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                .attr("preserveAspectRatio", "xMidYMid meet")
+                .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+            // --- 3. Scales & Axes (Shared X-Scale) ---
+            const xScale = d3.scaleLinear().domain([0, 100]).range([0, width]);
+            const xAxisPop = svgPop.append("g").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
+            const xAxisMeans = svgMeans.append("g").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
+
+            const histGenerator = d3.histogram().domain(xScale.domain()).thresholds(xScale.ticks(40));
+            const binsPop = histGenerator(population);
+
+            const yScalePop = d3.scaleLinear().domain([0, d3.max(binsPop, d => d.length)]).range([height, 0]);
+            const yAxisPop = svgPop.append("g").call(d3.axisLeft(yScalePop).ticks(5).tickFormat(d3.format("~s")));
+
+            const yScaleMeans = d3.scaleLinear().range([height, 0]);
+            const yAxisMeans = svgMeans.append("g");
+
+            // --- 4. Groups for Bars & Annotations ---
+            const popAnnotations = svgPop.append("g"); // For mean/SD
+            const barGroupPop = svgPop.append("g");
+            const barGroupSample = svgPop.append("g");
+            const sampleAnnotations = svgPop.append("g"); // For sample mean
+            const meansAnnotations = svgMeans.append("g"); // For mean of means / SE
+            const barGroupMeans = svgMeans.append("g");
+
+            // --- 5. Draw Initial Population ---
+            // Population SD Range
+            popAnnotations.append("rect")
+                .attr("class", "sd-range pop-sd")
+                .attr("x", xScale(popMean - popSD))
+                .attr("y", 0)
+                .attr("width", xScale(popMean + popSD) - xScale(popMean - popSD))
+                .attr("height", height);
+
+            // Population Bars
+            barGroupPop.selectAll("rect.pop")
+                .data(binsPop)
+                .join("rect")
+                .attr("class", "pop")
+                .attr("x", d => xScale(d.x0) + 1)
+                .attr("y", d => yScalePop(d.length))
+                .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
+                .attr("height", d => height - yScalePop(d.length))
+                .on("mouseover", (e, d) => showTooltip(e, d, "pop"))
+                .on("mouseout", hideTooltip);
+
+            // Population Mean Line
+            popAnnotations.append("line")
+                .attr("class", "mean-line pop-mean")
+                .attr("x1", xScale(popMean)).attr("y1", 0)
+                .attr("x2", xScale(popMean)).attr("y2", height);
+
+            // --- 6. Helper Functions ---
+            function takeSample(n) {
+                let sample = [];
+                for (let i = 0; i < n; i++) {
+                    const index = Math.floor(Math.random() * population.length);
+                    sample.push(population[index]);
+                }
+                return sample;
+            }
+
+            function drawSample(sample) {
+                const sampleMean = d3.mean(sample);
+
+                // Draw Sample Bars
+                const binsSample = histGenerator(sample);
+                barGroupSample.selectAll("rect.sample")
+                    .data(binsSample)
+                    .join("rect")
+                    .attr("class", "sample")
+                    .attr("x", d => xScale(d.x0) + 1)
+                    .attr("y", d => yScalePop(d.length))
+                    .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
+                    .attr("height", d => height - yScalePop(d.length))
+                    .on("mouseover", (e, d) => showTooltip(e, d, "sample"))
+                    .on("mouseout", hideTooltip);
+
+                // Draw Sample Mean Line
+                sampleAnnotations.html(""); // Clear old sample mean
+                sampleAnnotations.append("line")
+                    .attr("class", "mean-line sample-mean")
+                    .attr("x1", xScale(sampleMean)).attr("y1", 0)
+                    .attr("x2", xScale(sampleMean)).attr("y2", height)
+                    .attr("stroke-dasharray", "4 4");
+            }
+
+            function updateMeansHistogram(isAnimated = false) {
+                if (sampleMeans.length === 0) {
+                    barGroupMeans.selectAll("rect").remove();
+                    meansAnnotations.html("");
+                    yScaleMeans.domain([0, 1]);
+                    yAxisMeans.call(d3.axisLeft(yScaleMeans).ticks(5).tickFormat(d3.format("~s")));
+                    d3.select("#se-means-mean").text("N/A");
+                    d3.select("#se-means-sd").text("N/A");
+                    return;
+                }
+
+                const binsMeans = histGenerator(sampleMeans);
+
+                yScaleMeans.domain([0, d3.max(binsMeans, d => d.length)]);
+                yAxisMeans.transition().duration(200).call(d3.axisLeft(yScaleMeans).ticks(5).tickFormat(d3.format("~s")));
+
+                const duration = isAnimated ? 300 : 0;
+
+                barGroupMeans.selectAll("rect.mean-bar")
+                    .data(binsMeans)
+                    .join(
+                        enter => enter.append("rect")
+                            .attr("class", "mean-bar")
+                            .attr("x", d => xScale(d.x0) + 1)
+                            .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 1))
+                            .attr("y", height)
+                            .attr("height", 0)
+                            .on("mouseover", (e, d) => showTooltip(e, d, "mean"))
+                            .on("mouseout", hideTooltip)
+                            .call(enter => enter.transition().duration(duration)
+                                .attr("y", d => yScaleMeans(d.length))
+                                .attr("height", d => height - yScaleMeans(d.length))),
+                        update => update.call(update => update.transition().duration(duration)
+                            .attr("y", d => yScaleMeans(d.length))
+                            .attr("height", d => height - yScaleMeans(d.length)))
+                    );
+
+                // Update stats
+                const meansMean = d3.mean(sampleMeans);
+                const meansSD = d3.deviation(sampleMeans); // This IS the Standard Error
+
+                d3.select("#se-means-mean").text(meansMean.toFixed(2));
+                d3.select("#se-means-sd").text(meansSD.toFixed(2));
+
+                // Update Mean/SE annotations
+                meansAnnotations.html(""); // Clear old
+
+                // SE Range
+                meansAnnotations.append("rect")
+                    .attr("class", "sd-range se-range")
+                    .attr("x", xScale(meansMean - meansSD))
+                    .attr("y", 0)
+                    .attr("width", xScale(meansMean + meansSD) - xScale(meansMean - meansSD))
+                    .attr("height", height);
+
+                // Mean of Means Line
+                meansAnnotations.append("line")
+                    .attr("class", "mean-line mean-of-means")
+                    .attr("x1", xScale(meansMean)).attr("y1", 0)
+                    .attr("x2", xScale(meansMean)).attr("y2", height);
+            }
+
+            function showTooltip(event, d, type) {
+                let range = `${d.x0.toFixed(1)} - ${d.x1.toFixed(1)}`;
+                let count = d.length;
+                let title = "Population";
+                if (type === 'sample') title = "Sample";
+                if (type === 'mean') title = "Sample Means";
+
+                tooltip.style("display", "block")
+                    .style("left", (event.pageX + 15) + "px")
+                    .style("top", (event.pageY - 15) + "px")
+                    .html(`<strong>${title}</strong><br>Range: ${range}<br>Count: ${count}`);
+            }
+            function hideTooltip() {
+                tooltip.style("display", "none");
+            }
+
+            // --- 7. Event Listeners ---
+            const nSlider = d3.select("#se-sample-size");
+            const nValue = d3.select("#se-n-value");
+
+            nSlider.on("input", () => {
+                const newN = nSlider.property("value");
+                nValue.text(newN);
+                d3.selectAll(".n-val-display").text(newN); // Update plot title
+            });
+
+            d3.select("#se-sample-one-btn").on("click", () => {
+                const n = +nSlider.property("value");
+                const currentSample = takeSample(n);
+                drawSample(currentSample);
+
+                const sampleMean = d3.mean(currentSample);
+                sampleMeans.push(sampleMean);
+                updateMeansHistogram(false); // No animation
+            });
+
+            d3.select("#se-sample-many-btn").on("click", () => {
+                const n = +nSlider.property("value");
+                for (let i = 0; i < 500; i++) {
+                    const currentSample = takeSample(n);
+                    sampleMeans.push(d3.mean(currentSample));
+                }
+                drawSample(takeSample(n)); // Draw one last sample
+                updateMeansHistogram(true); // Animate the growth
+            });
+
+            d3.select("#se-reset-btn").on("click", () => {
+                sampleMeans = [];
+                barGroupSample.selectAll("rect.sample").remove();
+                sampleAnnotations.html("");
+                updateMeansHistogram(false);
+                nSlider.property("value", 30);
+                nValue.text(30);
+                d3.selectAll(".n-val-display").text(30);
+            });
+
+        })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Factorial Designs & Interactions</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Factorial Designs & Interactions</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Factorial Designs & Interactions</h1>
+        <p>Testing two (or more) things at the same time!</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>What is a Factorial Design?</h2>
+        <p>So far, we've looked at testing just *one* thing at a time. For example:</p>
+        <ul>
+            <li>Comparing Fertilizer A vs. B vs. C (one "factor": Fertilizer Type)</li>
+        </ul>
+        <p>A <strong>Factorial Design</strong> is a super-efficient experiment that lets you test <strong>two or more factors at the same time</strong>. For example, we can test:</p>
+        <ul>
+            <li><strong>Factor A:</strong> 2 types of Fertilizer (Organic vs. Chemical)</li>
+            <li><strong>Factor B:</strong> 2 types of Plant Variety (Variety 1 vs. Variety 2)</li>
+        </ul>
+        <p>This is called a <strong>2x2 Factorial Design</strong> (2 levels of Factor A x 2 levels of Factor B), which gives us 4 unique treatment combinations:</p>
+        <ol>
+            <li>Organic + Variety 1</li>
+            <li>Organic + Variety 2</li>
+            <li>Chemical + Variety 1</li>
+            <li>Chemical + Variety 2</li>
+        </ol>
+
+        <h2>The Two Big Benefits</h2>
+        <p>Running a factorial design gives us two kinds of results for the price of one experiment:</p>
+        <ol>
+            <li><strong>Main Effects:</strong> This is the average effect of each factor on its own. It answers: "<em>Overall</em>, does Chemical fertilizer work better than Organic?" and "<em>Overall</em>, does Variety 1 yield more than Variety 2?"</li>
+            <li><strong>Interaction Effect (The "Magic"):</strong> This is the most important part! It answers the question: "Does the best fertilizer <em>depend on</em> which variety I'm planting?"</li>
+            </ul>
+
+            <h2>What is an Interaction? (It's an "It Depends..." Answer)</h2>
+            <p>An **interaction** is the single most important concept in advanced experiments. An interaction happens when the effect of one factor is *different* at the different levels of another factor.</p>
+            <p><strong>Simple Analogy:</strong> Imagine you're testing "Music Type" (Factor A: Classical vs. Rock) on "Study Subject" (Factor B: Math vs. English).</p>
+            <ul>
+                <li><strong>NO Interaction:</strong> Music helps for both. Classical adds 5 points to your Math score and 5 points to your English score. Rock adds 2 points to both. The effect is consistent. The lines on a plot would be **parallel**.</li>
+                <li><strong>An Interaction:</strong> The effect is *not* consistent. Classical music might add 10 points to your Math score but *subtract* 5 points from your English score (it's distracting!). The effect of the music <strong>depends on</strong> the subject. The lines on a plot would **cross or be non-parallel**.</li>
+            </ul>
+            <p>When you have an interaction, you can't just say "Classical music is better for studying." You have to say, "It depends! For Math, Classical is better, but for English, it's worse."</p>
+
+            <hr style="margin: 30px 0;">
+
+            <h2>Interactive: Interaction Plot Explorer 📈</h2>
+            <p>This is an <strong>interaction plot</strong>. It shows the results of a 2x2 experiment (like Fertilizer x Variety). Drag the four white dots (which represent the average yield for each combo) and watch the lines.</p>
+
+            <div class="interactive-calc dark-bg">
+                <div id="interaction-plot-container">
+                    <div id="interaction-plot-viz"></div>
+                </div>
+                <div id="interaction-feedback" class="stat-result not-significant">
+                    <p>The lines are parallel. This means <strong>NO interaction</strong>. The effect of Fertilizer is the same for both Varieties.</p>
+                </div>
+            </div>
+            <hr style="margin: 30px 0;">
+
+            <h2>Pros and Cons of Factorial Designs</h2>
+
+            <h3>👍 Pros (The Good Stuff)</h3>
+            <ul>
+                <li><strong>Super Efficient:</strong> You learn about two factors (and their interaction) with a single experiment. It's like getting two experiments for the price of one.</li>
+                <li><strong>Finds Interactions:</strong> It's the only way to find out if your factors work together, or against each other. This is often the most important scientific discovery!</li>
+            </ul>
+
+            <h3>👎 Cons (The Problems)</h3>
+            <ul>
+                <li><strong>Gets Big Fast:</strong> A 2x2 design is easy (4 combos). A 3x3x2 design is (3 * 3 * 2 = 18 combos). A 4x4x4 design is (4 * 4 * 4 = 64 combos!). They can become huge and expensive very quickly.</li>
+                <li><strong>Hard to Interpret:</strong> If you have a significant 3-way or 4-way interaction (e.g., A*B*C), it can be very, very difficult to understand and explain what it actually means.</li>
+            </ul>
+            <p><strong>The takeaway:</strong> 2-factor designs are amazing and powerful. Use them often! You can see how to analyze one in our <a href="../module4.html">Module 4</a> and <a href="../module5.html">Module 5</a> labs.</p>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            (function setupInteractionViz() {
+                // Check for D3
+                if (typeof d3 === 'undefined') {
+                    console.error("D3.js is not loaded! Cannot start visualizer.");
+                    document.querySelector("#interaction-plot-container").innerHTML = "<p style='color: red; padding: 10px;'>Error: Visualizer could not be loaded.</p>";
+                    return;
+                }
+
+                // --- 1. Setup ---
+                const margin = { top: 40, right: 100, bottom: 40, left: 40 };
+                const width = 500 - margin.left - margin.right;
+                const height = 300 - margin.top - margin.bottom;
+
+                const feedbackEl = d3.select("#interaction-feedback");
+
+                // Initial data for the 4 points
+                let data = [
+                    { x: "Fertilizer A", y: 20, variety: "Variety 1" },
+                    { x: "Fertilizer B", y: 30, variety: "Variety 1" },
+                    { x: "Fertilizer A", y: 30, variety: "Variety 2" },
+                    { x: "Fertilizer B", y: 40, variety: "Variety 2" }
+                ];
+
+                const svg = d3.select("#interaction-plot-viz").append("svg")
+                    .attr("width", "100%").attr("height", height + margin.top + margin.bottom)
+                    .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                    .attr("preserveAspectRatio", "xMidYMid meet")
+                    .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+                // --- 2. Scales ---
+                const xScale = d3.scalePoint()
+                    .domain(["Fertilizer A", "Fertilizer B"])
+                    .range([0, width])
+                    .padding(0.5);
+
+                const yScale = d3.scaleLinear()
+                    .domain([0, 60]) // Fixed Y-axis
+                    .range([height, 0]);
+
+                const colorScale = d3.scaleOrdinal()
+                    .domain(["Variety 1", "Variety 2"])
+                    .range(["#007bff", "#fd7e14"]); // Blue, Orange
+
+                // --- 3. Axes ---
+                svg.append("g").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
+                svg.append("g").call(d3.axisLeft(yScale));
+                svg.append("text").attr("x", width / 2).attr("y", height + 35).text("Factor A (Fertilizer)").attr("text-anchor", "middle").style("font-size", "0.9rem");
+                svg.append("text").attr("transform", "rotate(-90)").attr("y", -margin.left + 5).attr("x", -height / 2).text("Mean Yield").attr("text-anchor", "middle").style("font-size", "0.9rem");
+
+                // --- 4. Line Generator ---
+                const line = d3.line()
+                    .x(d => xScale(d.x))
+                    .y(d => yScale(d.y));
+
+                const lineGroup = svg.append("g");
+                const dotGroup = svg.append("g");
+
+                // --- 5. Drag Behavior ---
+                const drag = d3.drag()
+                    .on("start", function () { d3.select(this).raise().attr("r", 10).style("cursor", "grabbing"); })
+                    .on("drag", function (event, d) {
+                        // Get new Y position, constrained to bounds
+                        let newY = Math.max(0, Math.min(60, yScale.invert(event.y)));
+                        d.y = newY; // Update data
+                        d3.select(this).attr("cy", yScale(d.y)); // Move dot
+                        updatePlot(); // Redraw lines
+                    })
+                    .on("end", function () { d3.select(this).attr("r", 8).style("cursor", "grab"); });
+
+                // --- 6. Update Function ---
+                function updatePlot() {
+                    // Group data by variety
+                    const groupedData = d3.group(data, d => d.variety);
+
+                    // Bind data to lines
+                    lineGroup.selectAll(".interaction-line")
+                        .data(groupedData)
+                        .join("path")
+                        .attr("class", "interaction-line")
+                        .attr("d", d => line(d[1])) // d[1] is the array of values
+                        .style("stroke", d => colorScale(d[0])) // d[0] is the key (variety)
+                        .style("fill", "none")
+                        .style("stroke-width", 3);
+
+                    // Add labels
+                    lineGroup.selectAll(".line-label")
+                        .data(groupedData)
+                        .join("text")
+                        .attr("class", "line-label")
+                        .attr("transform", d => `translate(${xScale("Fertilizer B")}, ${yScale(d[1][1].y)})`) // Position at end of line
+                        .attr("x", 10)
+                        .attr("dy", "0.35em")
+                        .style("fill", d => colorScale(d[0]))
+                        .text(d => d[0]);
+
+                    // Bind data to dots
+                    dotGroup.selectAll("circle")
+                        .data(data)
+                        .join("circle")
+                        .attr("class", "data-dot-interactive")
+                        .attr("cx", d => xScale(d.x))
+                        .attr("cy", d => yScale(d.y))
+                        .attr("r", 8)
+                        .style("fill", d => colorScale(d.variety))
+                        .style("stroke", "#fff")
+                        .style("stroke-width", 2)
+                        .style("cursor", "grab")
+                        .call(drag);
+
+                    // Check for interaction
+                    const slope1 = data[1].y - data[0].y; // Variety 1
+                    const slope2 = data[3].y - data[2].y; // Variety 2
+
+                    // Check if slopes are "close enough" (parallel)
+                    if (Math.abs(slope1 - slope2) < 5) {
+                        feedbackEl.html("<p>The lines are (mostly) parallel. This means <strong>NO interaction</strong>. The effect of Fertilizer is the same for both Varieties.</p>");
+                        feedbackEl.classed("significant", false).classed("not-significant", true);
+                    } else {
+                        feedbackEl.html("<p>The lines are not parallel! This indicates an <strong>INTERACTION</strong>. The effect of Fertilizer <em>depends on</em> which Variety you use.</p>");
+                        feedbackEl.classed("significant", true).classed("not-significant", false);
+                    }
+                }
+
+                // Initial call
+                updatePlot();
+
+            })();
+        });
+    </script>
+
+</body>
+</html>

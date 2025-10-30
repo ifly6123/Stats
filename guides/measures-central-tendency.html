@@ -1,0 +1,239 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Measures of Central Tendency</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Central Tendency</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Measures of Central Tendency</h1>
+        <p>Finding the "center" or "typical value" of your data.</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>What is "Central Tendency"? 🤔</h2>
+        <p>A "measure of central tendency" is a single number that tries to describe the center or typical value of a set of data. It's what people often mean when they just say "the average."</p>
+        <p>We use it to summarize a whole list of numbers into one value that feels representative. The three most common measures are the <strong>Mean</strong>, <strong>Median</strong>, and <strong>Mode</strong>.</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Interactive Calculator 🧮</h2>
+        <p>Enter numbers into the box below (separated by commas) and watch how the statistics change. Try adding an outlier (a very large or small number) to see what happens!</p>
+
+        <div class="interactive-calc">
+            <div class="calc-controls">
+                <label for="data-input">Enter your data (comma-separated):</label>
+                <textarea id="data-input" rows="3" placeholder="e.g. 5, 8, 2, 10, 5, 50">5, 8, 2, 10, 5, 50</textarea>
+            </div>
+
+            <div class="calc-results">
+                <div class="calc-stat-box" id="mean-box">
+                    <strong>Mean</strong>
+                    <span id="mean-value">13.33</span>
+                </div>
+                <div class="calc-stat-box" id="median-box">
+                    <strong>Median</strong>
+                    <span id="median-value">6.50</span>
+                </div>
+                <div class="calc-stat-box" id="mode-box">
+                    <strong>Mode</strong>
+                    <span id="mode-value">5</span>
+                </div>
+            </div>
+
+            <div id="calc-plot">
+            </div>
+        </div>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>1. The Mean (The "Arithmetic Average")</h2>
+        <p>This is the most common type of average. You calculate it by adding up all the values and then dividing by the number of values.</p>
+        <p><strong>Formula:</strong> $\text{Mean } (\bar{x}) = \frac{\sum x_i}{n} = \frac{\text{Sum of all values}}{\text{Number of values}}$</p>
+        <ul>
+            <li><strong>Pro:</strong> Uses every single value in the dataset, so it's a very comprehensive measure.</li>
+            <li><strong>Con:</strong> Very sensitive to <strong>outliers</strong> (extremely high or low values).</li>
+        </ul>
+        <p><strong>Try it in the calculator!</strong> Notice how the Mean (blue line) shifts dramatically when you add a large number like <code>50</code>, while the Median (orange line) barely moves.</p>
+
+        <h2>2. The Median (The "Middle Value")</h2>
+        <p>The median is the value that's exactly in the middle of the dataset *after* you've sorted all the numbers from smallest to largest.</p>
+        <ol>
+            <li>Sort your data (e.g., <code>2, 5, 5, 8, 10, 50</code>).</li>
+            <li>If there's an **odd** number of values, the median is the one right in the middle.</li>
+            <li>If there's an **even** number of values, the median is the average of the two middle values. (e.g., for our list, the middle values are 5 and 8. The median is $(5+8)/2 = 6.5$).</li>
+        </ol>
+        <ul>
+            <li><strong>Pro:</strong> Not affected by outliers. This makes it a much better measure for skewed data (like house prices or income).</li>
+            <li><strong>Con:</strong> Doesn't use all the information in the dataset (it only cares about the middle value(s)).</li>
+        </ul>
+
+        <h2>3. The Mode (The "Most Frequent")</h2>
+        <p>The mode is the value that appears most often in the dataset. A dataset can have one mode, more than one mode (bimodal/multimodal), or no mode at all (if all values appear only once).</p>
+        <p><em>Example:</em> In <code>5, 8, 2, 10, 5, 50</code>, the value <strong>5</strong> appears twice, while all other values appear once. The mode is 5.</p>
+        <ul>
+            <li><strong>Pro:</strong> It's the only measure that works for **categorical data** (e.g., the mode of "Red, Blue, Red, Green" is "Red").</li>
+            <li><strong>Con:</strong> Not very stable. Adding one new value can change the mode completely. It's often not very "central."</li>
+        </ul>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function() { renderMathInElement(document.body, { delimiters: [{left: "$", right: "$", display: false}] }); });</script>
+
+    <script>
+        (function setupCentralTendencyCalc() {
+            const inputEl = d3.select("#data-input");
+            const meanEl = d3.select("#mean-value");
+            const medianEl = d3.select("#median-value");
+            const modeEl = d3.select("#mode-value");
+
+            const plotMargin = {top: 30, right: 20, bottom: 20, left: 20};
+            const plotWidth = 500 - plotMargin.left - plotMargin.right;
+            const plotHeight = 120 - plotMargin.top - plotMargin.bottom;
+
+            const plotSvg = d3.select("#calc-plot").append("svg")
+                .attr("width", "100%")
+                .attr("height", plotHeight + plotMargin.top + plotMargin.bottom)
+                .attr("viewBox", `0 0 ${plotWidth + plotMargin.left + plotMargin.right} ${plotHeight + plotMargin.top + plotMargin.bottom}`)
+                .attr("preserveAspectRatio", "xMidYMid meet")
+                .append("g")
+                .attr("transform", `translate(${plotMargin.left}, ${plotMargin.top})`);
+
+            const plotXScale = d3.scaleLinear().range([0, plotWidth]);
+            const plotXAxis = plotSvg.append("g").attr("transform", `translate(0, ${plotHeight})`);
+            const plotPointsGroup = plotSvg.append("g");
+            const plotAnnoGroup = plotSvg.append("g");
+
+            function calculate() {
+                const inputText = inputEl.property("value");
+                // Parse numbers, remove any non-numeric results
+                const data = inputText.split(',')
+                                  .map(d => parseFloat(d.trim()))
+                                  .filter(d => !isNaN(d));
+
+                if (data.length === 0) {
+                    meanEl.text("N/A"); medianEl.text("N/A"); modeEl.text("N/A");
+                    updatePlot([]);
+                    return;
+                }
+
+                // --- Calculations ---
+                data.sort(d3.ascending); // Sort for median
+
+                // Mean
+                const mean = d3.mean(data);
+
+                // Median
+                const median = d3.median(data);
+
+                // Mode
+                const modeMap = new Map();
+                let maxFreq = 0;
+                let modes = [];
+                data.forEach(d => {
+                    let count = (modeMap.get(d) || 0) + 1;
+                    modeMap.set(d, count);
+
+                    if (count > maxFreq) {
+                        maxFreq = count;
+                        modes = [d]; // New max, reset list
+                    } else if (count === maxFreq) {
+                        modes.push(d); // Add to list of modes
+                    }
+                });
+
+                let modeText = "N/A";
+                if (maxFreq > 1) { // Only count if a value is repeated
+                    modeText = [...new Set(modes)].join(', '); // Show unique modes
+                }
+
+                // --- Display ---
+                meanEl.text(mean.toFixed(2));
+                medianEl.text(median.toFixed(2));
+                modeEl.text(modeText);
+
+                // --- Update Plot ---
+                updatePlot(data, mean, median);
+            }
+
+            function updatePlot(data, mean, median) {
+                if (data.length === 0) {
+                    plotXScale.domain([0, 1]);
+                    plotXAxis.call(d3.axisBottom(plotXScale).ticks(5));
+                    plotPointsGroup.selectAll("circle").remove();
+                    plotAnnoGroup.selectAll("line, text").remove();
+                    return;
+                }
+
+                plotXScale.domain(d3.extent(data)).nice();
+                plotXAxis.transition().call(d3.axisBottom(plotXScale).ticks(5));
+
+                // Draw data points (a simple "strip plot")
+                plotPointsGroup.selectAll("circle")
+                    .data(data)
+                    .join("circle")
+                    .attr("cx", d => plotXScale(d))
+                    .attr("cy", plotHeight / 2)
+                    .attr("r", 5)
+                    .attr("fill", "#6c757d")
+                    .attr("opacity", 0.5);
+
+                plotAnnoGroup.html(""); // Clear old lines
+
+                // Draw Mean Line
+                plotAnnoGroup.append("line")
+                    .attr("x1", plotXScale(mean))
+                    .attr("x2", plotXScale(mean))
+                    .attr("y1", 0)
+                    .attr("y2", plotHeight)
+                    .attr("stroke", "#007bff") // Blue
+                    .attr("stroke-width", 3);
+                plotAnnoGroup.append("text")
+                    .attr("x", plotXScale(mean))
+                    .attr("y", -5)
+                    .attr("text-anchor", "middle")
+                    .attr("fill", "#007bff")
+                    .style("font-weight", 700)
+                    .text("Mean");
+
+                // Draw Median Line
+                plotAnnoGroup.append("line")
+                    .attr("x1", plotXScale(median))
+                    .attr("x2", plotXScale(median))
+                    .attr("y1", 0)
+                    .attr("y2", plotHeight)
+                    .attr("stroke", "#fd7e14") // Orange
+                    .attr("stroke-width", 3)
+                    .attr("stroke-dasharray", "4 4");
+                plotAnnoGroup.append("text")
+                    .attr("x", plotXScale(median))
+                    .attr("y", -5)
+                    .attr("text-anchor", "middle")
+                    .attr("fill", "#fd7e14")
+                    .style("font-weight", 700)
+                    .text("Median");
+            }
+
+            // Initial calculation on load
+            calculate();
+
+            // Recalculate on every key press
+            inputEl.on("input", calculate);
+
+        })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Strip-Plot Design</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Strip-Plot Design</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Strip-Plot Design (Split-Block)</h1>
+        <p>A design for when <em>both</em> of your factors are hard to change!</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>What's the Big Idea?</h2>
+        <p>In the last guide, we learned about <strong>Split-Plot</strong> designs. That's where we had <em>one</em> "hard-to-change" factor (like a big fertilizer tractor) and one "easy-to-change" factor (like planting small seeds).</p>
+        <p>But what if <strong>BOTH</strong> of your factors are "hard-to-change"?</p>
+
+        <h3>The "Two Tractor Problem" 🚜</h3>
+        <p>Imagine you have a big field and you want to test:</p>
+        <ul>
+            <li><strong>Factor A (Plowing Method):</strong> 3 types (Plow A, Plow B, Plow C). You use a huge tractor that plows in long <strong>horizontal strips (rows)</strong>.</li>
+            <li><strong>Factor B (Seeding Method):</strong> 3 types (Seeder 1, Seeder 2, Seeder 3). You use <em>another</em> giant machine that plants seeds in long <strong>vertical strips (columns)</strong>.</li>
+        </ul>
+        <p>You can't easily plow a tiny plot with "A" and the plot next to it with "B". You <em>must</em> plow the whole row. And you can't easily seed one tiny plot with "1" and the next with "2". You must seed the whole column.</p>
+        <p>A <strong>Strip-Plot Design</strong> is made for this exact "criss-cross" situation!</p>
+
+        <h2>How It's Randomized</h2>
+        <p>The randomization happens in two separate steps, repeated for each **Replication** (or Block):</p>
+        <ol>
+            <li>First, you randomly assign your "row" treatments (Plowing A, B, C) to the horizontal strips.</li>
+            <li>Second, you <em>separately</em> randomize your "column" treatments (Seeder 1, 2, 3) to the vertical strips.</li>
+        </ol>
+        <p>The final small plots are the result of where these two randomizations "criss-cross."</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Interactive: The "Criss-Cross" Field Designer 🎨</h2>
+        <p>Design your experiment below. The visualizer will create one grid for each Replication/Block and randomize both factors.</p>
+
+        <div class="interactive-calc dark-bg">
+            <div class="doe-viz-controls multi-button">
+                <div class="control-group">
+                    <label for="strip-reps">Replications (Blocks):</label>
+                    <input type="number" id="strip-reps" value="2" min="2" max="4">
+                </div>
+                <div class="control-group">
+                    <label for="strip-rows">Row Treatments (Factor A):</label>
+                    <input type="number" id="strip-rows" value="3" min="2" max="5">
+                </div>
+                <div class="control-group">
+                    <label for="strip-cols">Column Treatments (Factor B):</label>
+                    <input type="number" id="strip-cols" value="4" min="2" max="5">
+                </div>
+                <button class="doe-btn" id="strip-plot-run-btn">Randomize the Field</button>
+            </div>
+
+            <div id="strip-plot-container">
+                <div class="split-plot-legend">
+                    <strong>Row Strips (Factor A):</strong> <span id="main-plot-legend"></span>
+                </div>
+                <div class="split-plot-legend">
+                    <strong>Column Strips (Factor B):</strong> <span id="sub-plot-legend"></span>
+                </div>
+
+                <div id="strip-plot-viz">
+                </div>
+            </div>
+
+            <div id="strip-plot-feedback" class="stat-result not-significant">
+                <p>Click the button to see how a strip-plot is randomized!</p>
+            </div>
+        </div>
+        <hr style="margin: 30px 0;">
+
+        <h2>The "Three Error" Secret</h2>
+        <p>This design is very special. Because of the "criss-cross" randomization, it actually has <strong>THREE</strong> different "noise" (Error) terms!</p>
+        <ul>
+            <li><strong>Error (a):</strong> Used for comparing the <strong>Rows</strong> (Factor A). This error is usually <strong>large</strong>.</li>
+            <li><strong>Error (b):</strong> Used for comparing the <strong>Columns</strong> (Factor B). This error is also <strong>large</strong>.</li>
+            <li><strong>Error (c):</strong> Used for comparing the <strong>Interaction (A * B)</strong>. This error is usually <strong>very small</strong>.</li>
+        </ul>
+        <p><strong>What this means:</strong> A strip-plot design is <strong>terrible</strong> for comparing the main factors (like Plowing or Seeding). But it is <strong>EXTREMELY precise</strong> for finding an <strong>interaction</strong>.</p>
+
+        <h2>Pros and Cons of Strip-Plot</h2>
+        <h3>👍 Pros (The Good Stuff)</h3>
+        <ul>
+            <li><strong>It's Practical:</strong> It's the only way to do experiments when <em>both</em> factors are hard-to-change and applied in strips (like plowing, irrigation, etc.).</li>
+            <li><strong>Excellent for Interactions:</strong> This design is <em>more precise*</em> than even a split-plot for detecting if an interaction (e.g., "Plow A works best <em>only</em> with Seeder 2") is significant.</li>
+        </ul>
+
+        <h3>👎 Cons (The Problems)</h3>
+        <ul>
+            <li><strong>Very Bad for Main Effects:</strong> It is the <em>worst*</em> design if your main question is "Which Plowing method is best?" The large Error (a) and (b) terms make it very hard to find a significant difference.</li>
+            <li><strong>Very Complex Analysis:</strong> The ANOVA is very complicated because it has three different Error terms.</li>
+        </ul>
+        <p><strong>The takeaway:</strong> Only use a strip-plot when you <em>must*</em> apply both factors in strips, and you are <em>most*</em> interested in the <strong>interaction</strong> between them.</p>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            (function setupStripPlotViz() {
+                // Check for D3
+                if (typeof d3 === 'undefined') {
+                    console.error("D3.js is not loaded! Cannot start visualizer.");
+                    document.querySelector("#strip-plot-container").innerHTML = "<p style='color: red; padding: 10px;'>Error: Visualizer could not be loaded.</p>";
+                    return;
+                }
+
+                // --- 1. Setup ---
+                const margin = { top: 30, right: 10, bottom: 10, left: 30 };
+                let width, height, plotSize;
+
+                const feedbackEl = d3.select("#strip-plot-feedback");
+                const randomizeBtn = d3.select("#strip-plot-run-btn");
+                const repInput = d3.select("#strip-reps");
+                const rowInput = d3.select("#strip-rows");
+                const colInput = d3.select("#strip-cols");
+                const mainLegend = d3.select("#main-plot-legend");
+                const subLegend = d3.select("#sub-plot-legend");
+                const vizContainer = d3.select("#strip-plot-viz");
+
+                // --- 2. Helper Functions ---
+                function shuffle(array) {
+                    let newArray = [...array];
+                    for (let i = newArray.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                    }
+                    return newArray;
+                }
+
+                function drawField() {
+                    // --- 1. Get values from inputs ---
+                    const numReps = +repInput.property("value");
+                    const numRows = +rowInput.property("value");
+                    const numCols = +colInput.property("value");
+
+                    // --- 2. Generate dynamic treatments & legends ---
+                    const rowColors = d3.schemeTableau10.slice(0, numRows);
+                    const rowNames = d3.range(numRows).map(i => `A${i + 1}`);
+                    const colNames = d3.range(numCols).map(i => `B${i + 1}`); // Changed from V to B
+
+                    mainLegend.html(""); // Clear old
+                    rowNames.forEach((name, i) => {
+                        mainLegend.append("span").attr("class", "legend-swatch")
+                            .style("background-color", rowColors[i])
+                            .text(name);
+                    });
+
+                    subLegend.html(""); // Clear old
+                    colNames.forEach(name => {
+                        subLegend.append("span").attr("class", "legend-swatch-small")
+                            .text(name);
+                    });
+
+                    // --- 3. Setup SVG dimensions ---
+                    // Make plot size responsive to number of cols/rows
+                    plotSize = Math.min(80, 400 / Math.max(numRows, numCols));
+                    width = (plotSize * numCols);
+                    height = (plotSize * numRows);
+
+                    vizContainer.html(""); // Clear old SVGs
+
+                    // --- 4. Create data structure and draw plots ---
+                    for (let rep = 1; rep <= numReps; rep++) {
+                        vizContainer.append("h3").text(`Replication / Block ${rep}`);
+
+                        const svg = vizContainer.append("svg")
+                            .attr("width", "100%")
+                            .attr("height", height + margin.top + margin.bottom)
+                            .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                            .attr("preserveAspectRatio", "xMidYMid meet")
+                            .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+                        let plotData = [];
+                        const rowOrder = shuffle(d3.range(numRows)); // [1, 0, 2] etc.
+                        const colOrder = shuffle(d3.range(numCols)); // [2, 0, 1, 3] etc.
+
+                        for (let r = 0; r < numRows; r++) {
+                            for (let c = 0; c < numCols; c++) {
+                                const rowTrtIndex = rowOrder[r];
+                                const colTrtIndex = colOrder[c];
+
+                                plotData.push({
+                                    id: `r${r}c${c}`, row: r, col: c,
+                                    x: c * plotSize, y: r * plotSize,
+                                    rowTrt: rowNames[rowTrtIndex],
+                                    colTrt: colNames[colTrtIndex],
+                                    color: rowColors[rowTrtIndex]
+                                });
+                            }
+                        }
+
+                        // Draw plots (colored by row)
+                        svg.selectAll(".plot")
+                            .data(plotData, d => d.id)
+                            .join("rect")
+                            .attr("class", "plot")
+                            .attr("x", d => d.x)
+                            .attr("y", d => d.y)
+                            .attr("width", plotSize)
+                            .attr("height", plotSize)
+                            .attr("stroke", "#fff")
+                            .attr("stroke-width", 2)
+                            .style("fill", d => d.color)
+                            .style("opacity", 0.6);
+
+                        // Draw labels (the col treatment)
+                        svg.selectAll(".plot-label")
+                            .data(plotData, d => d.id)
+                            .join("text")
+                            .attr("class", "plot-label")
+                            .attr("x", d => d.x + plotSize / 2)
+                            .attr("y", d => d.y + plotSize / 2)
+                            .attr("dy", ".35em")
+                            .attr("text-anchor", "middle")
+                            .style("font-size", `${Math.min(18, plotSize / 3)}px`)
+                            .style("font-weight", "bold")
+                            .style("fill", "#000")
+                            .text(d => d.colTrt);
+
+                        // Draw Axis Labels
+                        // Row (Factor A) labels
+                        svg.selectAll(".row-axis-label")
+                            .data(rowOrder)
+                            .join("text")
+                            .attr("class", "row-axis-label")
+                            .attr("x", -5)
+                            .attr("y", (d, i) => (i * plotSize) + (plotSize / 2))
+                            .attr("dy", ".35em")
+                            .attr("text-anchor", "end")
+                            .style("font-weight", "bold")
+                            .style("fill", d => rowColors[d])
+                            .text(d => rowNames[d]);
+
+                        // Col (Factor B) labels
+                        svg.selectAll(".col-axis-label")
+                            .data(colOrder)
+                            .join("text")
+                            .attr("class", "col-axis-label")
+                            .attr("x", (d, i) => (i * plotSize) + (plotSize / 2))
+                            .attr("y", -10)
+                            .attr("text-anchor", "middle")
+                            .style("font-weight", "bold")
+                            .text(d => colNames[d]);
+                    }
+                }
+
+                function updateFeedback() {
+                    feedbackEl.html("<p><strong>Randomization Complete!</strong> Notice how the rows (Factor A) were randomized, and then the columns (Factor B) were randomized <em>separately</em> within each block.</p>");
+                    feedbackEl.classed("significant", false).classed("not-significant", true); // Use green
+                }
+
+                // --- 3. Event Listeners ---
+                randomizeBtn.on("click", function () {
+                    drawField();
+                    updateFeedback();
+                });
+
+                // --- Initial Call ---
+                drawField(); // Show one layout on load
+                updateFeedback();
+            })();
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Simple Linear Regression</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Simple Linear Regression</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Simple Linear Regression</h1>
+        <p>Finding the "line of best fit" to make predictions.</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>What is Linear Regression? 📈</h2>
+        <p>If correlation ($r$) tells us *if* two variables are related, **regression** tells us *how* they are related. Its main goal is to find the single straight line that best describes the pattern in your scatter plot. This is called the **"line of best fit."**</p>
+        <p>Why do we want this line? **To make predictions.**</p>
+        <ul>
+            <li>If we know the relationship between "hours studied" and "test score," we can predict what score someone might get if they study for 5 hours.</li>
+            <li>If a farmer knows the relationship between "fertilizer applied" and "crop yield," they can predict how much yield they'll get from applying 100kg of fertilizer.</li>
+        </ul>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>The Equation of the Line: $y = b_1x + b_0$</h2>
+        <p>You might remember $y = mx + b$ from math class. It's the exact same idea, but statisticians often use $b_1$ for the slope and $b_0$ for the intercept.</p>
+
+
+
+        <ul>
+            <li>
+                <strong>$y$ (Dependent Variable):</strong> The thing you want to predict (e.g., Test Score).
+            </li>
+            <li>
+                <strong>$x$ (Independent Variable):</strong> The thing you use to make the prediction (e.g., Hours Studied).
+            </li>
+            <li>
+                <strong>$b_1$ (Slope):</strong> This is the most important part! It tells you how much $y$ changes for every one-unit increase in $x$.
+                <br><em>Example:</em> If the slope is <strong>5</strong>, it means that for *every 1 additional hour* you study, your test score is predicted to go up by 5 points.
+            </li>
+            <li>
+                <strong>$b_0$ (Y-Intercept):</strong> This is the "starting point." It's the predicted value of $y$ when $x$ is 0.
+                <br><em>Example:</em> If the intercept is <strong>65</strong>, it means that with 0 hours of study, your predicted score is 65.
+            </li>
+        </ul>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Interactive Regression Line 🔬</h2>
+        <p>Try it yourself! Click and drag the dots on the scatter plot. Watch how the <strong>regression line</strong> (the dashed line) and its <strong>equation</strong> change in real-time. Notice how just one outlier can pull the whole line!</p>
+
+        <div class="interactive-calc dark-bg">
+            <div class="corr-plot-container">
+                <div id="regression-plot-interactive"></div>
+            </div>
+            <div class="corr-controls">
+                <h4>Live Regression Stats</h4>
+                <p>Drag the dots to see how they influence the line.</p>
+                <div class="calc-stat-box" id="reg-equation-box">
+                    <strong>Regression Equation</strong>
+                    <span id="reg-equation-value">y = 0x + 0</span>
+                </div>
+                <div class="calc-stat-box" id="reg-r-box">
+                    <strong>Correlation (r)</strong>
+                    <span id="reg-r-value">0.00</span>
+                </div>
+            </div>
+        </div>
+        <hr style="margin: 30px 0;">
+
+        <h2>How Do We Find the "Best" Line?</h2>
+        <p>How does the calculator "know" where to draw the line? It uses a method called **"Ordinary Least Squares" (OLS)**.</p>
+        <p>Imagine your data points and a line. The vertical distance from each point to the line is called a **residual**. It's the "error" of the prediction.</p>
+
+
+
+        <ul>
+            <li>Points above the line have a positive residual.</li>
+            <li>Points below the line have a negative residual.</li>
+        </ul>
+
+        <p>We can't just add these up (the positives and negatives would cancel out). So, we **square** each residual to make them all positive. This also (like in variance) *heavily penalizes* points that are very far from the line.</p>
+
+        <p><strong>The "line of best fit" is the one single, unique line that makes the sum of all those squared residuals (errors) as small as possible.</strong> It's the line that is "least wrong" for all the points at once.</p>
+        <p>You can see this in the <a href="../module2.html">Module 2: Relationship Explorer</a>, which also includes the $R^2$ value that we'll cover in the next guide!</p>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        (function setupRegressionPlot() {
+            // 1. Initial Data
+            let data = [
+                { id: 1, x: 20, y: 30 }, { id: 2, x: 40, y: 40 },
+                { id: 3, x: 50, y: 60 }, { id: 4, x: 70, y: 80 },
+                { id: 5, x: 90, y: 70 }, { id: 6, x: 30, y: 50 }
+            ];
+
+            // 2. Setup SVG
+            const margin = { top: 10, right: 10, bottom: 20, left: 20 };
+            const width = 350 - margin.left - margin.right;
+            const height = 250 - margin.top - margin.bottom;
+
+            const svg = d3.select("#regression-plot-interactive").append("svg")
+                .attr("width", "100%")
+                .attr("height", height + margin.top + margin.bottom)
+                .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                .attr("preserveAspectRatio", "xMidYMid meet")
+                .style("background-color", "#fff")
+                .style("border-radius", "8px")
+                .style("cursor", "grab")
+                .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+            const xScale = d3.scaleLinear().domain([0, 100]).range([0, width]);
+            const yScale = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+
+            // 3. Axes
+            svg.append("g").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale).ticks(5));
+            svg.append("g").call(d3.axisLeft(yScale).ticks(5));
+
+            // 4. Add Regression Line element (initially invisible)
+            const regressionLine = svg.append("line")
+                .attr("class", "regression-line")
+                .style("stroke", "#dc3545") // Red line
+                .style("stroke-width", 2.5)
+                .style("stroke-dasharray", "6 4");
+
+            // 5. Update Function
+            function update() {
+                const stats = calculateRegression(data);
+
+                // Update text
+                d3.select("#reg-equation-value").text(`y = ${stats.b1.toFixed(2)}x + ${stats.b0.toFixed(2)}`);
+                d3.select("#reg-r-value").text(stats.r.toFixed(3));
+
+                // Update r-value box color
+                const rBox = d3.select("#reg-r-box");
+                rBox.classed("positive", stats.r > 0).classed("negative", stats.r < 0);
+                rBox.style("background-color", `rgba(${stats.r < 0 ? '220, 53, 69' : '0, 123, 255'}, ${Math.abs(stats.r) * 0.8 + 0.1})`);
+                rBox.select("span").style("color", Math.abs(stats.r) > 0.7 ? "#fff" : (stats.r > 0 ? "#007bff" : "#dc3545"));
+                rBox.style("color", Math.abs(stats.r) > 0.7 ? "#fff" : "#333");
+
+                // Update line position
+                const x1 = 0, y1 = stats.b1 * x1 + stats.b0;
+                const x2 = 100, y2 = stats.b1 * x2 + stats.b0;
+
+                regressionLine
+                    .style("opacity", 1)
+                    .transition().duration(50) // Fast transition
+                    .attr("x1", xScale(x1))
+                    .attr("y1", yScale(y1))
+                    .attr("x2", xScale(x2))
+                    .attr("y2", yScale(y2));
+            }
+
+            // 6. Drag Behavior
+            const drag = d3.drag()
+                .on("start", function () { d3.select(this).style("cursor", "grabbing"); })
+                .on("drag", function (event, d) {
+                    let newX = xScale.invert(event.x);
+                    let newY = yScale.invert(event.y);
+                    newX = Math.max(0, Math.min(100, newX));
+                    newY = Math.max(0, Math.min(100, newY));
+                    d.x = newX; d.y = newY;
+                    d3.select(this).attr("cx", xScale(d.x)).attr("cy", yScale(d.y));
+                    update(); // Recalculate on every drag
+                })
+                .on("end", function () { d3.select(this).style("cursor", "grab"); });
+
+            // 7. Draw Dots
+            svg.selectAll("circle")
+                .data(data, d => d.id)
+                .join("circle")
+                .attr("class", "data-dot-interactive")
+                .attr("cx", d => xScale(d.x))
+                .attr("cy", d => yScale(d.y))
+                .attr("r", 7)
+                .call(drag); // Attach drag behavior
+
+            // 8. Regression & Correlation Calculator
+            function calculateRegression(data) {
+                const n = data.length;
+                if (n < 2) return { b1: 0, b0: 0, r: 0 };
+
+                const meanX = d3.mean(data, d => d.x);
+                const meanY = d3.mean(data, d => d.y);
+
+                let num = 0; let den = 0;
+                let denX_r = 0; let denY_r = 0;
+
+                for (let i = 0; i < n; i++) {
+                    const dx = data[i].x - meanX;
+                    const dy = data[i].y - meanY;
+                    num += dx * dy;
+                    den += dx * dx;
+                    denX_r += dx * dx;
+                    denY_r += dy * dy;
+                }
+
+                const b1 = (den === 0) ? 0 : num / den; // Slope
+                const b0 = meanY - (b1 * meanX); // Intercept
+
+                const r_den = Math.sqrt(denX_r * denY_r);
+                const r = (r_den === 0) ? 0 : num / r_den; // Correlation
+
+                return { b1, b0, r };
+            }
+
+            // Initial call
+            update();
+
+        })();
+    </script>
+
+</body>
+</html>

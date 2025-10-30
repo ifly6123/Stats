@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Completely Randomized Design (CRD)</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Completely Randomized Design (CRD)</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Completely Randomized Design (CRD)</h1>
+        <p>The simplest and most basic experimental design.</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>What is a CRD?</h2>
+        <p>A <strong>Completely Randomized Design (CRD)</strong> is the simplest type of experiment. It's like a lottery: you have your treatments (e.g., A, B, C) and your experimental units (e.g., 12 plant pots), and you use pure chance to assign each treatment to an equal number of pots.</p>
+        <p>You literally "pull the names out of a hat" to decide who gets what. This design is built entirely on the first two principles of experimental design: <strong>Randomization</strong> and <strong>Replication</strong>.</p>
+
+        <h2>When Should You Use a CRD?</h2>
+        <p>A CRD is the best and most efficient design *only* when your experimental units are **uniform** (all the same).</p>
+        <ul>
+            <li><strong>Good for CRD:</strong> A lab, a greenhouse, or an indoor experiment where every pot gets the exact same light, temperature, and water.</li>
+            <li><strong>Bad for CRD:</strong> A sloped field, or a field with a shady spot on one side. (For that, you'd use a <strong>Blocked Design (RBD)</strong> to handle the "noise" from the sun/slope).</li>
+        </ul>
+        <p>The goal of CRD is to assume the *only* difference between units is the treatment they receive. All other "noise" is just random, unavoidable error.</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Interactive: The "Lottery" Assigner 🎟️</h2>
+        <p>Let's pretend we have 16 identical plots on a lab bench (a uniform environment). We want to test 4 treatments (A, B, C, D), with 4 replications each. Click the button to see how CRD assigns them!</p>
+
+        <div class="interactive-calc dark-bg">
+            <div class="doe-viz-controls" style="justify-content: center;">
+                <button class="doe-btn" id="crd-randomize-btn">Run the "Lottery" (Randomize)</button>
+            </div>
+
+            <div id="crd-plot-container">
+                <div id="crd-plot">
+                </div>
+            </div>
+
+            <div id="crd-feedback" class="stat-result not-significant">
+                <p>Click the button to randomly assign 4 treatments (A, B, C, D) to the 16 plots.</p>
+            </div>
+        </div>
+        <hr style="margin: 30px 0;">
+
+        <h2>Pros and Cons of CRD</h2>
+
+        <h3>👍 Pros (The Good Stuff)</h3>
+        <ul>
+            <li><strong>Super Simple:</strong> It's the easiest design to set up, understand, and analyze.</li>
+            <li><strong>Flexible:</strong> You don't need the same number of replications for each treatment (though it's usually better if you do).</li>
+            <li><strong>Losing Data is Okay:</strong> If one of your pots gets knocked over by a cat, you can still run the analysis. The math doesn't "break" (unlike in other designs).</li>
+        </ul>
+
+        <h3>👎 Cons (The Problems)</h3>
+        <ul>
+            <li><strong>Only for Uniform Conditions:</strong> This is the big one. If you use a CRD on a field that isn't uniform (e.g., it has a slope), you're in trouble.</li>
+            <li><strong>High "Noise" (Error):</strong> Any hidden patterns in your field (like a soil gradient) that you *didn't* account for get lumped into the "Error" (Noise) part of your ANOVA. This makes your F-value smaller and can cause you to *miss* a real effect (a Type II Error).</li>
+        </ul>
+
+        <p><strong>The takeaway:</strong> Use CRD in a controlled lab or greenhouse, but be very careful about using it in a field. If your field isn't perfect, a <a href="rbd.html">Randomized Block Design (RBD)</a> is a much safer and more powerful choice.</p>
+        <p>You can see a direct comparison of CRD vs. RBD in our <a href="../module4.html">Module 4: Virtual Field</a>!</p>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            (function setupCRDViz() {
+                // Check for D3
+                if (typeof d3 === 'undefined') {
+                    console.error("D3.js is not loaded! Cannot start visualizer.");
+                    document.querySelector("#crd-plot-container").innerHTML = "<p style='color: red; padding: 10px;'>Error: Visualizer could not be loaded.</p>";
+                    return;
+                }
+
+                // --- 1. Setup ---
+                const margin = { top: 10, right: 10, bottom: 10, left: 10 };
+                const width = 400 - margin.left - margin.right;
+                const height = 400 - margin.top - margin.bottom;
+                const numRows = 4;
+                const numCols = 4;
+                const plotSize = width / numCols;
+
+                const treatments = [
+                    { id: 'A', color: '#007bff' },
+                    { id: 'B', color: '#28a745' },
+                    { id: 'C', color: '#fd7e14' },
+                    { id: 'D', color: '#dc3545' }
+                ];
+
+                const feedbackEl = d3.select("#crd-feedback");
+                const randomizeBtn = d3.select("#crd-randomize-btn");
+
+                const svg = d3.select("#crd-plot").append("svg")
+                    .attr("width", "100%").attr("height", height + margin.top + margin.bottom)
+                    .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                    .attr("preserveAspectRatio", "xMidYMid meet")
+                    .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+                let fieldPlots = [];
+                for (let r = 0; r < numRows; r++) {
+                    for (let c = 0; c < numCols; c++) {
+                        fieldPlots.push({ id: `r${r}c${c}`, row: r, col: c, x: c * plotSize, y: r * plotSize, trt: null });
+                    }
+                }
+
+                // --- 2. Helper Functions ---
+                function shuffle(array) {
+                    let newArray = [...array];
+                    for (let i = newArray.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                    }
+                    return newArray;
+                }
+
+                function drawField() {
+                    // 1. Create the list of 16 treatments (4 of each)
+                    let treatmentList = [];
+                    treatments.forEach(t => {
+                        for (let i = 0; i < 4; i++) { treatmentList.push(t); }
+                    });
+
+                    // 2. Shuffle the list
+                    const randomizedTreatments = shuffle(treatmentList);
+
+                    // 3. Assign to plots
+                    fieldPlots.forEach((p, i) => {
+                        p.trt = randomizedTreatments[i];
+                    });
+
+                    // 4. Draw plots
+                    svg.selectAll(".plot")
+                        .data(fieldPlots, d => d.id)
+                        .join(
+                            enter => enter.append("rect")
+                                .attr("class", "plot")
+                                .attr("x", d => d.x)
+                                .attr("y", d => d.y)
+                                .attr("width", plotSize)
+                                .attr("height", plotSize)
+                                .attr("stroke", "#fff")
+                                .attr("stroke-width", 2)
+                                .style("fill", "#eee") // Start grey
+                                .call(enter => enter.transition().duration(200).delay((d, i) => i * 30) // Staggered animation
+                                    .style("fill", d => d.trt.color)),
+                            update => update
+                                .call(update => update.transition().duration(200)
+                                    .style("fill", "#eee") // Fade to grey
+                                    .transition().duration(200).delay((d, i) => i * 30) // Staggered
+                                    .style("fill", d => d.trt.color))
+                        );
+
+                    // 5. Draw labels
+                    svg.selectAll(".plot-label")
+                        .data(fieldPlots, d => d.id)
+                        .join(
+                            enter => enter.append("text")
+                                .attr("class", "plot-label")
+                                .attr("x", d => d.x + plotSize / 2)
+                                .attr("y", d => d.y + plotSize / 2)
+                                .attr("dy", ".35em")
+                                .attr("text-anchor", "middle")
+                                .style("font-size", `${plotSize / 3}px`)
+                                .style("font-weight", "bold")
+                                .style("fill", "white")
+                                .style("opacity", 0)
+                                .text(d => d.trt.id)
+                                .call(enter => enter.transition().duration(200).delay((d, i) => 300 + i * 30)
+                                    .style("opacity", 1)),
+                            update => update
+                                .call(update => update.transition().duration(100)
+                                    .style("opacity", 0)
+                                    .transition().duration(200).delay((d, i) => 300 + i * 30)
+                                    .text(d => d.trt.id)
+                                    .style("opacity", 1))
+                        );
+                }
+
+                function updateFeedback() {
+                    feedbackEl.html("<p><strong>Randomization Complete!</strong> Notice how the treatments are scattered completely by chance, like pulling names from a hat. This is a fair, unbiased assignment.</p>");
+                    feedbackEl.classed("significant", false).classed("not-significant", true); // Use green
+                }
+
+                // --- 3. Event Listeners ---
+                randomizeBtn.on("click", function () {
+                    drawField();
+                    updateFeedback();
+                });
+
+                // --- Initial Call ---
+                // Draw an empty grid to start
+                svg.selectAll(".plot")
+                    .data(fieldPlots, d => d.id)
+                    .join("rect")
+                    .attr("class", "plot")
+                    .attr("x", d => d.x)
+                    .attr("y", d => d.y)
+                    .attr("width", plotSize)
+                    .attr("height", plotSize)
+                    .attr("stroke", "#fff")
+                    .attr("stroke-width", 2)
+                    .style("fill", "#eee");
+
+            })();
+        });
+    </script>
+
+</body>
+</html>

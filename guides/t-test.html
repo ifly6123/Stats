@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: The t-Test</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>The t-Test</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">The t-Test 🧑‍🔬</h1>
+        <p>Comparing the averages of two groups.</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>What is a t-Test?</h2>
+        <p>A <strong>t-test</strong> is one of the most common statistical tests. Its main job is to help you decide if the **means (averages)** of two different groups are *really* different from each other, or if the difference you see is probably just due to random chance (a fluke).</p>
+        <p>It's perfect for questions like:</p>
+        <ul>
+            <li>Does "Fertilizer A" (Group 1) grow taller plants than "Fertilizer B" (Group 2)?</li>
+            <li>Do students who study (Group 1) get higher test scores than students who don't (Group 2)?</li>
+            <li>Is the average height of the boys' basketball team (Group 1) *really* different from the girls' team (Group 2)?</li>
+        </ul>
+
+        <h2>Signal vs. Noise: The Main Idea</h2>
+        <p>The t-test works on a very simple and beautiful idea: the **"Signal-to-Noise Ratio"**.</p>
+        <ul>
+            <li><strong>The Signal (Difference):</strong> This is the difference between the two group means (e.g., $\text{average height of boys} - \text{average height of girls}$). A <strong>big</strong> difference is a <strong>strong signal</strong>.</li>
+            <li><strong>The Noise (Variability):</strong> This is the "spread" or "overlap" of the data within the groups (the standard deviations). If the groups are very spread out and overlap a lot, it's <strong>"noisy"</strong> and hard to tell if the signal is real.</li>
+        </ul>
+        <p>The t-test boils this all down to one number, the **t-statistic (or t-value)**:</p>
+        <p style="text-align: center; font-size: 1.5rem; font-weight: 600;">$t = \frac{\text{Signal}}{\text{Noise}} = \frac{\text{Difference between means}}{\text{Spread of data}}$</p>
+        <ul>
+            <li>A **High $t$-value** (like 4 or 5) means the Signal is much stronger than the Noise. The difference is probably real!</li>
+            <li>A **Low $t$-value** (like 0.3) means the Noise is drowning out the Signal. The difference is probably just a random fluke.</li>
+        </ul>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Interactive: Signal vs. Noise 🔬</h2>
+        <p>Use the sliders below to see this in action. The two bell curves represent your two groups. The <strong>$p$-value</strong> is your "fluke meter." Try to get it below 0.05 (the "significant" level)!</p>
+
+        <div class="interactive-calc dark-bg">
+            <div id="ttest-plot-container">
+                <div id="ttest-plot"></div>
+            </div>
+
+            <div class="ttest-controls">
+                <div class="control-group">
+                    <label for="mean-diff-slider">Difference Between Means (The "Signal")</label>
+                    <input type="range" class="slider" id="mean-diff-slider" min="0" max="5" step="0.1" value="1.0">
+                </div>
+                <div class="control-group">
+                    <label for="std-dev-slider">Spread of Data (The "Noise")</label>
+                    <input type="range" class="slider" id="std-dev-slider" min="0.5" max="3" step="0.1" value="1.5">
+                </div>
+            </div>
+
+            <div class="calc-results-grid">
+                <div class="calc-stat-box compact" id="mean-box-disp">
+                    <strong>t-value (Signal/Noise)</strong>
+                    <span id="stat-t-value">0.00</span>
+                </div>
+                <div class="calc-stat-box compact" id="sd-box-disp">
+                    <strong>p-value ("Fluke Meter")</strong>
+                    <span id="stat-p-value">0.000</span>
+                </div>
+            </div>
+            <div id="ttest-conclusion" class="stat-result not-significant">
+                <span>Move the sliders to see the result.</span>
+            </div>
+        </div>
+        <hr style="margin: 30px 0;">
+
+        <h2>What Did You See?</h2>
+        <p>You should have noticed two things in the simulator:</p>
+        <ol>
+            <li><strong>Increasing the "Signal" (Difference):</strong> As you move the curves further apart, the $t$-value gets **bigger** and the $p$-value gets **smaller**. A strong, clear signal is not likely to be a fluke.</li>
+            <li><strong>Increasing the "Noise" (Spread):</strong> As you make the curves wider and more spread out, they overlap more. This makes the $t$-value **smaller** and the $p$-value **bigger**, even if the means are far apart!</li>
+        </ol>
+        <p>This is the core idea! A significant result doesn't just mean the averages are different; it means they are different *enough* to overcome the random noise (spread) in your data.</p>
+        <p>You can see this in action with real simulated data in the <a href="../module3.html">Module 3: Hypothesis Tester</a>!</p>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        (function setupTTestViz() {
+            // Check for D3 and jStat
+            if (typeof d3 === 'undefined' || typeof jStat === 'undefined') {
+                console.error("D3.js or jStat.js is not loaded! Cannot start simulator.");
+                document.querySelector("#ttest-plot-container").innerHTML = "<p style='color: red; padding: 10px;'>Error: Simulator could not be loaded.</p>";
+                return;
+            }
+
+            // --- 1. Setup ---
+            const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+            const width = 500 - margin.left - margin.right;
+            const height = 250 - margin.top - margin.bottom;
+
+            const svg = d3.select("#ttest-plot").append("svg")
+                .attr("width", "100%").attr("height", height + margin.top + margin.bottom)
+                .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                .attr("preserveAspectRatio", "xMidYMid meet")
+                .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+            // Sliders and value displays
+            const meanDiffSlider = d3.select("#mean-diff-slider");
+            const stdDevSlider = d3.select("#std-dev-slider");
+
+            // Stats displays
+            const tValueDisplay = d3.select("#stat-t-value");
+            const pValueDisplay = d3.select("#stat-p-value");
+            const sigResult = d3.select("#ttest-conclusion");
+
+            // --- 2. Scales ---
+            const xScale = d3.scaleLinear().domain([-8, 8]).range([0, width]);
+            const yScale = d3.scaleLinear().domain([0, 0.45]).range([height, 0]);
+
+            // X-Axis
+            svg.append("g").attr("class", "axis").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale).ticks(5));
+
+            // --- 3. Helper Functions ---
+            // Probability Density Function for a Normal distribution
+            function normalPDF(x, mean, stdDev) {
+                if (stdDev <= 0) return 0; // Guard against bad input
+                const exponent = -Math.pow(x - mean, 2) / (2 * Math.pow(stdDev, 2));
+                return (1 / (stdDev * Math.sqrt(2 * Math.PI))) * Math.exp(exponent);
+            }
+
+            // Generate data points for a curve
+            function getCurveData(mean, stdDev) {
+                return xScale.ticks(100).map(x => ({
+                    x: x,
+                    y: normalPDF(x, mean, stdDev)
+                }));
+            }
+
+            // Simulate a t-test calculation (fixed n=30 per group)
+            function simpleTTest(mean1, mean2, stdDev) {
+                const n = 30; // Fixed sample size per group
+                if (stdDev <= 0) return { t: 0, p: 1 };
+
+                const stdErrDiff = Math.sqrt((stdDev ** 2 / n) + (stdDev ** 2 / n));
+                if (stdErrDiff === 0) return { t: 0, p: 1 };
+
+                const t = (mean1 - mean2) / stdErrDiff;
+                const df = (n - 1) * 2; // Degrees of freedom
+
+                // Calculate two-tailed p-value using jStat
+                const p = 2 * (1 - jStat.studentt.cdf(Math.abs(t), df));
+                return { t, p };
+            }
+
+            // --- 4. Drawing Elements ---
+            const area = d3.area()
+                .x(d => xScale(d.x))
+                .y0(height)
+                .y1(d => yScale(d.y));
+
+            // Curve for Group 1 (Blue)
+            const path1 = svg.append("path")
+                .attr("class", "dist-path")
+                .style("fill", "#007bff")
+                .style("opacity", 0.6)
+                .style("stroke", "#0056b3")
+                .style("stroke-width", 2);
+
+            // Curve for Group 2 (Orange)
+            const path2 = svg.append("path")
+                .attr("class", "dist-path")
+                .style("fill", "#fd7e14")
+                .style("opacity", 0.6)
+                .style("stroke", "#c26100")
+                .style("stroke-width", 2);
+
+            // --- 5. Update Function ---
+            function update() {
+                // Get values from sliders
+                const meanDiff = +meanDiffSlider.property("value");
+                const stdDev = +stdDevSlider.property("value");
+
+                // Calculate means for the two curves
+                const mean1 = -meanDiff / 2;
+                const mean2 = meanDiff / 2;
+
+                // Generate new curve data
+                const data1 = getCurveData(mean1, stdDev);
+                const data2 = getCurveData(mean2, stdDev);
+
+                // Update the paths
+                path1.datum(data1).transition().duration(100).attr("d", area);
+                path2.datum(data2).transition().duration(100).attr("d", area);
+
+                // Calculate and display stats
+                const { t, p } = simpleTTest(mean1, mean2, stdDev);
+
+                tValueDisplay.text(Math.abs(t).toFixed(2)); // Show absolute t
+                pValueDisplay.text(p.toFixed(3));
+
+                // Update significance
+                if (p < 0.05) {
+                    sigResult.text("Statistically Significant! (p < 0.05)");
+                    sigResult.classed("significant", true).classed("not-significant", false);
+                    pValueDisplay.style("color", "#dc3545"); // Highlight red
+                } else {
+                    sigResult.text("Not Significant (p ≥ 0.05)");
+                    sigResult.classed("significant", false).classed("not-significant", true);
+                    pValueDisplay.style("color", "#28a745"); // Highlight green
+                }
+            }
+
+            // --- 6. Event Listeners ---
+            meanDiffSlider.on("input", update);
+            stdDevSlider.on("input", update);
+
+            // Initial call
+            update();
+
+        })();
+    </script>
+
+</body>
+</html>

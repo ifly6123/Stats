@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Correlation vs. Causation</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Correlation vs. Causation</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Correlation vs. Causation ⚠️</h1>
+        <p>Just because two things happen together doesn't mean one caused the other!</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>The BIGGEST Rule in Statistics!</h2>
+        <p>This is probably the most important idea to remember when looking at data: <strong>Correlation does NOT imply causation!</strong></p>
+        <p>What does this mean?</p>
+        <ul>
+            <li><strong>Correlation</strong> just means two things seem to happen together or move in a related way (like we saw with the correlation coefficient, $r$).</li>
+            <li><strong>Causation</strong> means that one thing *directly causes* another thing to happen (like flipping a light switch *causes* the light to turn on).</li>
+        </ul>
+        <p>It's super tempting to think that if two things are strongly correlated, one must be causing the other. But often, that's wrong!</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>The Classic Example: Ice Cream Sales and Crime Rates 🍦🚓</h2>
+        <p>Imagine you collect data over a year and make a scatter plot. You find a strong positive correlation (maybe $r = +0.7$) between the amount of ice cream sold each month and the number of crimes reported each month.</p>
+
+        <p><strong>Does this mean eating ice cream CAUSES crime?</strong> Of course not! That sounds silly.</p>
+        <p><strong>Does committing crimes CAUSE people to want ice cream?</strong> Probably not!</p>
+        <p>So, what's going on? There's usually a **hidden reason** (a third variable) that's affecting *both* things. This hidden reason is called a <strong>confounding variable</strong> or a lurking variable.</p>
+
+        <h3>What's the Hidden Reason Here?</h3>
+        <p>In this case, the confounding variable is **Hot Weather (Temperature)**.</p>
+
+        <ul>
+            <li>When it's hot, <strong>more people buy ice cream</strong>.</li>
+            <li>When it's hot, <strong>more people are outside</strong>, maybe leaving windows open, and sometimes tempers flare more easily, which can lead to an <strong>increase in crime</strong>.</li>
+        </ul>
+        <p>The hot weather causes both ice cream sales AND crime rates to go up together. They are correlated, but one doesn't cause the other. The heat is the real driver.</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Why is This So Important?</h2>
+        <p>Mistaking correlation for causation leads to bad decisions and silly conclusions!</p>
+        <ul>
+            <li>You might see a correlation between kids who play video games and kids who get good grades. Does playing games *cause* good grades? Probably not. Maybe kids who have more free time (because they finish homework quickly) do both?</li>
+            <li>You might see a correlation between the number of storks in a town and the number of babies born. Do storks deliver babies? No! Towns with more people tend to have both more houses (good for stork nests) and more babies. The **town size** is the confounding variable.</li>
+        </ul>
+        <p><strong>Always ask:</strong> Is there another reason these two things might be happening together? What's the hidden story?</p>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Test Your Understanding! 🤔</h2>
+        <p>Read the scenario below and try to guess the hidden (confounding) variable.</p>
+
+        <div class="interactive-calc dark-bg">
+            <p><strong>Scenario:</strong> A study finds a positive correlation between the number of firefighters who respond to a fire and the amount of damage caused by the fire. The more firefighters, the more damage!</p>
+            <p><strong>Does this mean firefighters are *causing* more damage?</strong> What's a likely confounding variable?</p>
+
+            <div id="quiz-options">
+                <button class="quiz-choice-btn" data-correct="false">The color of the fire truck</button>
+                <button class="quiz-choice-btn" data-correct="true">The size of the fire</button>
+                <button class="quiz-choice-btn" data-correct="false">The time of day</button>
+            </div>
+            <p id="quiz-feedback"></p>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        (function setupCausationQuiz() {
+            const choiceBtns = d3.selectAll(".quiz-choice-btn");
+            const feedbackEl = d3.select("#quiz-feedback");
+
+            choiceBtns.on("click", function () {
+                const isCorrect = d3.select(this).attr("data-correct") === "true";
+
+                // Disable all buttons
+                choiceBtns.property("disabled", true);
+
+                // Style the clicked button
+                d3.select(this).classed(isCorrect ? "correct" : "incorrect", true);
+
+                if (isCorrect) {
+                    feedbackEl.text("Correct! 🎉 A bigger fire causes *both* more firefighters to show up AND more damage.").classed("correct", true).classed("incorrect", false);
+                } else {
+                    feedbackEl.text("Not quite. Think about what causes *both* more firefighters and more damage.").classed("correct", false).classed("incorrect", true);
+                    // Highlight the correct button
+                    choiceBtns.filter('[data-correct="true"]').classed("correct", true);
+                }
+            });
+        })();
+    </script>
+
+</body>
+</html>

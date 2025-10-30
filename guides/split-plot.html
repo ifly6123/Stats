@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide: Split-Plot Design</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../index.html">Home</a> &gt;
+        <a href="../study-guides.html">Study Guides</a> &gt;
+        <span>Split-Plot Design</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Split-Plot Design 🚜</h1>
+        <p>A special design for when one factor is "hard to change."</p>
+    </header>
+
+    <main class="guide-content">
+        <h2>What's the Big Idea?</h2>
+        <p>So far, we've learned about designs where we can randomly place *anything* anywhere (like CRD) or anywhere *within a block* (like RBD). But what if that's not possible in real life?</p>
+
+        <h3>The "Tractor Problem"</h3>
+        <p>Imagine you have a huge field. You want to test:</p>
+        <ul>
+            <li><strong>Factor A (Fertilizer):</strong> 3 types (A, B, C)</li>
+            <li><strong>Factor B (Plant Variety):</strong> 4 types (V1, V2, V3, V4)</li>
+        </ul>
+        <p>Your Fertilizer (Factor A) is sprayed by a <strong>giant tractor with a huge tank</strong>. It's a massive pain to empty and clean the tank. You can't just spray one tiny plot with 'A', then clean the whole tank to spray the next plot with 'B'.</p>
+        <p>It's much, much easier to spray an entire <strong>large strip</strong> of the field with 'A', then spray the next large strip with 'B', and the last one with 'C'.</p>
+        <p>A <strong>Split-Plot Design</strong> is made for exactly this situation!</p>
+
+        <h2>Main Plots and Sub Plots</h2>
+        <p>This design splits your experiment into two "layers":</p>
+        <ol>
+            <li><strong>Main Plots:</strong> These are the big strips you assign your <strong>"hard-to-change"</strong> factor to (e.g., the Fertilizer). You randomize the fertilizers to the large strips.</li>
+            <li><strong>Sub Plots:</strong> You then "split" each Main Plot into smaller plots. Inside each Main Plot, you randomly assign your <strong>"easy-to-change"</strong> factor (e.g., the Plant Varieties).</li>
+        </ol>
+
+        <hr style="margin: 30px 0;">
+
+        <h2>Interactive: The Field Designer 🎨</h2>
+        <p>Let's design one Block (Replication) of our field. Choose your factors, then click to see how the field is randomized!</p>
+
+        <div class="interactive-calc dark-bg">
+            <div class="doe-viz-controls multi-button">
+                <div class="control-group">
+                    <label for="main-plot-count">Main Plots (e.g., Fertilizers):</label>
+                    <input type="number" id="main-plot-count" value="3" min="2" max="6">
+                </div>
+                <div class="control-group">
+                    <label for="sub-plot-count">Sub Plots (e.g., Varieties):</label>
+                    <input type="number" id="sub-plot-count" value="4" min="2" max="6">
+                </div>
+                <button class="doe-btn" id="split-plot-run-btn">Randomize the Field</button>
+            </div>
+
+            <div id="split-plot-container">
+                <div class="split-plot-legend">
+                    <strong>Main Plots (Rows):</strong> <span id="main-plot-legend"></span>
+                </div>
+                <div class="split-plot-legend">
+                    <strong>Sub Plots (Cols):</strong> <span id="sub-plot-legend"></span>
+                </div>
+
+                <div id="split-plot-viz">
+                </div>
+            </div>
+
+            <div id="split-plot-feedback" class="stat-result not-significant">
+                <p>Click the button to see how a split-plot is randomized!</p>
+            </div>
+        </div>
+        <hr style="margin: 30px 0;">
+
+        <h2>The "Two Error" Secret</h2>
+        <p>Here is the most important part of a split-plot. Because you have two different plot sizes, you have <strong>two different levels of "noise" (Error)</strong>.</p>
+        <ul>
+            <li><strong>Error (a) - Main Plot Error:</strong> This is the "noise" for comparing the big Main Plots (Fertilizers). Because these plots are huge, this error is also <strong>large</strong>. It's hard to tell if Fertilizer A is truly better than B.</li>
+            <li><strong>Error (b) - Sub Plot Error:</strong> This is the "noise" for comparing the small Sub Plots (Varieties) *within* the same fertilizer strip. Because these plots are small and right next to each other, this error is <strong>very small</strong>.</li>
+        </ul>
+        <p>This means a split-plot is <strong>bad (low power)</strong> for comparing the main plots, but <strong>excellent (high power)</strong> for comparing the sub plots and the interaction!</p>
+
+        <h2>Pros and Cons of Split-Plot</h2>
+        <h3>👍 Pros (The Good Stuff)</h3>
+        <ul>
+            <li><strong>It's Practical:</strong> It's the only logical way to do experiments with "hard-to-change" factors like plowing, irrigation, or spraying.</li>
+            <li><strong>More Precise for Sub Plots:</strong> It's <em>very</em> precise for comparing the "easy-to-change" factor (Varieties) and for finding the <strong>Interaction</strong> (e.g., "Does Variety 2 <em>really</em> love Fertilizer A?").</li>
+        </ul>
+
+        <h3>👎 Cons (The Problems)</h3>
+        <ul>
+            <li><strong>Not Good for Main Plots:</strong> It is <em>not</em> precise for comparing the "hard-to-change" factor (Fertilizers). Don't use this design if your main question is "Which fertilizer is best?"</li>
+            <li><strong>Complex Analysis:</strong> The ANOVA math is much harder because it has two different Error terms (Error a and Error b).</li>
+        </ul>
+        <p><strong>The takeaway:</strong> Use a split-plot design when one of your factors is a logistical hassle to apply to small, randomized plots. It's a design of convenience!</p>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            (function setupSplitPlotViz() {
+                // Check for D3
+                if (typeof d3 === 'undefined') {
+                    console.error("D3.js is not loaded! Cannot start visualizer.");
+                    document.querySelector("#split-plot-container").innerHTML = "<p style='color: red; padding: 10px;'>Error: Visualizer could not be loaded.</p>";
+                    return;
+                }
+
+                // --- 1. Setup ---
+                // ★★★ FIX: Increased left margin for labels ★★★
+                const margin = { top: 10, right: 10, bottom: 10, left: 100 };
+                const width = 500 - margin.left - margin.right;
+                const height = 300 - margin.top - margin.bottom;
+
+                const feedbackEl = d3.select("#split-plot-feedback");
+                const randomizeBtn = d3.select("#split-plot-run-btn");
+                const mainPlotInput = d3.select("#main-plot-count");
+                const subPlotInput = d3.select("#sub-plot-count");
+                const mainLegend = d3.select("#main-plot-legend");
+                const subLegend = d3.select("#sub-plot-legend");
+
+                const svg = d3.select("#split-plot-viz").append("svg")
+                    .attr("width", "100%").attr("height", height + margin.top + margin.bottom)
+                    .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                    .attr("preserveAspectRatio", "xMidYMid meet")
+                    .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+                // --- 2. Helper Functions ---
+                function shuffle(array) {
+                    let newArray = [...array];
+                    for (let i = newArray.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                    }
+                    return newArray;
+                }
+
+                function drawField() {
+                    // --- 1. Get values from inputs ---
+                    const numMainPlots = +mainPlotInput.property("value");
+                    const numSubPlots = +subPlotInput.property("value");
+
+                    const mainPlotHeight = height / numMainPlots;
+                    const subPlotWidth = width / numSubPlots;
+
+                    // Generate dynamic treatments
+                    const mainPlotColors = d3.schemeTableau10.slice(0, numMainPlots);
+                    const mainPlotNames = d3.range(numMainPlots).map(i => `A${i + 1}`);
+                    const subPlotNames = d3.range(numSubPlots).map(i => `v${i + 1}`);
+
+                    // --- 2. Update Legends ---
+                    mainLegend.html(""); // Clear old
+                    mainPlotNames.forEach((name, i) => {
+                        mainLegend.append("span").attr("class", "legend-swatch")
+                            .style("background-color", mainPlotColors[i])
+                            .text(name);
+                    });
+
+                    subLegend.html(""); // Clear old
+                    subPlotNames.forEach(name => {
+                        subLegend.append("span").attr("class", "legend-swatch-small")
+                            .text(name);
+                    });
+
+                    // --- 3. Create the data structure ---
+                    let plotData = [];
+                    const mainPlotOrder = shuffle(d3.range(numMainPlots)); // [1, 0, 2] etc.
+
+                    for (let r = 0; r < numMainPlots; r++) {
+                        const mainPlotIndex = mainPlotOrder[r];
+                        const mainPlotTrt = mainPlotNames[mainPlotIndex];
+
+                        const subPlotOrder = shuffle(subPlotNames);
+
+                        for (let c = 0; c < numSubPlots; c++) {
+                            const subPlotTrt = subPlotOrder[c];
+                            plotData.push({
+                                id: `r${r}c${c}`,
+                                row: r, col: c,
+                                x: c * subPlotWidth,
+                                y: r * mainPlotHeight,
+                                mainTrt: mainPlotTrt,
+                                subTrt: subPlotTrt,
+                                color: mainPlotColors[mainPlotIndex]
+                            });
+                        }
+                    }
+
+                    // --- 4. Draw Main Plot Rects (the background color) ---
+                    svg.selectAll(".main-plot")
+                        .data(plotData.filter(d => d.col === 0)) // One rect per row
+                        .join(
+                            enter => enter.append("rect").attr("class", "main-plot")
+                                .attr("x", 0).attr("width", width).attr("height", mainPlotHeight)
+                                .attr("stroke", "#333").attr("stroke-width", 2)
+                                .style("opacity", 0).attr("y", d => d.y).style("fill", d => d.color)
+                                .call(enter => enter.transition().duration(300).delay((d, i) => i * 150)
+                                    .style("opacity", 0.4)), // Faded background
+                            update => update
+                                .call(update => update.transition().duration(300)
+                                    .style("opacity", 0)
+                                    .transition().duration(300).delay((d, i) => i * 150)
+                                    .attr("y", d => d.y).style("fill", d => d.color)
+                                    .attr("height", mainPlotHeight)
+                                    .style("opacity", 0.4))
+                        );
+
+                    // --- 5. Draw Sub Plot labels ---
+                    svg.selectAll(".sub-plot-label")
+                        .data(plotData, d => d.id)
+                        .join(
+                            enter => enter.append("text")
+                                .attr("class", "sub-plot-label")
+                                .attr("x", d => d.x + subPlotWidth / 2)
+                                .attr("y", d => d.y + mainPlotHeight / 2)
+                                .attr("dy", ".35em").attr("text-anchor", "middle")
+                                .style("font-size", `${Math.min(24, mainPlotHeight / 4)}px`)
+                                .style("font-weight", "bold").style("fill", "#000")
+                                .style("opacity", 0).text(d => d.subTrt)
+                                .call(enter => enter.transition().duration(300).delay((d, i) => 500 + i * 20)
+                                    .style("opacity", 1)),
+                            update => update
+                                .call(update => update.transition().duration(100)
+                                    .style("opacity", 0)
+                                    .transition().duration(300).delay((d, i) => 500 + i * 20)
+                                    .attr("x", d => d.x + subPlotWidth / 2)
+                                    .attr("y", d => d.y + mainPlotHeight / 2)
+                                    .style("font-size", `${Math.min(24, mainPlotHeight / 4)}px`)
+                                    .text(d => d.subTrt)
+                                    .style("opacity", 1)),
+                            exit => exit.call(exit => exit.transition().duration(100).style("opacity", 0).remove())
+                        );
+
+                    // --- 6. Draw Main Plot Labels (FIXED POSITION) ---
+                    svg.selectAll(".main-plot-label")
+                        .data(plotData.filter(d => d.col === 0)) // One label per row
+                        .join(
+                            enter => enter.append("text")
+                                .attr("class", "main-plot-label")
+                                .attr("x", -10) // Positioned in the left margin
+                                .attr("y", d => d.y + mainPlotHeight / 2)
+                                .attr("dy", ".35em").attr("text-anchor", "end")
+                                .style("font-size", "0.9rem").style("font-weight", "bold")
+                                .style("fill", d => d.color).style("opacity", 0)
+                                .text(d => `Main Plot: ${d.mainTrt}`)
+                                .call(enter => enter.transition().duration(300).delay((d, i) => i * 150)
+                                    .style("opacity", 1)),
+                            update => update
+                                .call(update => update.transition().duration(300)
+                                    .style("opacity", 0)
+                                    .transition().duration(300).delay((d, i) => i * 150)
+                                    .attr("y", d => d.y + mainPlotHeight / 2)
+                                    .style("fill", d => d.color)
+                                    .text(d => `Main Plot: ${d.mainTrt}`)
+                                    .style("opacity", 1)),
+                            exit => exit.call(exit => exit.transition().duration(100).style("opacity", 0).remove())
+                        );
+                }
+
+                function updateFeedback() {
+                    feedbackEl.html("<p><strong>Randomization Complete!</strong> Notice how the main plots (rows) were randomly assigned. Then, <em>within</em> each main plot, the sub plots (columns) were also randomly assigned.</p>");
+                    feedbackEl.classed("significant", false).classed("not-significant", true); // Use green
+                }
+
+                // --- 3. Event Listeners ---
+                randomizeBtn.on("click", function () {
+                    drawField();
+                    updateFeedback();
+                });
+
+                // --- Initial Call ---
+                drawField(); // Show one layout on load
+                updateFeedback();
+            })();
+        });
+    </script>
+
+</body>
+</html>
