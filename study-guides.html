@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Study Guides</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; <span>Study Guides</span>
+    </nav>
+    <header class="module-header">
+        <h1 class="gradient-text-grey">Statistics Study Guides</h1>
+        <p>In-depth explanations and theory for statistical concepts.</p>
+    </header>
+
+    <main class="study-guide-toc">
+        <h2>Table of Contents</h2>
+
+        <section class="toc-section">
+            <h3>Module 1: Descriptive Statistics</h3>
+            <ul>
+                <li><a href="guides/frequency-distributions.html">Frequency Distributions & Histograms</a></li>
+                <li><a href="guides/measures-central-tendency.html">Measures of Central Tendency (Mean, Median, Mode)</a></li>
+                <li><a href="guides/measures-dispersion.html">Measures of Dispersion (Variance, SD, MAD, CV)</a></li>
+                <li><a href="guides/standard-error.html">Standard Error (SE)</a></li>
+            </ul>
+        </section>
+
+        <section class="toc-section">
+            <h3>Module 2: Correlation & Regression</h3>
+            <ul>
+                <li><a href="guides/correlation.html">Correlation ($r$)</a></li>
+                <li><a href="guides/regression.html">Simple Linear Regression ($y=mx+b$)</a></li>
+                <li><a href="guides/r-squared.html">Coefficient of Determination ($R^2$)</a></li>
+                <li><a href="guides/correlation-causation.html">Correlation vs. Causation</a></li>
+            </ul>
+        </section>
+
+        <section class="toc-section">
+            <h3>Module 3: Hypothesis Testing</h3>
+            <ul>
+                <li><a href="guides/hypothesis-logic.html">Logic of Hypothesis Testing ($H_0$, $H_a$, $p$-value, $\alpha$)</a></li>
+                <li><a href="guides/type1-type2-errors.html">Type I & Type II Errors</a></li>
+                <li><a href="guides/t-test.html">The t-Test</a></li>
+                <li><a href="guides/chi-square-test.html">The Chi-Square ($\chi^2$) Test</a></li>
+                <li><a href="guides/f-test-anova.html">The F-Test & ANOVA Basics</a></li>
+            </ul>
+        </section>
+
+        <section class="toc-section">
+            <h3>Module 4: Design of Experiments (DOE)</h3>
+            <ul>
+                <li><a href="guides/doe-principles.html">Principles of DOE (Randomization, Replication, Blocking)</a></li>
+                <li><a href="guides/crd.html">Completely Randomized Design (CRD)</a></li>
+                <li><a href="guides/rbd.html">Randomized Block Design (RBD)</a></li>
+                <li><a href="guides/lsd.html">Latin Square Design (LSD)</a></li>
+                <li><a href="guides/factorial-design.html">Factorial Designs & Interactions</a></li>
+                <li><a href="guides/data-transformation.html">Data Transformation (Log, Sqrt)</a></li>
+                <li><a href="guides/missing-plots.html">Missing Plot Techniques</a></li>
+                <li><a href="guides/split-plot.html">Split-Plot Design</a></li>
+                <li><a href="guides/strip-plot.html">Strip-Plot Design</a></li>
+            </ul>
+        </section>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+</body>
+</html>

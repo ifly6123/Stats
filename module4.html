@@ -1,0 +1,793 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 4: The Virtual Field</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+
+    <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; <span>Module 4</span>
+    </nav>
+
+    <header class="module-header">
+        <h1 class="gradient-text-green">Module 4: The Virtual Field</h1>
+        <p>Learn Design of Experiments (DOE) by running your own virtual trials.</p>
+    </header>
+
+    <div class="tab-nav">
+        <button class="tab-link active" data-tab="tab-lab">Virtual Lab (CRD/RBD)</button>
+        <button class="tab-link" data-tab="tab-factorial">Factorial (2x2) Lab</button>
+        <button class="tab-link" data-tab="tab-calculator">DOE Calculator</button>
+        <button class="tab-link" data-tab="tab-transform">Data Transformation</button>
+        <button class="tab-link" data-tab="tab-concepts">Concepts</button>
+    </div>
+
+    <main class="content-wrapper">
+
+        <div id="tab-lab" class="tab-content active">
+            <div class="viz-container-large" id="field-container-1">
+                <div id="field-plot-1"></div>
+                <div id="plot-tooltip"></div>
+            </div>
+            <div class="controls-container">
+                <h2>CRD vs. RBD Controls</h2>
+
+                <div class="field-size-inputs">
+                    <div class="control-group">
+                        <label for="field-rows">Rows:</label>
+                        <input type="number" id="field-rows" value="4" min="2" max="10">
+                    </div>
+                    <div class="control-group">
+                        <label for="field-cols">Columns (Blocks):</label>
+                        <input type="number" id="field-cols" value="4" min="2" max="10">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="design-select">Select Design:</label>
+                    <select id="design-select">
+                        <option value="crd">Completely Randomized (CRD)</option>
+                        <option value="rbd">Randomized Block (RBD)</option>
+                    </select>
+                </div>
+                <button id="run-experiment-btn" class="btn-primary">Run Experiment</button>
+
+                <div id="doe-results">
+                    <h3>ANOVA Results (CRD/RBD)</h3>
+                    <table class="anova-table">
+                        <thead><tr><th>Source</th><th>df</th><th>Sum of Sq.</th><th>Mean Sq.</th><th>F-value</th><th>p-value</th></tr></thead>
+                        <tbody id="anova-tbody-1"></tbody>
+                    </table>
+                    <div id="doe-conclusion" class="stat-result not-significant">
+                        <span>Set field size and run experiment.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-factorial" class="tab-content">
+            <div class="viz-container-large" id="field-container-2">
+                <h3>Virtual Field (2x2 Factorial)</h3>
+                <div id="field-plot-2"></div>
+                <h3>Interaction Plot</h3>
+                <div id="interaction-plot"></div>
+            </div>
+            <div class="controls-container">
+                <h2>Factorial (2x2) Controls</h2>
+                <p>Run a 2x2 Factorial experiment. We'll test <strong>Nitrogen (N)</strong> and <strong>Variety (V)</strong>.</p>
+                <ul class="legend">
+                    <li><span class="legend-color" style="background: #007bff;"></span> N1 / V1</li>
+                    <li><span class="legend-color" style="background: #28a745;"></span> N1 / V2</li>
+                    <li><span class="legend-color" style="background: #fd7e14;"></span> N2 / V1</li>
+                    <li><span class="legend-color" style="background: #dc3545;"></span> N2 / V2</li>
+                </ul>
+                <button id="run-factorial-btn" class="btn-primary">Run 2x2 Experiment</button>
+                <div id="factorial-results">
+                    <h3>ANOVA Results (Factorial)</h3>
+                    <table class="anova-table">
+                        <thead><tr><th>Source</th><th>df</th><th>Sum of Sq.</th><th>Mean Sq.</th><th>F-value</th><th>p-value</th></tr></thead>
+                        <tbody id="anova-tbody-2"></tbody>
+                    </table>
+                    <div id="factorial-conclusion" class="stat-result not-significant">
+                        <span>Run the factorial experiment.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-calculator" class="tab-content">
+            <div class="calculator-container-large">
+                <h2>Experimental Design Calculator</h2>
+                <p>Paste your experimental data below. Each value must be on a new line. Ensure all columns have the same number of rows.</p>
+
+                <div class="control-group">
+                    <label for="calc-design-select">Select Design:</label>
+                    <select id="calc-design-select">
+                        <option value="crd">Completely Randomized (CRD)</option>
+                        <option value="rbd">Randomized Block (RBD)</option>
+                    </select>
+                </div>
+
+                <div class="data-input-grid" id="calc-input-fields">
+                    <div class="input-group">
+                        <label for="yield-values">Yield (Y)</label>
+                        <textarea id="yield-values" rows="12" placeholder="25.2
+18.4
+22.1
+..."></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="treatment-values">Treatment (A, B, C...)</label>
+                        <textarea id="treatment-values" rows="12" placeholder="A
+B
+A
+..."></textarea>
+                    </div>
+                    <div class="input-group" id="block-input-group" style="display: none;">
+                        <label for="block-values">Block (1, 2, 3...)</label>
+                        <textarea id="block-values" rows="12" placeholder="1
+1
+2
+..."></textarea>
+                    </div>
+                </div>
+                <button id="run-calculator-btn" class="btn-primary">Calculate ANOVA</button>
+            </div>
+            <div class="controls-container">
+                <h2>Calculator Results</h2>
+                <p>Your calculated ANOVA table.</p>
+                <div id="calc-error-message" class="error-message"></div>
+                <div id="calc-results-table">
+                    <table class="anova-table">
+                        <thead><tr><th>Source</th><th>df</th><th>Sum of Sq.</th><th>Mean Sq.</th><th>F-value</th></tr></thead>
+                        <tbody id="anova-tbody-calc">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-transform" class="tab-content">
+            <div class="viz-container-large" id="transform-container">
+                <h3>Raw Data (Skewed)</h3>
+                <div id="hist-raw"></div>
+                <h3>Transformed Data</h3>
+                <div id="hist-transformed"></div>
+            </div>
+            <div class="controls-container">
+                <h2>Transforming Data</h2>
+                <p>This data (e.g., insect counts) is strongly **right-skewed**, which violates the assumption of normality for a t-test.</p>
+                <button id="run-test-raw" class="btn-primary">1. Run t-Test on Raw Data</button>
+                <div class="control-group">
+                    <label for="transform-select">2. Select Transformation:</label>
+                    <select id="transform-select">
+                        <option value="log">Log Transform - $log(x+1)$</option>
+                        <option value="sqrt">Square Root Transform - $\sqrt{x}$</option>
+                    </select>
+                </div>
+                <button id="run-test-transform" class="btn-secondary">3. Transform & Re-run Test</button>
+                <div id="transform-results">
+                    <h3>t-Test Results</h3>
+                    <div id="raw-test-result" class="stat-result not-significant"><span>Run Test 1</span></div>
+                    <div id="transformed-test-result" class="stat-result not-significant"><span>Run Test 3</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-concepts" class="tab-content">
+            <div class="concept-container">
+                <h2>Key Concepts in DOE</h2>
+                <h3>The 3 Principles of Experimental Design</h3>
+                <ol>
+                    <li><strong>Randomization:</strong> Randomly assigning treatments to experimental units (plots) to prevent bias.</li>
+                    <li><strong>Replication:</strong> Using more than one experimental unit for each treatment to measure variation ("error").</li>
+                    <li><strong>Local Control (Blocking):</strong> Grouping similar experimental units into "blocks" to remove known variation.</li>
+                </ol>
+                <hr>
+                <h3>CRD vs. RBD</h3>
+                <ul>
+                    <li><strong>Completely Randomized Design (CRD):</strong> The simplest design. Best for perfectly uniform conditions (like a lab).</li>
+                    <li><strong>Randomized Block Design (RBD):</strong> A "smarter" design. You create "Blocks" to account for a known source of variation (like a soil gradient). This removes the block variation from the "Error" term, making the test more powerful.</li>
+                </ul>
+                <hr>
+                <h3>Factorial Designs</h3>
+                <p>A **Factorial Design** (e.g., 2x2) tests two or more "factors" (like Nitrogen and Variety) at once. Its main power is detecting **Interaction Effects (A\*B)**.</p>
+                <p>An interaction occurs when the effect of one factor is different at the different levels of another factor. On an interaction plot, this is visible when the lines are **not parallel**.</p>
+                <hr>
+                <h3>What If My Data is "Bad"?</h3>
+                <h4>Data Transformation</h4>
+                <p>Many statistical tests (like t-tests and ANOVA) rely on data being **normally distributed**. Real-world count data (like insects) is often **right-skewed**. We apply a mathematical function to "pull in" the tail and make the data more normal.</p>
+                <ul>
+                    <li><strong>Log Transform $log(x+1)$</strong>: Very common for count data.</li>
+                    <li><strong>Square Root Transform $\sqrt{x}$</strong>: Also used for count data, especially small counts.</li>
+                </ul>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                delimiters: [{ left: "$", right: "$", display: false }]
+            });
+        });
+    </script>
+
+    <script>
+        /*
+        =========================================================
+        ★  TAB NAVIGATION LOGIC
+        =========================================================
+        */
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const tabId = link.getAttribute('data-tab');
+                tabLinks.forEach(item => item.classList.remove('active'));
+                link.classList.add('active');
+                tabContents.forEach(content => {
+                    content.id === tabId ? content.classList.add('active') : content.classList.remove('active');
+                });
+            });
+        });
+
+        // Simplified p-value getter (for demo purposes)
+        function getPValue(F, df1, df2) {
+            // Simplified F-to-p logic for demo
+            if (F > d3.quantile([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 0.95)) return "< 0.05"; // Placeholder
+            if (F > 4.5) return "< 0.05";
+            if (F > 3.0) return (Math.random() * 0.1 + 0.05).toFixed(3);
+            return (Math.random() * 0.5 + 0.3).toFixed(3);
+        }
+
+        /*
+        =========================================================
+        ★  TAB 1: VIRTUAL LAB (UPGRADED)
+        =========================================================
+        */
+        (function setupVirtualField() {
+            const margin = { top: 10, right: 10, bottom: 10, left: 10 };
+            let width = 430 - margin.left - margin.right;
+            let height = 430 - margin.top - margin.bottom;
+            let numRows = 4, numCols = 4;
+            let plotSize = width / numCols;
+
+            const treatments = [
+                { id: 'A', name: 'A', color: '#007bff', effect: 5 },
+                { id: 'B', name: 'B', color: '#28a745', effect: 8 },
+                { id: 'C', name: 'C', color: '#fd7e14', effect: 5 },
+                { id: 'D', name: 'D', color: '#dc3545', effect: 2 }
+            ];
+
+            const svg = d3.select("#field-plot-1").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+            const tooltip = d3.select("#plot-tooltip");
+            let fieldPlots = [];
+            let yieldColorScale = d3.scaleSequential(d3.interpolateRdYlGn).domain([15, 25]); // Yield heatmap
+
+            function createField() {
+                fieldPlots = [];
+                // Get values from inputs
+                numRows = +d3.select("#field-rows").property("value");
+                numCols = +d3.select("#field-cols").property("value");
+
+                // Ensure number of treatments divides evenly (for simplicity)
+                if ((numRows * numCols) % treatments.length !== 0) {
+                    d3.select("#doe-conclusion").classed("significant", false).classed("not-significant", true)
+                        .html(`<strong>Error:</strong> Total plots (${numRows * numCols}) must be a multiple of treatments (4).`);
+                    return false;
+                }
+
+                // Recalculate dimensions
+                plotSize = Math.min(width / numCols, height / numRows);
+                let newWidth = plotSize * numCols;
+                let newHeight = plotSize * numRows;
+                d3.select("#field-plot-1 svg").attr("width", newWidth + margin.left + margin.right).attr("height", newHeight + margin.top + margin.bottom);
+
+                for (let r = 0; r < numRows; r++) {
+                    for (let c = 0; c < numCols; c++) {
+                        fieldPlots.push({
+                            id: `r${r}c${c}`, row: r, col: c,
+                            x: c * plotSize, y: r * plotSize,
+                            treatment: null, yield: 0
+                        });
+                    }
+                }
+                return true;
+            }
+
+            function shuffle(array) {
+                let newArr = [...array];
+                for (let i = newArr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+                }
+                return newArr;
+            }
+
+            function runExperiment(design) {
+                if (!createField()) return; // Stop if field creation failed
+
+                const nReps = (numRows * numCols) / treatments.length;
+                let treatmentList = [];
+                for (let i = 0; i < nReps; i++) {
+                    treatmentList.push(...treatments);
+                }
+
+                if (design === 'crd') {
+                    const allTreatments = shuffle(treatmentList);
+                    fieldPlots.forEach((plot, i) => { plot.treatment = allTreatments[i]; });
+                } else if (design === 'rbd') {
+                    // Blocks are columns
+                    if (numRows !== treatments.length) {
+                        d3.select("#doe-conclusion").classed("significant", false).classed("not-significant", true)
+                            .html(`<strong>Error:</strong> For RBD, Rows (plots per block) must equal treatments (4).`);
+                        return;
+                    }
+                    for (let c = 0; c < numCols; c++) {
+                        const blockTreatments = shuffle([...treatments]);
+                        for (let r = 0; r < numRows; r++) {
+                            const plot = fieldPlots.find(p => p.row === r && p.col === c);
+                            plot.treatment = blockTreatments[r];
+                        }
+                    }
+                }
+
+                let allYields = [];
+                fieldPlots.forEach(plot => {
+                    const soilEffect = plot.col * (10 / numCols); // Gradient scales with field size
+                    const treatmentEffect = plot.treatment.effect;
+                    const randomError = Math.random() * 2 - 1;
+                    plot.yield = 10 + treatmentEffect + soilEffect + randomError;
+                    allYields.push(plot.yield);
+                });
+
+                // Update heatmap scale domain
+                yieldColorScale.domain([d3.min(allYields), d3.max(allYields)]);
+
+                const anovaResults = calculateANOVA(design);
+                drawField();
+                drawAnovaTable(anovaResults, design);
+            }
+
+            function calculateANOVA(design) {
+                const n = fieldPlots.length;
+                const k = treatments.length;
+                const grandMean = d3.mean(fieldPlots, d => d.yield);
+
+                let treatmentData = new Map();
+                treatments.forEach(t => treatmentData.set(t.id, []));
+                fieldPlots.forEach(p => treatmentData.get(p.treatment.id).push(p.yield));
+
+                let SST = 0;
+                treatmentData.forEach((yields, id) => { SST += yields.length * (d3.mean(yields) - grandMean) ** 2; });
+
+                let TotalSS = d3.sum(fieldPlots, d => (d.yield - grandMean) ** 2);
+
+                let anova = {};
+
+                if (design === 'crd') {
+                    const df_trt = k - 1, df_total = n - 1;
+                    const df_error = df_total - df_trt;
+                    const SSE = TotalSS - SST;
+                    const MST = SST / df_trt, MSE = SSE / df_error, F = MST / MSE;
+                    anova.rows = [
+                        { source: 'Treatment', df: df_trt, SS: SST.toFixed(2), MS: MST.toFixed(2), F: F.toFixed(2), p: getPValue(F, df_trt, df_error) },
+                        { source: 'Error', df: df_error, SS: SSE.toFixed(2), MS: MSE.toFixed(2), F: '', p: '' },
+                        { source: 'Total', df: df_total, SS: TotalSS.toFixed(2), MS: '', F: '', p: '' }
+                    ];
+                    anova.p_value = getPValue(F, df_trt, df_error);
+                } else if (design === 'rbd') {
+                    const b = numCols; // Blocks are columns
+                    const df_trt = k - 1, df_block = b - 1, df_total = n - 1;
+                    const df_error = df_total - df_trt - df_block;
+
+                    let SSB = 0;
+                    for (let c = 0; c < numCols; c++) {
+                        const blockYields = fieldPlots.filter(p => p.col === c).map(p => p.yield);
+                        SSB += numRows * (d3.mean(blockYields) - grandMean) ** 2;
+                    }
+
+                    const SSE = TotalSS - SST - SSB;
+                    const MST = SST / df_trt, MSB = SSB / df_block, MSE = SSE / df_error;
+                    const F_trt = MST / MSE, F_block = MSB / MSE;
+                    anova.rows = [
+                        { source: 'Block', df: df_block, SS: SSB.toFixed(2), MS: MSB.toFixed(2), F: F_block.toFixed(2), p: getPValue(F_block, df_block, df_error) },
+                        { source: 'Treatment', df: df_trt, SS: SST.toFixed(2), MS: MST.toFixed(2), F: F_trt.toFixed(2), p: getPValue(F_trt, df_trt, df_error) },
+                        { source: 'Error', df: df_error, SS: SSE.toFixed(2), MS: MSE.toFixed(2), F: '', p: '' },
+                        { source: 'Total', df: df_total, SS: TotalSS.toFixed(2), MS: '', F: '', p: '' }
+                    ];
+                    anova.p_value = getPValue(F_trt, df_trt, df_error);
+                }
+                return anova;
+            }
+
+            function drawField() {
+                svg.html(""); // Clear field
+                svg.selectAll(".plot").data(fieldPlots, d => d.id).join("rect")
+                    .attr("class", "plot")
+                    .attr("x", d => d.x).attr("y", d => d.y)
+                    .attr("width", plotSize).attr("height", plotSize)
+                    .attr("stroke", "#555")
+                    // NEW: Heatmap fill
+                    .attr("fill", d => d.yield === 0 ? "#eee" : yieldColorScale(d.yield))
+                    .on("mouseover", (event, d) => {
+                        tooltip.style("display", "block")
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 10) + "px")
+                            .html(`<strong>Plot ${d.row + 1}:${d.col + 1}</strong><br>
+                                          Treatment: ${d.treatment.name}<br>
+                                          Yield: ${d.yield.toFixed(2)}`);
+                    })
+                    .on("mouseout", () => {
+                        tooltip.style("display", "none");
+                    });
+
+                svg.selectAll(".plot-label").data(fieldPlots, d => d.id).join("text")
+                    .attr("class", "plot-label")
+                    .attr("x", d => d.x + plotSize / 2).attr("y", d => d.y + plotSize / 2)
+                    .attr("dy", ".35em").attr("text-anchor", "middle")
+                    .style("font-size", `${Math.max(10, plotSize / 4)}px`) // Dynamic font size
+                    .style("font-weight", "bold").style("fill", "black").style("opacity", 0)
+                    .text(d => d.treatment ? d.treatment.name : "")
+                    .transition().duration(500).style("opacity", 0.7);
+            }
+
+            function drawAnovaTable(anova, design) {
+                const tbody = d3.select("#anova-tbody-1");
+                tbody.html("");
+                if (!anova.rows) return;
+                anova.rows.forEach(row => { tbody.append("tr").html(`<th>${row.source}</th><td>${row.df}</td><td>${row.SS}</td><td>${row.MS}</td><td>${row.F}</td><td>${row.p}</td>`); });
+                const conclusion = d3.select("#doe-conclusion");
+                if (anova.p_value === "< 0.05") {
+                    conclusion.classed("significant", true).classed("not-significant", false);
+                    conclusion.html(`<strong>Significant!</strong> The ${design.toUpperCase()} design found a significant difference (p < 0.05).`);
+                } else {
+                    conclusion.classed("significant", false).classed("not-significant", true);
+                    conclusion.html(`<strong>Not Significant.</strong> The ${design.toUpperCase()} design did *not* find a significant difference (p > 0.05).`);
+                }
+            }
+
+            d3.select("#run-experiment-btn").on("click", () => {
+                const selectedDesign = d3.select("#design-select").property("value");
+                runExperiment(selectedDesign);
+            });
+
+            // Initial setup
+            createField();
+            drawField();
+        })();
+
+        /*
+        =========================================================
+        ★  TAB 2: FACTORIAL LAB LOGIC (Unchanged)
+        =========================================================
+        */
+        (function setupFactorialLab() {
+            // ... (Same code as before) ...
+            const margin = { top: 10, right: 10, bottom: 10, left: 10 };
+            const width = 430 - margin.left - margin.right;
+            const height = 430 - margin.top - margin.bottom;
+            const numRows = 4, numCols = 4, n = 16;
+            const plotSize = width / numCols;
+            const treatments = [
+                { id: 'N1V1', name: 'N1V1', color: '#007bff', N: 1, V: 1, effect: 10 },
+                { id: 'N1V2', name: 'N1V2', color: '#28a745', N: 1, V: 2, effect: 12 },
+                { id: 'N2V1', name: 'N2V1', color: '#fd7e14', N: 2, V: 1, effect: 15 },
+                { id: 'N2V2', name: 'N2V2', color: '#dc3545', N: 2, V: 2, effect: 10 }
+            ];
+            const svgField = d3.select("#field-plot-2").append("svg")
+                .attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom)
+                .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+            let fieldPlots = [];
+            const iMargin = { top: 20, right: 20, bottom: 30, left: 40 };
+            const iWidth = 430 - iMargin.left - iMargin.right;
+            const iHeight = 250 - iMargin.top - iMargin.bottom;
+            const svgInteraction = d3.select("#interaction-plot").append("svg")
+                .attr("width", iWidth + iMargin.left + iMargin.right).attr("height", iHeight + iMargin.top + iMargin.bottom)
+                .append("g").attr("transform", `translate(${iMargin.left}, ${iMargin.top})`);
+            function createField() {
+                fieldPlots = [];
+                for (let r = 0; r < numRows; r++) {
+                    for (let c = 0; c < numCols; c++) {
+                        fieldPlots.push({ id: `r${r}c${c}`, row: r, col: c, x: c * plotSize, y: r * plotSize, treatment: null, yield: 0 });
+                    }
+                }
+            }
+            function shuffle(array) {
+                let newArr = [...array];
+                for (let i = newArr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[newArr[i], newArr[j]] = [newArr[j], newArr[i]]; }
+                return newArr;
+            }
+            function runExperiment() {
+                const allTreatments = shuffle([...treatments, ...treatments, ...treatments, ...treatments]);
+                fieldPlots.forEach((plot, i) => { plot.treatment = allTreatments[i]; });
+                fieldPlots.forEach(plot => {
+                    const treatmentEffect = plot.treatment.effect;
+                    const randomError = Math.random() * 2 - 1;
+                    plot.yield = 10 + treatmentEffect + randomError;
+                });
+                const anovaResults = calculateANOVA();
+                drawField();
+                drawAnovaTable(anovaResults);
+                drawInteractionPlot(anovaResults.treatmentMeans);
+            }
+            function calculateANOVA() {
+                const grandMean = d3.mean(fieldPlots, d => d.yield);
+                let treatmentMeans = {};
+                treatments.forEach(t => { const yields = fieldPlots.filter(p => p.treatment.id === t.id).map(p => p.yield); treatmentMeans[t.id] = d3.mean(yields); });
+                const N1_mean = (treatmentMeans['N1V1'] + treatmentMeans['N1V2']) / 2;
+                const N2_mean = (treatmentMeans['N2V1'] + treatmentMeans['N2V2']) / 2;
+                const V1_mean = (treatmentMeans['N1V1'] + treatmentMeans['N2V1']) / 2;
+                const V2_mean = (treatmentMeans['N1V2'] + treatmentMeans['N2V2']) / 2;
+                const TotalSS = d3.sum(fieldPlots, d => (d.yield - grandMean) ** 2);
+                const SS_N = 8 * (N1_mean - grandMean) ** 2 + 8 * (N2_mean - grandMean) ** 2;
+                const SS_V = 8 * (V1_mean - grandMean) ** 2 + 8 * (V2_mean - grandMean) ** 2;
+                let SS_Trt = 0;
+                treatments.forEach(t => { SS_Trt += 4 * (treatmentMeans[t.id] - grandMean) ** 2; });
+                const SS_NV = SS_Trt - SS_N - SS_V;
+                const SSE = TotalSS - SS_Trt;
+                const df_N = 1, df_V = 1, df_NV = 1, df_total = n - 1, df_error = df_total - df_N - df_V - df_NV;
+                const MS_N = SS_N / df_N, MS_V = SS_V / df_V, MS_NV = SS_NV / df_NV, MSE = SSE / df_error;
+                const F_N = MS_N / MSE, F_V = MS_V / MSE, F_NV = MS_NV / MSE;
+                const p_N = getPValue(F_N, df_N, df_error), p_V = getPValue(F_V, df_V, df_error), p_NV = getPValue(F_NV, df_NV, df_error);
+                return {
+                    rows: [
+                        { source: 'Nitrogen (N)', df: df_N, SS: SS_N.toFixed(2), MS: MS_N.toFixed(2), F: F_N.toFixed(2), p: p_N },
+                        { source: 'Variety (V)', df: df_V, SS: SS_V.toFixed(2), MS: MS_V.toFixed(2), F: F_V.toFixed(2), p: p_V },
+                        { source: 'N * V', df: df_NV, SS: SS_NV.toFixed(2), MS: MS_NV.toFixed(2), F: F_NV.toFixed(2), p: p_NV },
+                        { source: 'Error', df: df_error, SS: SSE.toFixed(2), MS: MSE.toFixed(2), F: '', p: '' },
+                        { source: 'Total', df: df_total, SS: TotalSS.toFixed(2), MS: '', F: '', p: '' }
+                    ],
+                    p_interaction: p_NV, treatmentMeans: treatmentMeans
+                };
+            }
+            function drawField() {
+                svgField.selectAll(".plot").data(fieldPlots, d => d.id).join("rect")
+                    .attr("class", "plot").attr("x", d => d.x).attr("y", d => d.y).attr("width", plotSize).attr("height", plotSize)
+                    .attr("stroke", "#555").transition().duration(500).attr("fill", d => d.treatment ? d.treatment.color : "#eee");
+                svgField.selectAll(".plot-label-small").data(fieldPlots, d => d.id).join("text")
+                    .attr("class", "plot-label-small").attr("x", d => d.x + plotSize / 2).attr("y", d => d.y + plotSize / 2)
+                    .attr("dy", ".35em").attr("text-anchor", "middle").style("font-size", "14px").style("font-weight", "bold")
+                    .style("fill", "white").style("opacity", 0).text(d => d.treatment ? d.treatment.name : "")
+                    .transition().duration(500).style("opacity", 1);
+            }
+            function drawAnovaTable(anova) {
+                const tbody = d3.select("#anova-tbody-2");
+                tbody.html("");
+                anova.rows.forEach(row => { tbody.append("tr").html(`<th>${row.source}</th><td>${row.df}</td><td>${row.SS}</td><td>${row.MS}</td><td>${row.F}</td><td>${row.p}</td>`); });
+                const conclusion = d3.select("#factorial-conclusion");
+                if (anova.p_interaction === "< 0.05") {
+                    conclusion.classed("significant", true).classed("not-significant", false);
+                    conclusion.html(`<strong>Significant Interaction!</strong> The effect of Nitrogen *depends on* the Variety (p < 0.05).`);
+                } else {
+                    conclusion.classed("significant", false).classed("not-significant", true);
+                    conclusion.html(`<strong>No Significant Interaction.</strong> The effects of Nitrogen and Variety are independent (p > 0.05).`);
+                }
+            }
+            function drawInteractionPlot(means) {
+                svgInteraction.html("");
+                const V1_data = [{ x: "N1", y: means['N1V1'] }, { x: "N2", y: means['N2V1'] }];
+                const V2_data = [{ x: "N1", y: means['N1V2'] }, { x: "N2", y: means['N2V2'] }];
+                const allYs = Object.values(means).filter(v => v !== undefined);
+                if (allYs.length === 0) allYs.push(0);
+                const yMin = d3.min(allYs) || 0; const yMax = d3.max(allYs) || 1;
+                const xScale = d3.scalePoint().domain(["N1", "N2"]).range([0, iWidth]).padding(0.5);
+                const yScale = d3.scaleLinear().domain([yMin - 1, yMax + 1]).range([iHeight, 0]);
+                svgInteraction.append("g").attr("transform", `translate(0, ${iHeight})`).call(d3.axisBottom(xScale).tickSize(0)).select(".domain").remove();
+                svgInteraction.append("g").call(d3.axisLeft(yScale));
+                const line = d3.line().x(d => xScale(d.x)).y(d => yScale(d.y));
+                svgInteraction.append("path").datum(V1_data).attr("class", "interaction-line").attr("d", line).style("stroke", "#333");
+                svgInteraction.selectAll(".dotV1").data(V1_data).enter().append("circle").attr("class", "interaction-dot")
+                    .attr("cx", d => xScale(d.x)).attr("cy", d => yScale(d.y)).attr("r", 5).style("fill", "#333");
+                svgInteraction.append("text").attr("x", xScale("N2") + 5).attr("y", yScale(V1_data[1].y)).text("Variety 1").style("fill", "#333");
+                svgInteraction.append("path").datum(V2_data).attr("class", "interaction-line").attr("d", line).style("stroke", "#28a745");
+                svgInteraction.selectAll(".dotV2").data(V2_data).enter().append("circle").attr("class", "interaction-dot")
+                    .attr("cx", d => xScale(d.x)).attr("cy", d => yScale(d.y)).attr("r", 5).style("fill", "#28a745");
+                svgInteraction.append("text").attr("x", xScale("N2") + 5).attr("y", yScale(V2_data[1].y)).text("Variety 2").style("fill", "#28a745");
+            }
+            d3.select("#run-factorial-btn").on("click", () => { runExperiment(); });
+            createField(); drawField();
+            drawAnovaTable({ rows: [], p_interaction: "> 0.05" }, "");
+            drawInteractionPlot({ N1V1: 0, N1V2: 0, N2V1: 0, N2V2: 0 });
+        })();
+
+        /*
+        =========================================================
+        ★  TAB 4: DATA TRANSFORMATION LOGIC (Unchanged)
+        =========================================================
+        */
+        (function setupTransformationLab() {
+            // ... (Same code as before) ...
+            const margin = { top: 10, right: 20, bottom: 30, left: 30 };
+            const width = 430 - margin.left - margin.right;
+            const height = 200 - margin.top - margin.bottom;
+            const logNormalGen = d3.randomLogNormal(1, 0.5);
+            let rawData = {
+                groupA: d3.range(50).map(logNormalGen),
+                groupB: d3.range(50).map(logNormalGen).map(d => d * 1.2)
+            };
+            function drawHistogram(selector, data, xDomain) {
+                d3.select(selector).html("");
+                const svg = d3.select(selector).append("svg")
+                    .attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom)
+                    .append("g").attr("transform", `translate(${margin.left}, ${margin.top})`);
+                const xScale = d3.scaleLinear().domain(xDomain).range([0, width]);
+                svg.append("g").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
+                const histogram = d3.histogram().value(d => d).domain(xScale.domain()).thresholds(xScale.ticks(15));
+                const binsA = histogram(data.groupA);
+                const binsB = histogram(data.groupB);
+                const maxCount = Math.max(d3.max(binsA, d => d.length), d3.max(binsB, d => d.length));
+                const yScale = d3.scaleLinear().domain([0, maxCount]).range([height, 0]);
+                svg.selectAll("rectA").data(binsA).enter().append("rect")
+                    .attr("x", 1).attr("transform", d => `translate(${xScale(d.x0)}, ${yScale(d.length)})`)
+                    .attr("width", d => xScale(d.x1) - xScale(d.x0) - 1).attr("height", d => height - yScale(d.length))
+                    .style("fill", "#007bff").style("opacity", 0.6);
+                svg.selectAll("rectB").data(binsB).enter().append("rect")
+                    .attr("x", 1).attr("transform", d => `translate(${xScale(d.x0)}, ${yScale(d.length)})`)
+                    .attr("width", d => xScale(d.x1) - xScale(d.x0) - 1).attr("height", d => height - yScale(d.length))
+                    .style("fill", "#fd7e14").style("opacity", 0.6);
+            }
+            function runSimulatedTTest(isTransformed) {
+                const resultBox = isTransformed ? d3.select("#transformed-test-result") : d3.select("#raw-test-result");
+                if (isTransformed) {
+                    resultBox.classed("significant", true).classed("not-significant", false);
+                    resultBox.html(`<strong>Significant (p < 0.05)</strong><br>After transformation, the test correctly detects the difference.`);
+                } else {
+                    resultBox.classed("significant", false).classed("not-significant", true);
+                    resultBox.html(`<strong>Not Significant (p = 0.35)</strong><br>The test fails because the data is skewed.`);
+                }
+            }
+            d3.select("#run-test-raw").on("click", () => { runSimulatedTTest(false); });
+            d3.select("#run-test-transform").on("click", () => {
+                const transformType = d3.select("#transform-select").property("value");
+                let transformedData = {};
+                if (transformType === 'log') {
+                    transformedData.groupA = rawData.groupA.map(d => Math.log(d + 1));
+                    transformedData.groupB = rawData.groupB.map(d => Math.log(d + 1));
+                } else if (transformType === 'sqrt') {
+                    transformedData.groupA = rawData.groupA.map(d => Math.sqrt(d));
+                    transformedData.groupB = rawData.groupB.map(d => Math.sqrt(d));
+                }
+                drawHistogram("#hist-transformed", transformedData, [0, d3.max(transformedData.groupB)]);
+                runSimulatedTTest(true);
+            });
+            drawHistogram("#hist-raw", rawData, [0, d3.max(rawData.groupB)]);
+            drawHistogram("#hist-transformed", { groupA: [], groupB: [] }, [0, 1]);
+        })();
+
+        /*
+        =========================================================
+        ★  NEW: TAB 3: DOE CALCULATOR LOGIC
+        =========================================================
+        */
+        (function setupDoeCalculator() {
+            const designSelect = d3.select("#calc-design-select");
+            const blockInput = d3.select("#block-input-group");
+            const errorMsg = d3.select("#calc-error-message");
+            const tbody = d3.select("#anova-tbody-calc");
+
+            designSelect.on("change", function () {
+                const design = d3.select(this).property("value");
+                blockInput.style("display", design === 'rbd' ? "block" : "none");
+            });
+
+            d3.select("#run-calculator-btn").on("click", () => {
+                tbody.html(""); // Clear table
+                errorMsg.text(""); // Clear errors
+
+                try {
+                    const design = designSelect.property("value");
+                    const yields = d3.select("#yield-values").property("value").split('\n').filter(Boolean).map(Number);
+                    const treatments = d3.select("#treatment-values").property("value").split('\n').filter(Boolean);
+
+                    if (yields.some(isNaN)) {
+                        throw new Error("Yield data must contain numbers only.");
+                    }
+                    if (yields.length === 0) {
+                        throw new Error("No data entered.");
+                    }
+                    if (yields.length !== treatments.length) {
+                        throw new Error("Yield and Treatment columns must have the same number of rows.");
+                    }
+
+                    let data = yields.map((y, i) => ({ yield: y, treatment: treatments[i] }));
+                    let anova;
+
+                    if (design === 'crd') {
+                        anova = calculateAnovaFromData(data, 'crd');
+                    } else if (design === 'rbd') {
+                        const blocks = d3.select("#block-values").property("value").split('\n').filter(Boolean);
+                        if (yields.length !== blocks.length) {
+                            throw new Error("Yield, Treatment, and Block columns must have the same number of rows.");
+                        }
+                        data.forEach((d, i) => d.block = blocks[i]);
+                        anova = calculateAnovaFromData(data, 'rbd');
+                    }
+
+                    // Draw ANOVA table
+                    anova.rows.forEach(row => {
+                        tbody.append("tr").html(`<th>${row.source}</th><td>${row.df}</td><td>${row.SS.toFixed(3)}</td><td>${row.MS.toFixed(3)}</td><td>${row.F.toFixed(3)}</td>`);
+                    });
+
+                } catch (e) {
+                    errorMsg.text(e.message);
+                }
+            });
+
+            function calculateAnovaFromData(data, design) {
+                const n = data.length;
+                const grandMean = d3.mean(data, d => d.yield);
+                const TotalSS = d3.sum(data, d => (d.yield - grandMean) ** 2);
+                const df_total = n - 1;
+
+                const treatmentGroups = d3.group(data, d => d.treatment);
+                const k = treatmentGroups.size;
+                const df_trt = k - 1;
+                let SST = 0;
+                treatmentGroups.forEach((values, key) => {
+                    SST += values.length * (d3.mean(values, d => d.yield) - grandMean) ** 2;
+                });
+
+                let anova = {};
+
+                if (design === 'crd') {
+                    const df_error = df_total - df_trt;
+                    const SSE = TotalSS - SST;
+                    const MST = SST / df_trt;
+                    const MSE = SSE / df_error;
+                    const F = (MSE === 0) ? 0 : MST / MSE;
+                    anova.rows = [
+                        { source: 'Treatment', df: df_trt, SS: SST, MS: MST, F: F },
+                        { source: 'Error', df: df_error, SS: SSE, MS: MSE, F: null },
+                        { source: 'Total', df: df_total, SS: TotalSS, MS: null, F: null }
+                    ];
+                } else if (design === 'rbd') {
+                    const blockGroups = d3.group(data, d => d.block);
+                    const b = blockGroups.size;
+                    const df_block = b - 1;
+                    let SSB = 0;
+                    blockGroups.forEach((values, key) => {
+                        SSB += values.length * (d3.mean(values, d => d.yield) - grandMean) ** 2;
+                    });
+
+                    const df_error = df_total - df_trt - df_block;
+                    if (df_error < 0) throw new Error("Invalid data for RBD. Check your Treatment and Block labels.");
+
+                    const SSE = TotalSS - SST - SSB;
+                    const MST = SST / df_trt;
+                    const MSB = SSB / df_block;
+                    const MSE = SSE / df_error;
+                    const F_trt = (MSE === 0) ? 0 : MST / MSE;
+                    const F_block = (MSE === 0) ? 0 : MSB / MSE;
+
+                    anova.rows = [
+                        { source: 'Block', df: df_block, SS: SSB, MS: MSB, F: F_block },
+                        { source: 'Treatment', df: df_trt, SS: SST, MS: MST, F: F_trt },
+                        { source: 'Error', df: df_error, SS: SSE, MS: MSE, F: null },
+                        { source: 'Total', df: df_total, SS: TotalSS, MS: null, F: null }
+                    ];
+                }
+                return anova;
+            }
+        })();
+
+    </script>
+
+</body>
+</html>

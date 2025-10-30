@@ -1,0 +1,470 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 3: Hypothesis Tester</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+
+    <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; <span>Module 3</span>
+    </nav>
+
+    <header class="module-header">
+        <h1 class="gradient-text-red">Module 3: The Hypothesis Tester</h1>
+        <p>Visually understand p-values, t-tests, and the logic of statistical significance.</p>
+    </header>
+
+    <div class="tab-nav">
+        <button class="tab-link active" data-tab="tab-ttest">t-Test Visualizer</button>
+        <button class="tab-link" data-tab="tab-chi">Chi-Square ($\chi^2$) Test</button>
+        <button class="tab-link" data-tab="tab-concepts">Concepts</button>
+    </div>
+
+    <main class="content-wrapper">
+
+        <div id="tab-ttest" class="tab-content active">
+            <div class="viz-container-large">
+                <div id="ttest-plot"></div>
+            </div>
+            <div class="controls-container">
+                <h2>t-Test Controls</h2>
+                <p>Use the sliders to see how changing your data affects the test results.</p>
+
+                <div class="control-group">
+                    <label for="mean-diff-slider">Difference Between Means: <span id="mean-diff-value">1.0</span></label>
+                    <input type="range" min="0" max="5" step="0.1" value="1.0" class="slider" id="mean-diff-slider">
+                </div>
+
+                <div class="control-group">
+                    <label for="std-dev-slider">Standard Deviation (Spread): <span id="std-dev-value">1.5</span></label>
+                    <input type="range" min="0.5" max="3" step="0.1" value="1.5" class="slider" id="std-dev-slider">
+                </div>
+
+                <div class="stats-box" id="ttest-stats-box">
+                    <div class="stat-large">
+                        <strong>t-statistic:</strong>
+                        <span id="stat-t-value">0.00</span>
+                    </div>
+                    <div class="stat-large">
+                        <strong>p-value:</strong>
+                        <span id="stat-p-value">0.000</span>
+                    </div>
+                    <div id="significance-result" class="stat-result">
+                        <span id="significance-text">Not Significant</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-chi" class="tab-content">
+            <div class="chi-container">
+                <h2>Chi-Square ($\chi^2$) Test of Independence</h2>
+                <p>Click the <strong>Add (+)</strong> buttons to add observations to your 2x2 table. See how the $\chi^2$ statistic responds.</p>
+
+                <table class="contingency-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Success (e.g., Plant Survived)</th>
+                            <th>Failure (e.g., Plant Died)</th>
+                            <th>Row Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>Treatment A</th>
+                            <td class="cell-data">
+                                <span id="obs-a-success">10</span>
+                                <span class="expected-val" id="exp-a-success">(10.0)</span>
+                                <button class="btn-add" data-cell="a-success">+</button>
+                            </td>
+                            <td class="cell-data">
+                                <span id="obs-a-failure">10</span>
+                                <span class="expected-val" id="exp-a-failure">(10.0)</span>
+                                <button class="btn-add" data-cell="a-failure">+</button>
+                            </td>
+                            <th id="row-total-a">20</th>
+                        </tr>
+                        <tr>
+                            <th>Treatment B</th>
+                            <td class="cell-data">
+                                <span id="obs-b-success">10</span>
+                                <span class="expected-val" id="exp-b-success">(10.0)</span>
+                                <button class="btn-add" data-cell="b-success">+</button>
+                            </td>
+                            <td class="cell-data">
+                                <span id="obs-b-failure">10</span>
+                                <span class="expected-val" id="exp-b-failure">(10.0)</span>
+                                <button class="btn-add" data-cell="b-failure">+</button>
+                            </td>
+                            <th id="row-total-b">20</th>
+                        </tr>
+                        <tr>
+                            <th>Col Total</th>
+                            <th id="col-total-success">20</th>
+                            <th id="col-total-failure">20</th>
+                            <th id="grand-total">40</th>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="chi-key">
+                    <span>Key:</span>
+                    <span class="key-obs">Observed</span>
+                    <span class="key-exp">(Expected)</span>
+                </div>
+                <button id="reset-chi-button" class="btn-danger">Reset Table</button>
+            </div>
+            <div class="controls-container">
+                <h2>$\chi^2$ Results</h2>
+                <p>These values update automatically.</p>
+
+                <div class="stats-box" id="chi-stats-box">
+                    <div class="stat-large">
+                        <strong>$\chi^2$ Statistic:</strong>
+                        <span id="stat-chi-value">0.00</span>
+                    </div>
+                    <div class="stat-large">
+                        <strong>p-value:</strong>
+                        <span id="stat-chi-p-value">1.000</span>
+                    </div>
+                    <div id="chi-significance-result" class="stat-result">
+                        <span id="chi-significance-text">Not Significant</span>
+                    </div>
+                </div>
+                <div class="concept-text">
+                    <h3>What's Happening?</h3>
+                    <p>The $\chi^2$ test compares your <strong>Observed</strong> counts to the <strong>(Expected)</strong> counts.</p>
+                    <p>The "Expected" count is what we'd see if there was *no association* between the variables (i.e., if $H_0$ were true).</p>
+                    <p>The more the Observed counts differ from the Expected counts, the larger the $\chi^2$ statistic becomes, and the smaller the $p$-value gets.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-concepts" class="tab-content">
+            <div class="concept-container">
+                <h2>Key Concepts in Hypothesis Testing</h2>
+
+                <h3>1. The Core Logic: $H_0$ vs. $H_a$</h3>
+                <p>Hypothesis testing is a formal procedure to check if our findings are "statistically significant." The entire process is like a criminal trial:</p>
+                <ul>
+                    <li>
+                        <strong>Null Hypothesis ($H_0$)</strong>: This is the "presumption of innocence." It's the default position that there is **no effect**, **no difference**, or **no association**.
+                        <ul>
+                            <li><em>Example:</em> "The new fertilizer has no effect on crop yield."</li>
+                            <li><em>Example:</em> "There is no association between the treatment and survival rate."</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Alternative Hypothesis ($H_a$ or $H_1$)</strong>: This is the "charge" or the claim we want to find evidence for. It's the idea that there *is* an effect, a difference, or an association.
+                        <ul>
+                            <li><em>Example:</em> "The new fertilizer *does* increase crop yield."</li>
+                            <li><em>Example:</em> "There *is* an association between the treatment and survival rate."</li>
+                        </ul>
+                    </li>
+                </ul>
+                <p><strong>The Goal:</strong> We never "prove" the alternative hypothesis. Instead, we see if we can gather enough evidence (our data) to **reject the null hypothesis ($H_0$)** as being very unlikely.</p>
+
+                <h3>2. The Verdict: $p$-value and Alpha ($\alpha$)</h3>
+                <p>
+                    <strong>The $p$-value:</strong> This is the most misunderstood concept. The $p$-value is a probability. It answers this specific question:
+                    <br>
+                    <em>"If the null hypothesis ($H_0$) were true (i.e., there is no real effect), what is the probability of me seeing data at least as extreme as what I just collected?"</em>
+                </p>
+
+                <p>Think of it as a "fluke meter":</p>
+                <ul>
+                    <li>A **high $p$-value** (e.g., $p = 0.60$) means: "It's very likely (60% chance) I'd see this data just by random chance, even if the fertilizer doesn't work. This is probably a fluke."</li>
+                    <li>A **low $p$-value** (e.g., $p = 0.01$) means: "It's very *unlikely* (only a 1% chance) I'd see this data by random chance if the fertilizer didn't work. This is probably a real effect."</li>
+                </ul>
+
+                <p><strong>The Significance Level ($\alpha$):</strong> This is the "reasonable doubt" threshold we set *before* we start. In science, this is typically set at **$\alpha = 0.05$** (or 5%).</p>
+                <ul>
+                    <li>If **$p < \alpha$ (0.05)**, our result is "statistically significant." We reject the $H_0$ and conclude our finding is likely real.</li>
+                    <li>If **$p \ge \alpha$ (0.05)**, our result is "not statistically significant." We **fail to reject the $H_0$** and conclude we don't have enough evidence for our claim.</li>
+                </ul>
+
+                <h3>3. Errors in Testing (Type I & Type II)</h3>
+                <p>Our verdict (based on the $p$-value) can sometimes be wrong. There are two types of errors we can make:</p>
+                <ul>
+                    <li>
+                        <strong>Type I Error ($\alpha$):</strong> This is a **"false positive."**
+                        <ul>
+                            <li><strong>What it is:</strong> We reject $H_0$ (we claim there is an effect) when in reality $H_0$ was true (there is no effect).</li>
+                            <li><strong>Analogy:</strong> Convicting an innocent person.</li>
+                            <li><strong>Control:</strong> The significance level $\alpha$ *is* the probability of making a Type I error. An $\alpha$ of 0.05 means we are willing to accept a 5% chance of a false positive.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Type II Error ($\beta$):</strong> This is a **"false negative."**
+                        <ul>
+                            <li><strong>What it is:</strong> We fail to reject $H_0$ (we claim there is no effect) when in reality $H_a$ was true (there *is* a real effect).</li>
+                            <li><strong>Analogy:</strong> Letting a guilty person go free.</li>
+                            <li><strong>Cause:</strong> This often happens when our sample size is too small (not enough evidence).</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3>4. Test-Specific Details</h3>
+
+                <h4>The t-Test (Comparing Means)</h4>
+                <p>A **t-test** is used to compare the means of two groups (e.g., mean yield of "Treatment A" vs. "Treatment B"). The **$t$-statistic** is a ratio:</p>
+                <p style="text-align: center; font-size: 1.2rem; font-weight: 600;">
+                    $t = \frac{\text{Signal (Difference between means)}}{\text{Noise (Variability of groups)}}$
+                </p>
+                <p><strong>Assumptions of the t-Test:</strong></p>
+                <ol>
+                    <li><strong>Independence:</strong> The observations in one group must be independent of the other.</li>
+                    <li><strong>Normality:</strong> The data in each group should be approximately normally distributed. (The t-test is fairly "robust" to violations of this if the sample size is large).</li>
+                    <li><strong>Equal Variances:</strong> The standard deviations (spread) of the two groups should be similar. (If not, a special version called "Welch's t-test" is used).</li>
+                </ol>
+
+                <h4>The Chi-Square ($\chi^2$) Test (Comparing Frequencies)</h4>
+                <p>A **$\chi^2$ test** is used for categorical data (counts). It compares the <strong>Observed Frequencies</strong> (what you actually counted) to the <strong>Expected Frequencies</strong> (what you'd expect if $H_0$ were true).</p>
+                <p><strong>Assumptions of the $\chi^2$ Test:</strong></p>
+                <ol>
+                    <li><strong>Categorical Data:</strong> You are working with counts, not measurements.</li>
+                    <li><strong>Independence:</strong> Each observation can only be in one cell.</li>
+                    <li><strong>Expected Cell Count:</strong> The *expected* count (not the observed) in all cells should generally be 5 or more. If not, the test's results may be unreliable (and another test like "Fisher's Exact Test" is needed).</li>
+                </ol>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                delimiters: [{ left: "$", right: "$", display: false }]
+            });
+        });
+    </script>
+
+    <script>
+        /*
+        =========================================================
+        ★  TAB NAVIGATION LOGIC
+        =========================================================
+        */
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const tabId = link.getAttribute('data-tab');
+                tabLinks.forEach(item => item.classList.remove('active'));
+                link.classList.add('active');
+                tabContents.forEach(content => {
+                    content.id === tabId ? content.classList.add('active') : content.classList.remove('active');
+                });
+            });
+        });
+
+        /*
+        =========================================================
+        ★  t-TEST VISUALIZER LOGIC (Unchanged)
+        =========================================================
+        */
+        (function setupTTest() {
+            const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+            const width = 700 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
+
+            const svg = d3.select("#ttest-plot")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+            const meanDiffSlider = d3.select("#mean-diff-slider");
+            const stdDevSlider = d3.select("#std-dev-slider");
+            const meanDiffValue = d3.select("#mean-diff-value");
+            const stdDevValue = d3.select("#std-dev-value");
+
+            const tValueDisplay = d3.select("#stat-t-value");
+            const pValueDisplay = d3.select("#stat-p-value");
+            const sigResult = d3.select("#significance-result");
+            const sigText = d3.select("#significance-text");
+
+            const xScale = d3.scaleLinear().domain([-8, 8]).range([0, width]);
+            const yScale = d3.scaleLinear().domain([0, 0.45]).range([height, 0]);
+
+            svg.append("g").attr("class", "axis").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
+
+            function normalPDF(x, mean, stdDev) {
+                const exponent = -Math.pow(x - mean, 2) / (2 * Math.pow(stdDev, 2));
+                return (1 / (stdDev * Math.sqrt(2 * Math.PI))) * Math.exp(exponent);
+            }
+
+            function getCurveData(mean, stdDev) {
+                return xScale.ticks(100).map(x => ({
+                    x: x,
+                    y: normalPDF(x, mean, stdDev)
+                }));
+            }
+
+            function simpleTTest(mean1, mean2, stdDev) {
+                const n = 30;
+                const stdErrDiff = Math.sqrt((stdDev ** 2 / n) + (stdDev ** 2 / n));
+                if (stdErrDiff === 0) return { t: 0, p: 1 }; // Avoid division by zero
+                const t = (mean1 - mean2) / stdErrDiff;
+                const p = 2 * (1 - normalCDF(Math.abs(t)));
+                return { t, p };
+            }
+
+            function normalCDF(x) {
+                var t = 1 / (1 + .2316419 * Math.abs(x));
+                var d = .3989423 * Math.exp(-x * x / 2);
+                var prob = d * t * (.3193815 + t * (-.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+                return (x > 0) ? 1 - prob : prob;
+            }
+
+            const area = d3.area().x(d => xScale(d.x)).y0(height).y1(d => yScale(d.y));
+
+            const path1 = svg.append("path").attr("class", "dist-path").style("fill", "#007bff").style("opacity", 0.5);
+            const path2 = svg.append("path").attr("class", "dist-path").style("fill", "#fd7e14").style("opacity", 0.5);
+
+            function update() {
+                const meanDiff = +meanDiffSlider.property("value");
+                const stdDev = +stdDevSlider.property("value");
+
+                meanDiffValue.text(meanDiff.toFixed(1));
+                stdDevValue.text(stdDev.toFixed(1));
+
+                const mean1 = -meanDiff / 2;
+                const mean2 = meanDiff / 2;
+
+                const data1 = getCurveData(mean1, stdDev);
+                const data2 = getCurveData(mean2, stdDev);
+
+                path1.datum(data1).transition().duration(200).attr("d", area);
+                path2.datum(data2).transition().duration(200).attr("d", area);
+
+                const { t, p } = simpleTTest(mean1, mean2, stdDev);
+
+                tValueDisplay.text(t.toFixed(3));
+                pValueDisplay.text(p.toFixed(3));
+
+                if (p < 0.05) {
+                    sigText.text("Significant!");
+                    sigResult.classed("significant", true).classed("not-significant", false);
+                } else {
+                    sigText.text("Not Significant");
+                    sigResult.classed("significant", false).classed("not-significant", true);
+                }
+            }
+
+            meanDiffSlider.on("input", update);
+            stdDevSlider.on("input", update);
+
+            update();
+        })();
+
+        /*
+        =========================================================
+        ★  CHI-SQUARE VISUALIZER LOGIC
+        =========================================================
+        */
+        (function setupChiSquare() {
+            let counts = {
+                'a-success': 10,
+                'a-failure': 10,
+                'b-success': 10,
+                'b-failure': 10
+            };
+
+            function chiPvalue(chi) {
+                const z = Math.sqrt(chi);
+                var t = 1 / (1 + .2316419 * Math.abs(z));
+                var d = .3989423 * Math.exp(-z * z / 2);
+                var prob = d * t * (.3193815 + t * (-.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+                return 1 - ((z > 0) ? 1 - prob : prob);
+            }
+
+            function updateChi() {
+                d3.select("#obs-a-success").text(counts['a-success']);
+                d3.select("#obs-a-failure").text(counts['a-failure']);
+                d3.select("#obs-b-success").text(counts['b-success']);
+                d3.select("#obs-b-failure").text(counts['b-failure']);
+
+                const rowTotalA = counts['a-success'] + counts['a-failure'];
+                const rowTotalB = counts['b-success'] + counts['b-failure'];
+                const colTotalSuccess = counts['a-success'] + counts['b-success'];
+                const colTotalFailure = counts['a-failure'] + counts['b-failure'];
+                const grandTotal = rowTotalA + rowTotalB;
+
+                d3.select("#row-total-a").text(rowTotalA);
+                d3.select("#row-total-b").text(rowTotalB);
+                d3.select("#col-total-success").text(colTotalSuccess);
+                d3.select("#col-total-failure").text(colTotalFailure);
+                d3.select("#grand-total").text(grandTotal);
+
+                if (grandTotal === 0) return;
+
+                const expASuccess = (rowTotalA * colTotalSuccess) / grandTotal;
+                const expAFailure = (rowTotalA * colTotalFailure) / grandTotal;
+                const expBSuccess = (rowTotalB * colTotalSuccess) / grandTotal;
+                const expBFailure = (rowTotalB * colTotalFailure) / grandTotal;
+
+                d3.select("#exp-a-success").text(`(${expASuccess.toFixed(1)})`);
+                d3.select("#exp-a-failure").text(`(${expAFailure.toFixed(1)})`);
+                d3.select("#exp-b-success").text(`(${expBSuccess.toFixed(1)})`);
+                d3.select("#exp-b-failure").text(`(${expBFailure.toFixed(1)})`);
+
+                let chiSquare = 0;
+                if (expASuccess > 0) chiSquare += ((counts['a-success'] - expASuccess) ** 2) / expASuccess;
+                if (expAFailure > 0) chiSquare += ((counts['a-failure'] - expAFailure) ** 2) / expAFailure;
+                if (expBSuccess > 0) chiSquare += ((counts['b-success'] - expBSuccess) ** 2) / expBSuccess;
+                if (expBFailure > 0) chiSquare += ((counts['b-failure'] - expBFailure) ** 2) / expBFailure;
+
+                const pValue = chiPvalue(chiSquare);
+
+                d3.select("#stat-chi-value").text(chiSquare.toFixed(3));
+                d3.select("#stat-chi-p-value").text(pValue.toFixed(3));
+
+                const sigResult = d3.select("#chi-significance-result");
+                const sigText = d3.select("#chi-significance-text");
+
+                if (pValue < 0.05) {
+                    sigText.text("Significant!");
+                    sigResult.classed("significant", true).classed("not-significant", false);
+                } else {
+                    sigText.text("Not Significant");
+                    sigResult.classed("significant", false).classed("not-significant", true);
+                }
+            }
+
+            d3.selectAll(".btn-add").on("click", function () {
+                const cell = d3.select(this).attr("data-cell");
+                counts[cell]++;
+                updateChi();
+            });
+
+            // ★★★★★★★★★★★★★★★★★★★★★★★
+            // ★  HERE IS THE FIX:  ★
+            // ★  It's now `() =>` instead of `()_ =>`
+            // ★★★★★★★★★★★★★★★★★★★★★★★
+            d3.select("#reset-chi-button").on("click", () => {
+                counts = {
+                    'a-success': 10, 'a-failure': 10,
+                    'b-success': 10, 'b-failure': 10
+                };
+                updateChi();
+            });
+
+            updateChi();
+        })();
+
+    </script>
+
+</body>
+</html>

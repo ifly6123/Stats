@@ -1,0 +1,1152 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 5: Experiment Workbench</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
+</head>
+<body>
+
+    <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; <span>Module 5</span>
+    </nav>
+
+    <header class="module-header">
+        <h1 class="gradient-text-purple">Module 5: The Experiment Workbench</h1>
+        <p>Analyze your own experimental data. Define your layout, enter your data, and get a complete analysis.</p>
+    </header>
+
+    <div class="workbench-wrapper">
+        <section class="workbench-panel" id="panel-setup">
+            <h2>1. Experiment Setup</h2>
+
+            <div class="control-group">
+                <label for="master-design-select">Experimental Design:</label>
+                <select id="master-design-select">
+                    <option value="crd">CRD (1-Factor)</option>
+                    <option value="rbd">RBD (1-Factor)</option>
+                    <option value="lsd">Latin Square Design (LSD)</option>
+                    <option value="factorial-crd">Factorial in CRD (2-Factor)</option>
+                    <option value="factorial-rbd">Factorial in RBD (2-Factor)</option>
+                    <option value="split-plot">Split-Plot Design</option>
+                    <option value="strip-plot">Strip-Plot Design</option>
+                </select>
+            </div>
+
+            <div id="dynamic-setup-options">
+                <div class="dynamic-option" data-design="crd rbd">
+                    <div class="control-group"><label for="setup-treatments">Number of Treatments (k):</label><input type="number" id="setup-treatments" value="4" min="2"></div>
+                    <div class="control-group"><label for="setup-reps-blocks">Number of Replications/Blocks:</label><input type="number" id="setup-reps-blocks" value="3" min="2"></div>
+                </div>
+
+                <div class="dynamic-option" data-design="lsd">
+                    <div class="control-group"><label for="setup-lsd-k">Number of Treatments (k):</label><input type="number" id="setup-lsd-k" value="4" min="3" max="8"></div>
+                </div>
+
+                <div class="dynamic-option factor-setup-group" data-design="factorial-crd factorial-rbd split-plot strip-plot">
+                    <strong>Factor A</strong>
+                    <div class="control-group-inline"><label for="factor-a-name">Name:</label><input type="text" id="factor-a-name" value="Nitrogen"></div>
+                    <div class="control-group-inline"><label for="factor-a-short">Short Form:</label><input type="text" id="factor-a-short" value="N" maxlength="3"></div>
+                    <div class="control-group-inline"><label for="factor-a-levels">Levels:</label><input type="number" id="factor-a-levels" value="3" min="2"></div>
+                </div>
+
+                <div class="dynamic-option factor-setup-group" data-design="factorial-crd factorial-rbd split-plot strip-plot">
+                    <strong>Factor B</strong>
+                    <div class="control-group-inline"><label for="factor-b-name">Name:</label><input type="text" id="factor-b-name" value="Variety"></div>
+                    <div class="control-group-inline"><label for="factor-b-short">Short Form:</label><input type="text" id="factor-b-short" value="V" maxlength="3"></div>
+                    <div class="control-group-inline"><label for="factor-b-levels">Levels:</label><input type="number" id="factor-b-levels" value="4" min="2"></div>
+                </div>
+
+                <div class="dynamic-option" data-design="factorial-crd factorial-rbd split-plot strip-plot">
+                    <div class="control-group"><label for="setup-reps-fac">Number of Replications/Blocks:</label><input type="number" id="setup-reps-fac" value="2" min="2"></div>
+                </div>
+
+                <div class="dynamic-option" data-design="rbd factorial-rbd">
+                    <label for="rbd-blocks-are">Blocks are (Replications):</label>
+                    <p>Each Replication grid below is treated as a Block.</p>
+                </div>
+
+                <div class="dynamic-option" data-design="split-plot">
+                    <label for="split-main-plot">Factor A (Main-plot) applied to:</label>
+                    <select id="split-main-plot-axis"><option value="rows">Rows</option><option value="cols">Columns</option></select>
+                    <p>Factor B (Sub-plot) applied across the other axis within main plots.</p>
+                </div>
+                <div class="dynamic-option" data-design="strip-plot">
+                    <label>Factor A (Rows), Factor B (Columns)</label>
+                    <p>Both factors randomly assigned to strips perpendicular to each other.</p>
+                </div>
+            </div>
+
+            <button id="create-grid-btn" class="btn-primary">Create Data Grid</button>
+        </section>
+
+        <section class="workbench-panel" id="panel-data">
+            <div class="panel-header">
+                <h2>2. Data Entry Grid</h2>
+                <button id="show-paste-btn" class="btn-secondary" disabled>Paste Data from Spreadsheet</button>
+            </div>
+
+            <div id="paste-data-container" style="display: none;">
+                <p>Paste data below. Columns needed depend on design (e.g., Rep, FactorA, FactorB, Value).</p>
+                <textarea id="paste-data-area" rows="8"></textarea>
+                <button id="fill-grid-btn" class="btn-primary">Fill Grid</button>
+                <button id="cancel-paste-btn" class="btn-secondary">Cancel</button>
+            </div>
+
+            <p id="data-grid-instructions">Select your design and click "Create Data Grid".</p>
+            <div id="data-grid-container"></div>
+            <button id="analyze-btn" class="btn-primary" disabled>Analyze My Experiment</button>
+            <div id="analysis-error-message" class="error-message"></div>
+        </section>
+
+        <section class="workbench-panel" id="panel-analysis">
+            <h2>3. Analysis Results</h2>
+            <div class="tab-nav" id="analysis-tabs">
+                <button class="tab-link active" data-tab="tab-anova">ANOVA Table</button>
+                <button class="tab-link" data-tab="tab-conclusion">Conclusion</button>
+                <button class="tab-link" data-tab="tab-heatmap">Field Heatmap</button>
+                <button class="tab-link" data-tab="tab-graphs">Mean Plots</button>
+            </div>
+            <div id="tab-anova" class="tab-content active"><p>Click "Analyze" to see your ANOVA table.</p></div>
+            <div id="tab-conclusion" class="tab-content"><p>Click "Analyze" to see your conclusion.</p></div>
+            <div id="tab-heatmap" class="tab-content"><p>Click "Analyze" to see heatmaps of your reps.</p></div>
+            <div id="tab-graphs" class="tab-content"><p>Click "Analyze" to see interaction and mean plots.</p></div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () { renderMathInElement(document.body, { delimiters: [{ left: "$", right: "$", display: false }] }); });</script>
+
+    <script>
+        /* ========================================================= */
+        /* ★ MODULE 5: WORKBENCH LOGIC ★                             */
+        /* ========================================================= */
+
+        // --- Globals ---
+        let experimentData = [];
+        let anovaResults = {};
+        let factorAName = 'Factor A', factorAShort = 'A';
+        let factorBName = 'Factor B', factorBShort = 'B';
+
+        // --- Analysis Panel Tab Logic ---
+        const analysisTabs = d3.selectAll("#analysis-tabs .tab-link");
+        const analysisContents = d3.selectAll("#panel-analysis .tab-content");
+        analysisTabs.on("click", function () {
+            const tabId = d3.select(this).attr("data-tab");
+            analysisTabs.classed("active", false);
+            d3.select(this).classed("active", true);
+            analysisContents.classed("active", false);
+            d3.select("#" + tabId).classed("active", true);
+        });
+
+        // --- Setup Panel Logic ---
+        const masterDesignSelect = d3.select("#master-design-select");
+        const dynamicOptions = d3.selectAll(".dynamic-option");
+        masterDesignSelect.on("change", function () {
+            const selectedDesign = d3.select(this).property("value");
+            dynamicOptions.style("display", "none");
+            dynamicOptions.each(function () {
+                const designs = d3.select(this).attr("data-design").split(' ');
+                if (designs.includes(selectedDesign)) {
+                    d3.select(this).style("display", "block");
+                }
+            });
+        });
+        masterDesignSelect.dispatch("change");
+
+        // --- Data Grid Creation Logic ---
+        const createGridBtn = d3.select("#create-grid-btn");
+        const gridContainer = d3.select("#data-grid-container");
+        const showPasteBtn = d3.select("#show-paste-btn");
+
+        createGridBtn.on("click", function () {
+            gridContainer.html("");
+            d3.select("#data-grid-instructions").style("display", "none");
+            d3.select("#analysis-error-message").text("");
+
+            const design = masterDesignSelect.property("value");
+            factorAName = d3.select("#factor-a-name").property("value");
+            factorAShort = d3.select("#factor-a-short").property("value");
+            factorBName = d3.select("#factor-b-name").property("value");
+            factorBShort = d3.select("#factor-b-short").property("value");
+
+            let success = false;
+            if (design === 'crd' || design === 'rbd') { success = buildGrid_1Factor(); }
+            else if (design === 'lsd') { success = buildGrid_LSD(); }
+            else if (design.includes('factorial') || design.includes('split') || design.includes('strip')) { success = buildGrid_2Factor(); }
+
+            if (success) {
+                d3.select("#analyze-btn").property("disabled", false);
+                showPasteBtn.property("disabled", false);
+            } else {
+                d3.select("#analyze-btn").property("disabled", true);
+                showPasteBtn.property("disabled", true);
+            }
+        });
+
+        function buildGrid_1Factor() {
+            const k = +d3.select("#setup-treatments").property("value");
+            const reps = +d3.select("#setup-reps-blocks").property("value");
+            const table = gridContainer.append("table").attr("class", "data-entry-grid");
+            const thead = table.append("thead");
+            const headerRow = thead.append("tr");
+            headerRow.append("th").text("Treatment");
+            for (let i = 1; i <= reps; i++) {
+                headerRow.append("th").text(`Rep/Block ${i}`);
+            }
+            const tbody = table.append("tbody");
+            for (let r = 1; r <= k; r++) {
+                const dataRow = tbody.append("tr");
+                dataRow.append("th").text(`T${r}`);
+                for (let c = 1; c <= reps; c++) {
+                    dataRow.append("td").append("input").attr("type", "number").attr("class", "grid-value-input")
+                        .attr("data-treatment", `T${r}`).attr("data-rep", c).attr("placeholder", "Value");
+                }
+            }
+            return true;
+        }
+
+        function buildGrid_LSD() {
+            const k = +d3.select("#setup-lsd-k").property("value");
+            gridContainer.append("p").text(`Enter one Treatment (e.g., A, B, C...) and one Value for each of the ${k * k} plots.`);
+            const table = gridContainer.append("table").attr("class", "data-entry-grid lsd-grid");
+            const thead = table.append("thead");
+            const headerRow = thead.append("tr");
+            headerRow.append("th").text("");
+            for (let c = 1; c <= k; c++) { headerRow.append("th").text(`Column ${c}`); }
+            const tbody = table.append("tbody");
+            for (let r = 1; r <= k; r++) {
+                const dataRow = tbody.append("tr");
+                dataRow.append("th").text(`Row ${r}`);
+                for (let c = 1; c <= k; c++) {
+                    const cell = dataRow.append("td");
+                    cell.append("input").attr("type", "text").attr("class", "grid-lsd-treatment").attr("placeholder", "Trt")
+                        .attr("data-row", r).attr("data-col", c);
+                    cell.append("input").attr("type", "number").attr("class", "grid-lsd-value").attr("placeholder", "Value")
+                        .attr("data-row", r).attr("data-col", c);
+                }
+            }
+            return true;
+        }
+
+        function buildGrid_2Factor() {
+            const factorALevels = +d3.select("#factor-a-levels").property("value");
+            const factorBLevels = +d3.select("#factor-b-levels").property("value");
+            const reps = +d3.select("#setup-reps-fac").property("value");
+
+            for (let i = 1; i <= reps; i++) {
+                gridContainer.append("h3").text(`Replication / Block ${i}`);
+                const table = gridContainer.append("table").attr("class", "data-entry-grid");
+                const thead = table.append("thead");
+                const headerRow = thead.append("tr");
+                headerRow.append("th").text(factorAName);
+                for (let c = 1; c <= factorBLevels; c++) { headerRow.append("th").text(`${factorBShort}${c}`); }
+                const tbody = table.append("tbody");
+                for (let r = 1; r <= factorALevels; r++) {
+                    const dataRow = tbody.append("tr");
+                    dataRow.append("th").text(`${factorAShort}${r}`);
+                    for (let c = 1; c <= factorBLevels; c++) {
+                        dataRow.append("td").append("input").attr("type", "number").attr("class", "grid-value-input")
+                            .attr("data-rep", i).attr("data-factor-a", `${factorAShort}${r}`).attr("data-factor-b", `${factorBShort}${c}`)
+                            .attr("placeholder", "Value");
+                    }
+                }
+            }
+            return true;
+        }
+
+        // --- Paste Data Logic ---
+        const pasteContainer = d3.select("#paste-data-container");
+        const pasteArea = d3.select("#paste-data-area");
+        const fillGridBtn = d3.select("#fill-grid-btn");
+        const cancelPasteBtn = d3.select("#cancel-paste-btn");
+
+        showPasteBtn.on("click", function () {
+            pasteContainer.style("display", "block");
+            showPasteBtn.style("display", "none");
+        });
+
+        cancelPasteBtn.on("click", function () {
+            pasteContainer.style("display", "none");
+            showPasteBtn.style("display", "block");
+            pasteArea.property("value", "");
+        });
+
+        fillGridBtn.on("click", function () {
+            const pastedText = pasteArea.property("value").trim();
+            const lines = pastedText.split('\n');
+            const design = masterDesignSelect.property("value");
+            try {
+                if (design === 'crd' || design === 'rbd') { parseAndFill_1Factor(lines, design); }
+                else if (design === 'lsd') { parseAndFill_LSD(lines); }
+                else if (design.includes('factorial') || design.includes('split') || design.includes('strip')) { parseAndFill_2Factor(lines, design); }
+                cancelPasteBtn.dispatch("click");
+            } catch (error) {
+                alert(`Error parsing data: ${error.message}`);
+                console.error("Paste Error:", error);
+            }
+        });
+
+        function parseAndFill_1Factor(lines) {
+            // Assumes columns: Treatment (can be number or T+number), Rep, Value
+            lines.forEach(line => {
+                const parts = line.split(/[\t,]/); // Split by tab or comma
+                if (parts.length < 3) return; // Skip invalid lines
+
+                let treatment = parts[0].trim(); // e.g., "1" or "T1"
+                const rep = parts[1].trim();       // e.g., "1"
+                const value = parts[2].trim();
+
+                // ★ FIX: Ensure treatment label starts with "T" ★
+                if (!isNaN(treatment) && !treatment.toUpperCase().startsWith('T')) {
+                    treatment = `T${treatment}`; // Prepend "T" if it's just a number
+                }
+
+                // Find the correct input using data attributes
+                const input = gridContainer.select(`input[data-treatment="${treatment}"][data-rep="${rep}"]`);
+                if (!input.empty()) {
+                    input.property("value", value);
+                } else {
+                    console.warn(`Could not find input for Treatment: ${treatment}, Rep: ${rep}`); // Helps debugging
+                }
+            });
+        }
+
+        function parseAndFill_LSD(lines) {
+            lines.forEach(line => {
+                const parts = line.split(/[\t,]/).map(p => p.trim());
+                if (parts.length < 4) {
+                    console.warn(`Skipping malformed paste line (LSD): ${line}`);
+                    return;
+                }
+                const row = parts[0];
+                const col = parts[1];
+                const treatment = parts[2];
+                const value = parts[3];
+                const trtInput = gridContainer.select(`input.grid-lsd-treatment[data-row="${row}"][data-col="${col}"]`);
+                const valInput = gridContainer.select(`input.grid-lsd-value[data-row="${row}"][data-col="${col}"]`);
+                if (!trtInput.empty()) trtInput.property("value", treatment);
+                if (!valInput.empty()) valInput.property("value", value);
+            });
+        }
+
+        function parseAndFill_2Factor(lines, design) {
+            let dataIndex = 0;
+            lines.forEach(line => {
+                const parts = line.split(/[\t,]/).map(p => p.trim());
+                if (parts.length < 4) {
+                    console.warn(`Skipping malformed paste line (2-factor/SP/STR): ${line}`);
+                    return;
+                }
+                const rep = parts[0];
+                const factorA = parts[1];
+                const factorB = parts[2];
+                const value = parts[3];
+                const input = gridContainer.select(`input.grid-value-input[data-rep="${rep}"][data-factor-a="${factorA}"][data-factor-b="${factorB}"]`);
+                if (!input.empty()) {
+                    input.property("value", value);
+                    dataIndex++;
+                } else {
+                    console.warn(`Could not find input for Rep:${rep}, A:${factorA}, B:${factorB} in 2-factor paste.`);
+                }
+            });
+
+            if (dataIndex === 0 && lines.length > 0) { // Fallback for simple paste of just values
+                console.log("Attempting sequential fill for 2-factor grid...");
+                let currentInputIndex = 0;
+                gridContainer.selectAll("input.grid-value-input").each(function (d, i) {
+                    if (lines[currentInputIndex]) {
+                        const val = lines[currentInputIndex].split(/[\t,]/)[0].trim();
+                        if (!isNaN(parseFloat(val)) && isFinite(val)) {
+                            d3.select(this).property("value", val);
+                        }
+                        currentInputIndex++;
+                    }
+                });
+            }
+        }
+
+        /*
+        =========================================================
+        ★  ANALYSIS ENGINE
+        =========================================================
+        */
+
+        const analyzeBtn = d3.select("#analyze-btn");
+        const analysisErrorMsg = d3.select("#analysis-error-message");
+
+        analyzeBtn.on("click", analyzeExperiment);
+
+        function analyzeExperiment() {
+            analysisErrorMsg.text("");
+
+            try {
+                const design = masterDesignSelect.property("value");
+                readDataFromGrid(design);
+
+                if (design === 'crd') anovaResults = calculateANOVA_CRD(experimentData);
+                else if (design === 'rbd') anovaResults = calculateANOVA_RBD(experimentData);
+                else if (design === 'lsd') anovaResults = calculateANOVA_LSD(experimentData);
+                else if (design === 'factorial-crd') anovaResults = calculateANOVA_FactorialCRD(experimentData);
+                else if (design === 'factorial-rbd') anovaResults = calculateANOVA_FactorialRBD(experimentData);
+                else if (design === 'split-plot') anovaResults = calculateANOVA_SplitPlot(experimentData);
+                else if (design === 'strip-plot') anovaResults = calculateANOVA_StripPlot(experimentData);
+                else { throw new Error("Analysis for this design is not yet implemented."); }
+
+                calculatePValues(anovaResults);
+
+                displayAnovaTable(anovaResults, design); // Pass design for specific source names
+                displayConclusion(anovaResults, design);
+                displayHeatmaps(experimentData, design);
+                displayMeanPlots(anovaResults, design);
+
+            } catch (error) {
+                analysisErrorMsg.text(`Analysis Error: ${error.message}`);
+                console.error("Analysis Error:", error);
+                d3.select("#tab-anova").html("<p>Analysis failed. Check error message above.</p>");
+                d3.select("#tab-conclusion").html("<p>Analysis failed.</p>");
+                d3.select("#tab-heatmap").html("<p>Analysis failed.</p>");
+                d3.select("#tab-graphs").html("<p>Analysis failed.</p>");
+            }
+        }
+
+        // --- Data Reading Functions ---
+        function readDataFromGrid(design) {
+            experimentData = []; // Clear previous data
+            if (design === 'crd' || design === 'rbd') {
+                gridContainer.selectAll("input.grid-value-input").each(function () {
+                    const input = d3.select(this);
+                    const value = +input.property("value");
+                    if (isNaN(value)) throw new Error("All value inputs must contain valid numbers.");
+                    experimentData.push({
+                        treatment: input.attr("data-treatment"),
+                        block: input.attr("data-rep"), // Use rep as block for RBD
+                        value: value
+                    });
+                });
+            } else if (design === 'lsd') {
+                gridContainer.selectAll("input.grid-lsd-value").each(function () {
+                    const valInput = d3.select(this);
+                    const row = valInput.attr("data-row");
+                    const col = valInput.attr("data-col");
+                    const value = +valInput.property("value");
+                    if (isNaN(value)) throw new Error(`Invalid value in Row ${row}, Col ${col}.`);
+
+                    const trtInput = gridContainer.select(`input.grid-lsd-treatment[data-row="${row}"][data-col="${col}"]`);
+                    const treatment = trtInput.property("value").trim();
+                    if (!treatment) throw new Error(`Missing treatment in Row ${row}, Col ${col}.`);
+
+                    experimentData.push({ row: row, col: col, treatment: treatment, value: value });
+                });
+                // Basic LSD validation: check if each trt appears once per row/col (can be more rigorous)
+                const k = +d3.select("#setup-lsd-k").property("value");
+                const trtsInRows = d3.rollup(experimentData, v => new Set(v.map(d => d.treatment)).size, d => d.row);
+                const trtsInCols = d3.rollup(experimentData, v => new Set(v.map(d => d.treatment)).size, d => d.col);
+                trtsInRows.forEach((count, row) => { if (count !== k) throw new Error(`LSD: Row ${row} does not have ${k} unique treatments.`); });
+                trtsInCols.forEach((count, col) => { if (count !== k) throw new Error(`LSD: Column ${col} does not have ${k} unique treatments.`); });
+
+            } else if (design.includes('factorial') || design === 'split-plot' || design === 'strip-plot') {
+                gridContainer.selectAll("input.grid-value-input").each(function () {
+                    const input = d3.select(this);
+                    const value = +input.property("value");
+                    if (isNaN(value)) throw new Error("All value inputs must contain valid numbers.");
+                    experimentData.push({
+                        rep: input.attr("data-rep"),
+                        factorA: input.attr("data-factor-a"),
+                        factorB: input.attr("data-factor-b"),
+                        value: value
+                    });
+                });
+            }
+            if (experimentData.length === 0) throw new Error("No data found or read from grid.");
+        }
+
+        // --- ANOVA Calculation Functions ---
+        function calculateANOVA_CRD(data) {
+            const n = data.length;
+            const grandMean = d3.mean(data, d => d.value);
+            const TotalSS = d3.sum(data, d => (d.value - grandMean) ** 2);
+            const df_total = n - 1;
+
+            const treatmentGroups = d3.group(data, d => d.treatment);
+            const k = treatmentGroups.size;
+            const df_trt = k - 1;
+            let SST = 0;
+            treatmentGroups.forEach(values => { SST += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            const df_error = df_total - df_trt;
+            if (df_error <= 0) throw new Error("Degrees of freedom for error must be > 0. Add more replications.");
+            const SSE = TotalSS - SST;
+            const MST = SST / df_trt;
+            const MSE = SSE / df_error;
+            const F = (MSE === 0) ? 0 : MST / MSE;
+
+            return {
+                rows: [
+                    { source: 'Treatment', df: df_trt, SS: SST, MS: MST, F: F, df_err: df_error },
+                    { source: 'Error', df: df_error, SS: SSE, MS: MSE, F: null },
+                    { source: 'Total', df: df_total, SS: TotalSS, MS: null, F: null }
+                ],
+                treatmentMeans: Array.from(treatmentGroups, ([key, values]) => ({ treatment: key, mean: d3.mean(values, d => d.value) }))
+            };
+        }
+
+        function calculateANOVA_RBD(data) {
+            const n = data.length;
+            const grandMean = d3.mean(data, d => d.value);
+            const TotalSS = d3.sum(data, d => (d.value - grandMean) ** 2);
+            const df_total = n - 1;
+
+            const treatmentGroups = d3.group(data, d => d.treatment);
+            const k = treatmentGroups.size;
+            const df_trt = k - 1;
+            let SST = 0;
+            treatmentGroups.forEach(values => { SST += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            const blockGroups = d3.group(data, d => d.block);
+            const b = blockGroups.size;
+            const df_block = b - 1;
+            let SSB = 0;
+            blockGroups.forEach(values => { SSB += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            const df_error = df_total - df_trt - df_block;
+            if (df_error <= 0) throw new Error("Degrees of freedom for error must be > 0. Check data or add more replications.");
+
+            const SSE = TotalSS - SST - SSB;
+            const MST = SST / df_trt;
+            const MSB = SSB / df_block;
+            const MSE = SSE / df_error;
+            const F_trt = (MSE === 0) ? 0 : MST / MSE;
+            const F_block = (MSE === 0) ? 0 : MSB / MSE; // Typically not tested for RBD, but good to have.
+
+            return {
+                rows: [
+                    { source: 'Replication', df: df_block, SS: SSB, MS: MSB, F: F_block, df_err: df_error },
+                    { source: 'Treatment', df: df_trt, SS: SST, MS: MST, F: F_trt, df_err: df_error },
+                    { source: 'Error', df: df_error, SS: SSE, MS: MSE, F: null },
+                    { source: 'Total', df: df_total, SS: TotalSS, MS: null, F: null }
+                ],
+                treatmentMeans: Array.from(treatmentGroups, ([key, values]) => ({ treatment: key, mean: d3.mean(values, d => d.value) }))
+            };
+        }
+
+        function calculateANOVA_LSD(data) {
+            const k = +d3.select("#setup-lsd-k").property("value");
+            const n = k * k;
+            if (data.length !== n) throw new Error(`Expected ${n} data points for a ${k}x${k} LSD, but found ${data.length}.`);
+
+            const grandMean = d3.mean(data, d => d.value);
+            const TotalSS = d3.sum(data, d => (d.value - grandMean) ** 2);
+            const df_total = n - 1;
+
+            const rowGroups = d3.group(data, d => d.row);
+            const df_row = k - 1;
+            let SSR = 0;
+            rowGroups.forEach(values => { SSR += k * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            const colGroups = d3.group(data, d => d.col);
+            const df_col = k - 1;
+            let SSC = 0;
+            colGroups.forEach(values => { SSC += k * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            const treatmentGroups = d3.group(data, d => d.treatment);
+            if (treatmentGroups.size !== k) throw new Error(`Expected ${k} unique treatments, but found ${treatmentGroups.size}. Check grid entries.`);
+            const df_trt = k - 1;
+            let SST = 0;
+            treatmentGroups.forEach(values => {
+                if (values.length !== k) throw new Error(`Treatment ${values[0].treatment} does not appear ${k} times.`);
+                SST += k * (d3.mean(values, d => d.value) - grandMean) ** 2;
+            });
+
+            const df_error = df_total - df_row - df_col - df_trt;
+            if (df_error <= 0) throw new Error("Degrees of freedom for error must be > 0. Check data consistency (e.g., all treatments appear in all rows/cols).");
+
+            const SSE = TotalSS - SSR - SSC - SST;
+            const MSR = SSR / df_row;
+            const MSC = SSC / df_col;
+            const MST = SST / df_trt;
+            const MSE = SSE / df_error;
+            const F_trt = (MSE === 0) ? 0 : MST / MSE;
+
+            return {
+                rows: [
+                    { source: 'Row', df: df_row, SS: SSR, MS: MSR, F: null }, // F-test for these typically not performed or interpreted
+                    { source: 'Column', df: df_col, SS: SSC, MS: MSC, F: null },
+                    { source: 'Treatment', df: df_trt, SS: SST, MS: MST, F: F_trt, df_err: df_error },
+                    { source: 'Error', df: df_error, SS: SSE, MS: MSE, F: null },
+                    { source: 'Total', df: df_total, SS: TotalSS, MS: null, F: null }
+                ],
+                treatmentMeans: Array.from(treatmentGroups, ([key, values]) => ({ treatment: key, mean: d3.mean(values, d => d.value) }))
+            };
+        }
+
+        function calculateANOVA_FactorialCRD(data) {
+            const n = data.length;
+            const grandMean = d3.mean(data, d => d.value);
+            const TotalSS = d3.sum(data, d => (d.value - grandMean) ** 2);
+            const df_total = n - 1;
+
+            const factorAGroups = d3.group(data, d => d.factorA);
+            const a = factorAGroups.size;
+            const df_A = a - 1;
+            let SSA = 0;
+            factorAGroups.forEach(values => { SSA += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            const factorBGroups = d3.group(data, d => d.factorB);
+            const b = factorBGroups.size;
+            const df_B = b - 1;
+            let SSB = 0;
+            factorBGroups.forEach(values => { SSB += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            const treatmentGroups = d3.group(data, d => `${d.factorA}_${d.factorB}`);
+            let SST = 0; // SS for Treatment Combinations A*B
+            treatmentGroups.forEach(values => { SST += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            const df_AB = (a - 1) * (b - 1);
+            const SSAB = SST - SSA - SSB; // Interaction SS
+
+            const df_error = df_total - df_A - df_B - df_AB;
+            if (df_error <= 0) throw new Error("Degrees of freedom for error must be > 0. Check factor levels and replications.");
+
+            const SSE = TotalSS - SST;
+            const MSA = SSA / df_A;
+            const MSB = SSB / df_B;
+            const MSAB = SSAB / df_AB;
+            const MSE = SSE / df_error;
+            const F_A = (MSE === 0) ? 0 : MSA / MSE;
+            const F_B = (MSE === 0) ? 0 : MSB / MSE;
+            const F_AB = (MSE === 0) ? 0 : MSAB / MSE;
+
+            return {
+                rows: [
+                    { source: factorAName, df: df_A, SS: SSA, MS: MSA, F: F_A, df_err: df_error },
+                    { source: factorBName, df: df_B, SS: SSB, MS: MSB, F: F_B, df_err: df_error },
+                    { source: `${factorAShort} x ${factorBShort}`, df: df_AB, SS: SSAB, MS: MSAB, F: F_AB, df_err: df_error },
+                    { source: 'Error', df: df_error, SS: SSE, MS: MSE, F: null },
+                    { source: 'Total', df: df_total, SS: TotalSS, MS: null, F: null }
+                ],
+                factorAMeans: Array.from(factorAGroups, ([key, values]) => ({ level: key, mean: d3.mean(values, d => d.value) })),
+                factorBMeans: Array.from(factorBGroups, ([key, values]) => ({ level: key, mean: d3.mean(values, d => d.value) })),
+                treatmentMeans: Array.from(treatmentGroups, ([key, values]) => ({ treatment: key, mean: d3.mean(values, d => d.value), factorA: values[0].factorA, factorB: values[0].factorB }))
+            };
+        }
+
+        function calculateANOVA_FactorialRBD(data) {
+            const n = data.length;
+            const grandMean = d3.mean(data, d => d.value);
+            const TotalSS = d3.sum(data, d => (d.value - grandMean) ** 2);
+            const df_total = n - 1;
+
+            const blockGroups = d3.group(data, d => d.rep); // Reps are blocks
+            const r = blockGroups.size;
+            const df_block = r - 1;
+            let SSB = 0;
+            blockGroups.forEach(values => { SSB += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            const factorAGroups = d3.group(data, d => d.factorA);
+            const a = factorAGroups.size;
+            const df_A = a - 1;
+            let SSA = 0;
+            factorAGroups.forEach(values => { SSA += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            const factorBGroups = d3.group(data, d => d.factorB);
+            const b = factorBGroups.size;
+            const df_B = b - 1;
+            let SSB_factor = 0;
+            factorBGroups.forEach(values => { SSB_factor += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            const treatmentGroups = d3.group(data, d => `${d.factorA}_${d.factorB}`);
+            let SST = 0; // SS for Treatment Combinations (A, B, AB combined)
+            treatmentGroups.forEach(values => { SST += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            const df_AB = (a - 1) * (b - 1);
+            const SSAB = SST - SSA - SSB_factor; // Interaction SS
+
+            const df_error = df_total - df_block - df_A - df_B - df_AB;
+            if (df_error <= 0) throw new Error("Degrees of freedom for error must be > 0. Check factor levels, reps, and data.");
+
+            const SSE = TotalSS - SSB - SST;
+            const MSB = SSB / df_block;
+            const MSA = SSA / df_A;
+            const MSB_factor = SSB_factor / df_B;
+            const MSAB = SSAB / df_AB;
+            const MSE = SSE / df_error;
+
+            const F_A = (MSE === 0) ? 0 : MSA / MSE;
+            const F_B = (MSE === 0) ? 0 : MSB_factor / MSE;
+            const F_AB = (MSE === 0) ? 0 : MSAB / MSE;
+
+            return {
+                rows: [
+                    { source: 'Replication', df: df_block, SS: SSB, MS: MSB, F: null }, // Usually don't test Block F
+                    { source: factorAName, df: df_A, SS: SSA, MS: MSA, F: F_A, df_err: df_error },
+                    { source: factorBName, df: df_B, SS: SSB_factor, MS: MSB_factor, F: F_B, df_err: df_error },
+                    { source: `${factorAShort} x ${factorBShort}`, df: df_AB, SS: SSAB, MS: MSAB, F: F_AB, df_err: df_error },
+                    { source: 'Error', df: df_error, SS: SSE, MS: MSE, F: null },
+                    { source: 'Total', df: df_total, SS: TotalSS, MS: null, F: null }
+                ],
+                factorAMeans: Array.from(factorAGroups, ([key, values]) => ({ level: key, mean: d3.mean(values, d => d.value) })),
+                factorBMeans: Array.from(factorBGroups, ([key, values]) => ({ level: key, mean: d3.mean(values, d => d.value) })),
+                treatmentMeans: Array.from(treatmentGroups, ([key, values]) => ({ treatment: key, mean: d3.mean(values, d => d.value), factorA: values[0].factorA, factorB: values[0].factorB }))
+            };
+        }
+
+        function calculateANOVA_SplitPlot(data) {
+            const r = +d3.select("#setup-reps-fac").property("value"); // Number of Replications (Blocks)
+            const a = +d3.select("#factor-a-levels").property("value"); // Levels of Factor A (Whole Plot)
+            const b = +d3.select("#factor-b-levels").property("value"); // Levels of Factor B (Sub Plot)
+            const n = r * a * b;
+
+            if (data.length !== n) throw new Error(`Expected ${n} data points for Split-Plot, but found ${data.length}.`);
+
+            const grandMean = d3.mean(data, d => d.value);
+            const TotalSS = d3.sum(data, d => (d.value - grandMean) ** 2);
+            const df_total = n - 1;
+
+            // SS_Replication (Block)
+            const repGroups = d3.group(data, d => d.rep);
+            const df_rep = r - 1;
+            let SSRep = 0;
+            repGroups.forEach(values => { SSRep += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            // SS_Factor A (Whole Plot)
+            const factorAGroups = d3.group(data, d => d.factorA);
+            const df_A = a - 1;
+            let SSA = 0;
+            factorAGroups.forEach(values => { SSA += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            // SS_Error_A (Error for Whole Plot)
+            const repByAGroups = d3.group(data, d => `${d.rep}_${d.factorA}`);
+            let SSRepA = 0;
+            repByAGroups.forEach(values => { SSRepA += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+            const SS_Error_A = SSRepA - SSRep - SSA;
+            const df_Error_A = r * (a - 1) - (r - 1) - (a - 1) === (r - 1) * (a - 1) ? (r - 1) * (a - 1) : null;
+            if (df_Error_A === null || df_Error_A <= 0) throw new Error("Could not calculate DF for Error A. Check data or setup.");
+            const MS_Error_A = SS_Error_A / df_Error_A;
+            const F_A = (MS_Error_A === 0) ? 0 : SSA / MS_Error_A;
+
+            // SS_Factor B (Sub Plot)
+            const factorBGroups = d3.group(data, d => d.factorB);
+            const df_B = b - 1;
+            let SSB = 0;
+            factorBGroups.forEach(values => { SSB += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            // SS_Interaction AB
+            const AB_Groups = d3.group(data, d => `${d.factorA}_${d.factorB}`);
+            let SSAB_total = 0;
+            AB_Groups.forEach(values => { SSAB_total += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+            const SSAB = SSAB_total - SSA - SSB;
+            const df_AB = (a - 1) * (b - 1);
+
+            // SS_Error_B (Error for Sub Plot)
+            const repByABGroups = d3.group(data, d => `${d.rep}_${d.factorA}_${d.factorB}`);
+            let SSrepAB_total = 0;
+            repByABGroups.forEach(values => { SSrepAB_total += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+            const SS_Error_B = TotalSS - SSRep - SSA - SS_Error_A - SSB - SSAB; // Or TotalSS - (SSRepA + SSB + SSAB)
+            const df_Error_B = df_total - df_rep - df_A - df_Error_A - df_B - df_AB;
+            if (df_Error_B <= 0) throw new Error("Degrees of freedom for Error B must be > 0. Check data or setup.");
+
+            const MSB_factor = SSB / df_B;
+            const MSAB = SSAB / df_AB;
+            const MS_Error_B = SS_Error_B / df_Error_B;
+
+            const F_B = (MS_Error_B === 0) ? 0 : MSB_factor / MS_Error_B;
+            const F_AB = (MS_Error_B === 0) ? 0 : MSAB / MS_Error_B;
+
+            return {
+                rows: [
+                    { source: 'Replication', df: df_rep, SS: SSRep, MS: SSRep / df_rep, F: null },
+                    { source: factorAName, df: df_A, SS: SSA, MS: SSA / df_A, F: F_A, df_err: df_Error_A },
+                    { source: `Error (A)`, df: df_Error_A, SS: SS_Error_A, MS: MS_Error_A, F: null },
+                    { source: factorBName, df: df_B, SS: SSB, MS: MSB_factor, F: F_B, df_err: df_Error_B },
+                    { source: `${factorAShort} x ${factorBShort}`, df: df_AB, SS: SSAB, MS: MSAB, F: F_AB, df_err: df_Error_B },
+                    { source: `Error (B)`, df: df_Error_B, SS: SS_Error_B, MS: MS_Error_B, F: null },
+                    { source: 'Total', df: df_total, SS: TotalSS, MS: null, F: null }
+                ],
+                factorAMeans: Array.from(factorAGroups, ([key, values]) => ({ level: key, mean: d3.mean(values, d => d.value) })),
+                factorBMeans: Array.from(factorBGroups, ([key, values]) => ({ level: key, mean: d3.mean(values, d => d.value) })),
+                treatmentMeans: Array.from(AB_Groups, ([key, values]) => ({ treatment: key, mean: d3.mean(values, d => d.value), factorA: values[0].factorA, factorB: values[0].factorB }))
+            };
+        }
+
+        function calculateANOVA_StripPlot(data) {
+            const r = +d3.select("#setup-reps-fac").property("value"); // Number of Replications (Blocks)
+            const a = +d3.select("#factor-a-levels").property("value"); // Levels of Factor A (Horizontal Strips)
+            const b = +d3.select("#factor-b-levels").property("value"); // Levels of Factor B (Vertical Strips)
+            const n = r * a * b;
+
+            if (data.length !== n) throw new Error(`Expected ${n} data points for Strip-Plot, but found ${data.length}.`);
+
+            const grandMean = d3.mean(data, d => d.value);
+            const TotalSS = d3.sum(data, d => (d.value - grandMean) ** 2);
+            const df_total = n - 1;
+
+            // SS_Replication (Block)
+            const repGroups = d3.group(data, d => d.rep);
+            const df_rep = r - 1;
+            let SSRep = 0;
+            repGroups.forEach(values => { SSRep += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            // SS_Factor A
+            const factorAGroups = d3.group(data, d => d.factorA);
+            const df_A = a - 1;
+            let SSA = 0;
+            factorAGroups.forEach(values => { SSA += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            // SS_Error A (Horizontal Strip Error)
+            const repByAGroups = d3.group(data, d => `${d.rep}_${d.factorA}`);
+            let SSRepA = 0;
+            repByAGroups.forEach(values => { SSRepA += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+            const SS_Error_A = SSRepA - SSRep - SSA;
+            const df_Error_A = (r - 1) * (a - 1);
+            if (df_Error_A <= 0) throw new Error("Degrees of freedom for Error A must be > 0. Check data or setup.");
+            const MS_Error_A = SS_Error_A / df_Error_A;
+            const F_A = (MS_Error_A === 0) ? 0 : SSA / MS_Error_A;
+
+            // SS_Factor B
+            const factorBGroups = d3.group(data, d => d.factorB);
+            const df_B = b - 1;
+            let SSB = 0;
+            factorBGroups.forEach(values => { SSB += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+
+            // SS_Error B (Vertical Strip Error)
+            const repByBGroups = d3.group(data, d => `${d.rep}_${d.factorB}`);
+            let SSRepB = 0;
+            repByBGroups.forEach(values => { SSRepB += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+            const SS_Error_B = SSRepB - SSRep - SSB;
+            const df_Error_B = (r - 1) * (b - 1);
+            if (df_Error_B <= 0) throw new Error("Degrees of freedom for Error B must be > 0. Check data or setup.");
+            const MS_Error_B = SS_Error_B / df_Error_B;
+            const F_B = (MS_Error_B === 0) ? 0 : SSB / MS_Error_B;
+
+            // SS_Interaction AB
+            const AB_Groups = d3.group(data, d => `${d.factorA}_${d.factorB}`);
+            let SSAB_total = 0;
+            AB_Groups.forEach(values => { SSAB_total += values.length * (d3.mean(values, d => d.value) - grandMean) ** 2; });
+            const SSAB = SSAB_total - SSA - SSB;
+            const df_AB = (a - 1) * (b - 1);
+
+            // SS_Error C (Interaction Error) - calculated by subtraction
+            const SSE_Interaction = TotalSS - SSRep - SSA - SS_Error_A - SSB - SS_Error_B - SSAB;
+            const df_Error_C = df_total - df_rep - df_A - df_Error_A - df_B - df_Error_B - df_AB;
+            if (df_Error_C <= 0) throw new Error("Degrees of freedom for Error C (Interaction) must be > 0. Check data or setup.");
+
+            const MSAB = SSAB / df_AB;
+            const MS_Error_C = SSE_Interaction / df_Error_C;
+            const F_AB = (MS_Error_C === 0) ? 0 : MSAB / MS_Error_C;
+
+            return {
+                rows: [
+                    { source: 'Replication', df: df_rep, SS: SSRep, MS: SSRep / df_rep, F: null },
+                    { source: factorAName, df: df_A, SS: SSA, MS: SSA / df_A, F: F_A, df_err: df_Error_A },
+                    { source: `Error (A)`, df: df_Error_A, SS: SS_Error_A, MS: MS_Error_A, F: null },
+                    { source: factorBName, df: df_B, SS: SSB, MS: SSB / df_B, F: F_B, df_err: df_Error_B },
+                    { source: `Error (B)`, df: df_Error_B, SS: SS_Error_B, MS: MS_Error_B, F: null },
+                    { source: `${factorAShort} x ${factorBShort}`, df: df_AB, SS: SSAB, MS: MSAB, F: F_AB, df_err: df_Error_C },
+                    { source: `Error (AB)`, df: df_Error_C, SS: SSE_Interaction, MS: MS_Error_C, F: null },
+                    { source: 'Total', df: df_total, SS: TotalSS, MS: null, F: null }
+                ],
+                factorAMeans: Array.from(factorAGroups, ([key, values]) => ({ level: key, mean: d3.mean(values, d => d.value) })),
+                factorBMeans: Array.from(factorBGroups, ([key, values]) => ({ level: key, mean: d3.mean(values, d => d.value) })),
+                treatmentMeans: Array.from(AB_Groups, ([key, values]) => ({ treatment: key, mean: d3.mean(values, d => d.value), factorA: values[0].factorA, factorB: values[0].factorB }))
+            };
+        }
+
+
+        // --- P-Value Calculation ---
+        function calculatePValues(results) {
+            results.rows.forEach(row => {
+                if (row.F !== null && row.df !== null && row.df > 0 && row.df_err !== null && row.df_err > 0) {
+                    row.p = 1 - jStat.centralF.cdf(row.F, row.df, row.df_err);
+                } else {
+                    row.p = null;
+                }
+            });
+        }
+
+        // --- Display Functions ---
+        function displayAnovaTable(results, design) {
+            const tableDiv = d3.select("#tab-anova").html(""); // Clear previous
+            tableDiv.append("h3").text("ANOVA Table"); // Add a title
+
+            const tbody = tableDiv.append("table").attr("class", "anova-table").append("tbody");
+
+            // Header row now includes P-value, matching your image
+            tbody.append("tr").selectAll("th")
+                .data(["Source of Variation", "DF", "Sum of Squares", "Mean Squares", "F-Calculated", "Significance"])
+                .join("th")
+                .text(d => d);
+
+            results.rows.forEach(row => {
+                tbody.append("tr")
+                    .html(`
+                            <th>${row.source}</th>
+                            <td>${row.df}</td>
+                            <td>${row.SS.toFixed(3)}</td>
+                            <td>${row.MS !== null ? row.MS.toFixed(3) : ''}</td>
+                            <td>${row.F !== null ? row.F.toFixed(3) : ''}</td>
+                            <td class="${row.p !== null && row.p < 0.05 ? 'significant' : ''}">${row.p !== null ? row.p.toFixed(5) : ''}</td>
+                        `);
+            });
+        }
+
+        function displayConclusion(results, design) {
+            const conclusionDiv = d3.select("#tab-conclusion").html("");
+            let significantSources = [];
+            const alpha = 0.05; // Significance level
+
+            results.rows.forEach(row => {
+                // Only consider sources that have an F-test and a p-value
+                if (row.p !== null && row.F !== null && row.source !== 'Replication' && row.source !== 'Row' && row.source !== 'Column' && !row.source.startsWith('Error') && row.source !== 'Total') {
+                    if (row.p < alpha) {
+                        significantSources.push({ source: row.source, p: row.p });
+                    }
+                }
+            });
+
+            if (significantSources.length > 0) {
+                conclusionDiv.append("h4").text("Statistically Significant Effects (p < 0.05):");
+                const ul = conclusionDiv.append("ul");
+                significantSources.forEach(sig => {
+                    ul.append("li").html(`<strong>${sig.source}</strong> (p = ${sig.p.toFixed(5)})`);
+                });
+
+                // Specific interpretation for Factorial and complex designs
+                if (design.includes('factorial') || design === 'split-plot' || design === 'strip-plot') {
+                    const interactionRow = results.rows.find(r => r.source === `${factorAShort} x ${factorBShort}`);
+                    if (interactionRow && interactionRow.p !== null && interactionRow.p < alpha) {
+                        conclusionDiv.append("p").html(`<strong>Important:</strong> The <strong>${factorAShort} x ${factorBShort} interaction</strong> is significant (p = ${interactionRow.p.toFixed(5)}). This means the effect of ${factorAName} depends on the level of ${factorBName}, and vice-versa. Interpret main effects (Factor A, Factor B) with caution; focus on the interaction plot.`);
+                    } else if (interactionRow && interactionRow.p !== null && interactionRow.p >= alpha) {
+                        conclusionDiv.append("p").html(`The ${factorAShort} x ${factorBShort} interaction is NOT statistically significant (p = ${interactionRow.p.toFixed(5)}). Therefore, the main effects of ${factorAName} and ${factorBName} can be interpreted independently.`);
+                    }
+                }
+
+            } else {
+                conclusionDiv.append("p").text("No statistically significant effects (at p < 0.05) were found for the main experimental factors in this analysis.");
+            }
+        }
+
+        // --- Graph Functions ---
+        function displayHeatmaps(data, design) {
+            const heatmapDiv = d3.select("#tab-heatmap").html("");
+
+            // Group data by Rep/Block
+            const reps = d3.group(data, d => d.rep || d.block || 0);
+
+            reps.forEach((repData, repKey) => {
+                const currentRepKey = (repKey === 0 && (design === 'crd' || design === 'rbd')) ? "All Replications (CRD/RBD)" : `Replication / Block ${repKey}`;
+                heatmapDiv.append("h4").text(`Heatmap for ${currentRepKey}`);
+
+                const plotData = [];
+                let maxRows = 0, maxCols = 0;
+
+                if (design === 'lsd') {
+                    const k = +d3.select("#setup-lsd-k").property("value");
+                    maxRows = k; maxCols = k;
+                    // LSD data already has row/col attributes
+                    repData.forEach(d => plotData.push({ row: +d.row - 1, col: +d.col - 1, value: d.value, trt: d.treatment }));
+                } else if (design.includes('factorial') || design === 'split-plot' || design === 'strip-plot') {
+                    maxRows = +d3.select("#factor-a-levels").property("value");
+                    maxCols = +d3.select("#factor-b-levels").property("value");
+
+                    const factorALevels = [...new Set(repData.map(d => d.factorA))].sort();
+                    const factorBLevels = [...new Set(repData.map(d => d.factorB))].sort();
+
+                    repData.forEach(d => plotData.push({
+                        row: factorALevels.indexOf(d.factorA),
+                        col: factorBLevels.indexOf(d.factorB),
+                        value: d.value,
+                        factorA: d.factorA,
+                        factorB: d.factorB
+                    }));
+                } else if (design === 'crd' || design === 'rbd') {
+                    // For 1-factor designs, we just lay out the treatments sequentially
+                    const k = +d3.select("#setup-treatments").property("value");
+                    const reps = +d3.select("#setup-reps-blocks").property("value");
+
+                    // Assuming repData for 1-factor design contains all data if repKey is 0,
+                    // or grouped by block for RBD
+                    let currentPlotData = [];
+                    if (design === 'crd') { // All treatments in one "block" for CRD heatmap
+                        currentPlotData = data;
+                    } else { // RBD, grouped by block
+                        currentPlotData = repData;
+                    }
+
+                    const treatments = [...new Set(currentPlotData.map(d => d.treatment))].sort();
+                    const valuesByTrtRep = d3.rollup(currentPlotData, v => d3.mean(v, d => d.value), d => d.treatment, d => d.block);
+
+                    maxRows = treatments.length;
+                    maxCols = reps; // Number of replications/blocks
+
+                    for (let rIdx = 0; rIdx < treatments.length; rIdx++) {
+                        for (let cIdx = 1; cIdx <= reps; cIdx++) { // Reps are 1-indexed
+                            const trt = treatments[rIdx];
+                            const val = valuesByTrtRep.get(trt) ? valuesByTrtRep.get(trt).get(String(cIdx)) : undefined;
+                            if (val !== undefined) {
+                                plotData.push({
+                                    row: rIdx,
+                                    col: cIdx - 1,
+                                    value: val,
+                                    treatment: trt,
+                                    rep: cIdx
+                                });
+                            }
+                        }
+                    }
+                    // For CRD, we'll draw one combined heatmap
+                    if (design === 'crd' && repKey !== 0) return;
+                    // If it's RBD, we iterate through blocks, so each block gets its own table.
+                    // The above logic for CRD should only create one heatmap for "All Replications".
+                    // For RBD, repKey will be 1, 2, 3... and we'll group by actual 'rep' attribute in the data.
+                }
+
+                if (plotData.length === 0) {
+                    heatmapDiv.append("p").text("Not enough data to generate heatmap for this replication/block.");
+                    return;
+                }
+
+                const allValues = plotData.map(d => d.value);
+                const colorScale = d3.scaleSequential(d3.interpolateRdYlGn).domain([d3.min(allValues), d3.max(allValues)]);
+
+                const margin = { top: 5, right: 5, bottom: 20, left: 20 };
+                const plotSize = 40;
+                const width = maxCols * plotSize;
+                const height = maxRows * plotSize;
+
+                const svg = heatmapDiv.append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+                svg.selectAll("rect")
+                    .data(plotData)
+                    .join("rect")
+                    .attr("x", d => d.col * plotSize)
+                    .attr("y", d => d.row * plotSize)
+                    .attr("width", plotSize)
+                    .attr("height", plotSize)
+                    .attr("fill", d => colorScale(d.value))
+                    .attr("stroke", "#ccc")
+                    .append("title")
+                    .text(d => {
+                        if (design === 'lsd') return `Row: ${d.row + 1}, Col: ${d.col + 1}\nTrt: ${d.trt}\nValue: ${d.value.toFixed(2)}`;
+                        if (design.includes('factorial') || design === 'split-plot' || design === 'strip-plot') return `Factor A: ${d.factorA}, Factor B: ${d.factorB}\nValue: ${d.value.toFixed(2)}`;
+                        return `Treatment: ${d.treatment}, Rep: ${d.rep}\nValue: ${d.value.toFixed(2)}`;
+                    });
+            });
+        }
+
+        function displayMeanPlots(results, design) {
+            const graphsDiv = d3.select("#tab-graphs").html("");
+            const margin = { top: 20, right: 20, bottom: 60, left: 60 }; // Increased bottom/left for labels
+            const width = 400 - margin.left - margin.right;
+            const height = 250 - margin.top - margin.bottom;
+
+            function drawBarChart(data, xKey, yKey = 'mean', title, xLabel, container) {
+                const svg = container.append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+                const xScale = d3.scaleBand().domain(data.map(d => d[xKey])).range([0, width]).padding(0.2);
+                const yScale = d3.scaleLinear().domain([0, d3.max(data, d => d[yKey]) * 1.1]).range([height, 0]);
+
+                svg.append("g")
+                    .attr("transform", `translate(0, ${height})`)
+                    .call(d3.axisBottom(xScale))
+                    .selectAll("text")
+                    .attr("transform", "rotate(-45)")
+                    .style("text-anchor", "end");
+                svg.append("g").call(d3.axisLeft(yScale));
+
+                svg.selectAll("rect").data(data).join("rect")
+                    .attr("x", d => xScale(d[xKey]))
+                    .attr("y", d => yScale(d[yKey]))
+                    .attr("width", xScale.bandwidth())
+                    .attr("height", d => height - yScale(d[yKey]))
+                    .attr("fill", "#6f42c1");
+
+                svg.append("text").attr("x", width / 2).attr("y", -5).attr("text-anchor", "middle").style("font-weight", "bold").text(title);
+                svg.append("text").attr("x", width / 2).attr("y", height + margin.bottom - 10).attr("text-anchor", "middle").text(xLabel);
+                svg.append("text").attr("transform", "rotate(-90)").attr("y", 0 - margin.left + 15).attr("x", 0 - (height / 2)).attr("text-anchor", "middle").text("Mean Value");
+            }
+
+            // CRD/RBD/LSD 1-Factor Plots
+            if (results.treatmentMeans && (design === 'crd' || design === 'rbd' || design === 'lsd')) {
+                drawBarChart(results.treatmentMeans, 'treatment', 'mean', 'Mean by Treatment', 'Treatment', graphsDiv);
+            }
+
+            // Factorial/Split-Plot/Strip-Plot Main Effects
+            if (results.factorAMeans) {
+                drawBarChart(results.factorAMeans, 'level', 'mean', `Mean by ${factorAName}`, factorAName, graphsDiv);
+            }
+            if (results.factorBMeans) {
+                drawBarChart(results.factorBMeans, 'level', 'mean', `Mean by ${factorBName}`, factorBName, graphsDiv);
+            }
+
+            // Interaction Plot for 2-Factor Designs
+            if (design.includes('factorial') || design === 'split-plot' || design === 'strip-plot') {
+                graphsDiv.append("h4").text(`${factorAName} x ${factorBName} Interaction Plot`);
+                const interactionSvg = graphsDiv.append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+                const factorALevels = [...new Set(results.treatmentMeans.map(d => d.factorA))].sort();
+                const factorBLevels = [...new Set(results.treatmentMeans.map(d => d.factorB))].sort();
+                const allMeans = results.treatmentMeans.map(d => d.mean);
+
+                const xScale = d3.scalePoint().domain(factorALevels).range([0, width]).padding(0.5);
+                const yScale = d3.scaleLinear().domain([d3.min(allMeans) * 0.9, d3.max(allMeans) * 1.1]).range([height, 0]);
+
+                interactionSvg.append("g")
+                    .attr("transform", `translate(0, ${height})`)
+                    .call(d3.axisBottom(xScale))
+                    .selectAll("text")
+                    .attr("transform", "rotate(-45)")
+                    .style("text-anchor", "end");
+                interactionSvg.append("g").call(d3.axisLeft(yScale));
+
+                const line = d3.line().x(d => xScale(d.factorA)).y(d => yScale(d.mean));
+                const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(factorBLevels);
+
+                factorBLevels.forEach(levelB => {
+                    const lineData = results.treatmentMeans.filter(d => d.factorB === levelB).sort((a, b) => factorALevels.indexOf(a.factorA) - factorALevels.indexOf(b.factorA));
+                    interactionSvg.append("path").datum(lineData)
+                        .attr("class", "interaction-line")
+                        .attr("d", line)
+                        .style("stroke", colorScale(levelB))
+                        .style("fill", "none")
+                        .style("stroke-width", 2);
+
+                    interactionSvg.selectAll(`.dot-${levelB}`).data(lineData).enter().append("circle")
+                        .attr("class", `interaction-dot dot-${levelB}`)
+                        .attr("cx", d => xScale(d.factorA)).attr("cy", d => yScale(d.mean))
+                        .attr("r", 4).style("fill", colorScale(levelB));
+
+                    // Add legend/label
+                    interactionSvg.append("text").datum(lineData[lineData.length - 1])
+                        .attr("transform", d => `translate(${xScale(d.factorA)}, ${yScale(d.mean)})`)
+                        .attr("x", 5).attr("dy", "0.35em").style("fill", colorScale(levelB))
+                        .style("font-size", "10px").text(levelB);
+                });
+                interactionSvg.append("text").attr("x", width / 2).attr("y", height + margin.bottom - 10).attr("text-anchor", "middle").text(factorAName);
+                interactionSvg.append("text").attr("transform", "rotate(-90)").attr("y", 0 - margin.left + 15).attr("x", 0 - (height / 2)).attr("text-anchor", "middle").text("Mean Value");
+            }
+        }
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,383 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 2: Relationship Explorer</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+
+    <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; <span>Module 2</span>
+    </nav>
+
+    <header class="module-header">
+        <h1 class="gradient-text-orange">Module 2: The Relationship Explorer</h1>
+        <p>Visually discover correlation and regression using our three tools.</p>
+    </header>
+
+    <div class="tab-nav">
+        <button class="tab-link active" data-tab="tab-playground">Playground</button>
+        <button class="tab-link" data-tab="tab-calculator">Calculator</button>
+        <button class="tab-link" data-tab="tab-concepts">Concepts</button>
+    </div>
+
+    <main class="content-wrapper">
+
+        <div id="tab-playground" class="tab-content active">
+            <div class="viz-container">
+                <div id="scatterplot"></div>
+            </div>
+            <div class="controls-container">
+                <h2>Live Statistics</h2>
+                <p><strong>Click on the chart</strong> to add data points.</p>
+                <div classs="stats-box-wrapper">
+                    <div class="stats-box" id="playground-stats-box">
+                        <div class="stat">
+                            <strong>Correlation (r):</strong>
+                            <span id="stat-correlation">N/A</span>
+                        </div>
+                        <div class="stat">
+                            <strong>R-squared (R²):</strong>
+                            <span id="stat-rsquared">N/A</span>
+                        </div>
+                        <div class="stat">
+                            <strong>Regression Line:</strong>
+                            <span id="stat-equation">N/A</span>
+                        </div>
+                    </div>
+                </div>
+                <button id="reset-button" class="btn-danger">Clear Plot</button>
+            </div>
+        </div>
+
+        <div id="tab-calculator" class="tab-content">
+            <div class="calculator-container">
+                <h2>Regression Calculator</h2>
+                <p>Enter your data, with each value on a new line. Make sure you have the same number of $x$ and $y$ values.</p>
+                <div class="data-input-grid">
+                    <div class="input-group">
+                        <label for="x-values">X Values (Independent)</label>
+                        <textarea id="x-values" rows="10" placeholder="1
+2
+3
+4"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="y-values">Y Values (Dependent)</label>
+                        <textarea id="y-values" rows="10" placeholder="2.5
+3.8
+5.1
+6.2"></textarea>
+                    </div>
+                </div>
+                <button id="calculate-button" class="btn-primary">Calculate</button>
+            </div>
+            <div class="controls-container">
+                <h2>Results</h2>
+                <p>Your calculated regression statistics.</p>
+                <div classs="stats-box-wrapper">
+                    <div class="stats-box" id="calculator-stats-box">
+                        <div class="stat">
+                            <strong>Correlation (r):</strong>
+                            <span id="calc-stat-correlation">N/A</span>
+                        </div>
+                        <div class="stat">
+                            <strong>R-squared (R²):</strong>
+                            <span id="calc-stat-rsquared">N/A</span>
+                        </div>
+                        <div class="stat">
+                            <strong>Regression Line:</strong>
+                            <span id="calc-stat-equation">N/A</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="calc-error-message" class="error-message"></div>
+            </div>
+        </div>
+
+        <div id="tab-concepts" class="tab-content">
+            <div class="concept-container">
+                <h2>Key Concepts</h2>
+
+                <h3>What is Correlation?</h3>
+                <p><strong>Correlation</strong> (often shown as $r$) measures the <strong>strength and direction</strong> of a *linear* relationship between two variables. Its value is always between -1 and +1:</p>
+                <ul>
+                    <li><strong>$r = +1$:</strong> A perfect positive linear relationship. As $x$ increases, $y$ increases perfectly.</li>
+                    <li><strong>$r = -1$:</strong> A perfect negative linear relationship. As $x$ increases, $y$ decreases perfectly.</li>
+                    <li><strong>$r = 0$:</strong> No linear relationship at all. The points are randomly scattered.</li>
+                </ul>
+
+                <h3>What is Regression?</h3>
+                <p><strong>Regression Analysis</strong> finds the "line of best fit" (called the regression line) that describes the relationship between variables. The goal is to create a mathematical model, usually in the form <strong>$y = b_1x + b_0$</strong>, that can predict the value of $y$ given a value of $x$.</p>
+                <ul>
+                    <li><strong>$b_1$:</strong> The **slope** of the line. It tells you how much $y$ is expected to change for every one-unit increase in $x$.</li>
+                    <li><strong>$b_0$:</strong> The **y-intercept**. It's the predicted value of $y$ when $x$ is equal to 0.</li>
+                </ul>
+
+                <h3>Correlation vs. Causation: The Big Warning!</h3>
+                <p>This is the most important rule in statistics: <strong>Correlation does not imply causation.</strong></p>
+                <p>Just because two variables are strongly correlated (e.g., $r = 0.9$) does not *prove* that one causes the other. They could both be caused by a hidden third variable (a "confounding variable").</p>
+                <p><strong>Example:</strong> Ice cream sales and crime rates are strongly correlated. Does eating ice cream cause crime? No. The confounding variable is **hot weather**, which causes both more people to buy ice cream and more people to be outside, leading to more crime.</p>
+
+                <h3>What is R-squared ($R^2$)?</h3>
+                <p><strong>R-squared</strong> (or the Coefficient of Determination) is just $r$ multiplied by itself ($r \times r$). It tells you the <strong>percentage of variation</strong> in the $y$ variable that can be *explained* by the $x$ variable.</p>
+                <ul>
+                    <li>An $R^2$ of 0.85 means that 85% of the change in $y$ can be explained by the changes in $x$.</li>
+                    <li>This is a very common measure of how well your model (the regression line) fits the data.</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            renderMathInElement(document.body, {
+                // This tells KaTeX to look for $...$
+                delimiters: [
+                    { left: "$", right: "$", display: false }
+                ]
+            });
+        });
+    </script>
+
+    <script>
+        /*
+        =========================================================
+        ★  REUSABLE STATISTICS CALCULATION ENGINE
+        =========================================================
+        */
+        function calculateStatistics(data) {
+            const result = {
+                r: null,
+                rSquared: null,
+                equation: "N/A",
+                b1: null,
+                b0: null,
+                error: null
+            };
+
+            if (data.length < 2) {
+                result.error = "Not enough data.";
+                return result;
+            }
+
+            const xMean = d3.mean(data, d => d.x);
+            const yMean = d3.mean(data, d => d.y);
+
+            let num = 0, den = 0;
+            data.forEach(d => {
+                num += (d.x - xMean) * (d.y - yMean);
+                den += (d.x - xMean) ** 2;
+            });
+
+            if (den === 0) {
+                result.error = "Cannot calculate: X values have no variance.";
+                return result;
+            }
+
+            const b1 = num / den; // Slope
+            const b0 = yMean - (b1 * xMean); // Intercept
+
+            result.b1 = b1;
+            result.b0 = b0;
+
+            // ★★★★★★★★★★★★★★★★★★★★★★★
+            // ★  HERE IS THE FIX:  ★
+            // ★  It now correctly says `b0` instead of `bBETb0`
+            // ★★★★★★★★★★★★★★★★★★★★★★★
+            result.equation = `y = ${b1.toFixed(3)}x + ${b0.toFixed(3)}`;
+
+            let xStdDev = d3.deviation(data, d => d.x);
+            let yStdDev = d3.deviation(data, d => d.y);
+
+            if (xStdDev === 0 || yStdDev === 0) {
+                result.r = 0;
+                result.rSquared = 0;
+            } else {
+                const r = num / ((data.length - 1) * xStdDev * yStdDev);
+                result.r = r;
+                result.rSquared = r ** 2;
+            }
+
+            return result;
+        }
+
+        /*
+        =========================================================
+        ★  TAB NAVIGATION LOGIC
+        =========================================================
+        */
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const tabId = link.getAttribute('data-tab');
+
+                // Update tab links
+                tabLinks.forEach(item => item.classList.remove('active'));
+                link.classList.add('active');
+
+                // Update tab content
+                tabContents.forEach(content => {
+                    if (content.id === tabId) {
+                        content.classList.add('active');
+                    } else {
+                        content.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        /*
+        =========================================================
+        ★  TAB 1: D3.js PLAYGROUND LOGIC
+        =========================================================
+        */
+        (function setupPlayground() {
+            const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+            const width = 600 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
+            let playgroundData = [];
+
+            const svg = d3.select("#scatterplot")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+            const xScale = d3.scaleLinear().domain([0, 100]).range([0, width]);
+            const yScale = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+
+            svg.append("g").attr("class", "axis").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
+            svg.append("g").attr("class", "axis").call(d3.axisLeft(yScale));
+
+            const regressionLine = svg.append("line").attr("class", "regression-line");
+
+            // Invisible click listener
+            svg.append("rect")
+                .attr("width", width)
+                .attr("height", height)
+                .style("fill", "none")
+                .style("pointer-events", "all")
+                .on("click", (event) => {
+                    const [mouseX, mouseY] = d3.pointer(event);
+                    const x = xScale.invert(mouseX);
+                    const y = yScale.invert(mouseY);
+
+                    if (x >= 0 && x <= 100 && y >= 0 && y <= 100) {
+                        playgroundData.push({ x: x, y: y });
+                        updatePlayground();
+                    }
+                });
+
+            d3.select("#reset-button").on("click", () => {
+                playgroundData = [];
+                updatePlayground();
+            });
+
+            function updatePlayground() {
+                // Update circles
+                const circles = svg.selectAll("circle").data(playgroundData);
+                circles.enter()
+                    .append("circle")
+                    .attr("cx", d => xScale(d.x))
+                    .attr("cy", d => yScale(d.y))
+                    .attr("r", 0)
+                    .attr("class", "data-point")
+                    .transition().duration(300)
+                    .attr("r", 5);
+                circles.exit().transition().duration(200).attr("r", 0).remove();
+
+                // Get stats
+                const stats = calculateStatistics(playgroundData);
+
+                // Update stats box
+                d3.select("#stat-correlation").text(stats.r ? stats.r.toFixed(3) : "N/A");
+                d3.select("#stat-rsquared").text(stats.rSquared ? stats.rSquared.toFixed(3) : "N/A");
+                d3.select("#stat-equation").text(stats.equation);
+
+                // Update regression line
+                if (stats.b1 !== null && stats.b0 !== null) {
+                    const x1 = 0, y1 = stats.b0;
+                    const x2 = 100, y2 = stats.b1 * 100 + stats.b0;
+
+                    regressionLine
+                        .style("opacity", 1)
+                        .transition().duration(200)
+                        .attr("x1", xScale(x1))
+                        .attr("y1", yScale(y1))
+                        .attr("x2", xScale(x2))
+                        .attr("y2", yScale(y2));
+                } else {
+                    regressionLine.style("opacity", 0);
+                }
+            }
+            updatePlayground();
+        })();
+
+        /*
+        =========================================================
+        ★  TAB 2: CALCULATOR LOGIC
+        =========================================================
+        */
+        (function setupCalculator() {
+            const xInput = d3.select("#x-values");
+            const yInput = d3.select("#y-values");
+            const errorMsg = d3.select("#calc-error-message");
+
+            d3.select("#calculate-button").on("click", () => {
+                errorMsg.text(""); // Clear old errors
+
+                // Parse data
+                const xVals = xInput.property("value").split('\n').filter(Boolean).map(Number);
+                const yVals = yInput.property("value").split('\n').filter(Boolean).map(Number);
+
+                // Validate data
+                if (xVals.length !== yVals.length) {
+                    errorMsg.text("Error: X and Y must have the same number of values.");
+                    return;
+                }
+                if (xVals.length === 0) {
+                    errorMsg.text("Error: No data entered.");
+                    return;
+                }
+                if (xVals.some(isNaN) || yVals.some(isNaN)) {
+                    errorMsg.text("Error: Data must contain numbers only.");
+                    return;
+                }
+
+                // Format data for our engine
+                const calcData = xVals.map((val, index) => ({ x: val, y: yVals[index] }));
+
+                // Calculate stats
+                const stats = calculateStatistics(calcData);
+
+                if (stats.error) {
+                    errorMsg.text(`Error: ${stats.error}`);
+                    d3.select("#calc-stat-correlation").text("N/A");
+                    d3.select("#calc-stat-rsquared").text("N/A");
+                    d3.select("#calc-stat-equation").text("N/A");
+                } else {
+                    // Update stats box
+                    d3.select("#calc-stat-correlation").text(stats.r.toFixed(4));
+                    d3.select("#calc-stat-rsquared").text(stats.rSquared.toFixed(4));
+                    d3.select("#calc-stat-equation").text(stats.equation);
+                }
+            });
+        })();
+
+    </script>
+</body>
+</html>
